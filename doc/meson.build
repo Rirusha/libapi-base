@@ -35,7 +35,7 @@ custom_target(
     '--verbose',
     '--force',
     '-o', meson.current_build_dir() / versioned_name,
-    '--doclet-arg=lib/' + meson.project_name() + '.h',
+    '--doclet-arg=lib/' + libapi_base_header,
     '--doclet=gtkdoc',
   ],
   build_by_default: true,
