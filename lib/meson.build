@@ -19,7 +19,7 @@ libapi_base_sources = [
 ]
 
 libapi_base = shared_library(
-  versioned_name,
+  'api-base',
   libapi_base_sources,
   dependencies: libapi_base_dependencies,
   vala_header: libapi_base_header,
