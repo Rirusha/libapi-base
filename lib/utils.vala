@@ -126,9 +126,9 @@ namespace ApiBase {
     }
 
     /**
-     * Convert ``CamelCase`` to ``kebab-case`` string
+     * Convert ``сamelCase`` to ``kebab-case`` string
      *
-     * @param camel_string correct ``CamelCase`` string
+     * @param camel_string correct ``сamelCase`` string
      *
      * @return ``kebab-case`` string
      *
@@ -152,11 +152,11 @@ namespace ApiBase {
     }
 
     /**
-     * Convert ``kebab-case`` to ``CamelCase`` string
+     * Convert ``kebab-case`` to ``сamelCase`` string
      *
      * @param kebab_string correct ``kebab-case`` string
      *
-     * @return ``CamelCase`` string
+     * @return ``сamelCase`` string
      *
      * @since 0.1.0
      */
