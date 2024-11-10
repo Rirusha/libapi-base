@@ -30,6 +30,12 @@ libapi_base = shared_library(
   install_dir: [ true, true, true, true ],
 )
 
+libgvc_dep = declare_dependency(
+  link_with: libapi_base,
+  include_directories: include_directories('.'),
+  dependencies: libapi_base_dependencies
+)
+
 deps_conf = configuration_data()
 deps_conf.set ('DEPS',  '\n'.join (deps_pkgs))
 
