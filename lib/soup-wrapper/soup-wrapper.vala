@@ -146,20 +146,25 @@ public sealed class ApiBase.SoupWrapper : Object {
         }
     }
 
-    void add_params_to_uri (string[,]? parameters, ref string uri) {
-        string[] parameters_pairs = new string[parameters.length[0]];
+    void add_params_to_uri (Parameter[] parameters, ref string uri) {
+        var final_parameters = new Gee.ArrayList<string> ();
 
-        for (int i = 0; i < parameters.length[0]; i++) {
-            parameters_pairs[i] = parameters[i, 0] + "=" + Uri.escape_string (parameters[i, 1]);
+        foreach (var parameter in parameters) {
+            if (parameter.value != null) {
+                final_parameters.add ("%s=%s".printf (
+                    parameter.name,
+                    Uri.escape_string (parameter.value)
+                ));
+            }
         }
 
-        uri += "?" + string.joinv ("&", parameters_pairs);
+        uri += "?%s".printf (string.joinv ("&", final_parameters.to_array ()));
     }
 
     Soup.Message message_get (
         owned string uri,
         string[]? header_preset_names = null,
-        string[,]? parameters = null,
+        Parameter[]? parameters = null,
         Header[]? headers = null
     ) {
         if (parameters != null) {
@@ -184,7 +189,7 @@ public sealed class ApiBase.SoupWrapper : Object {
         owned string uri,
         string[]? header_preset_names = null,
         PostContent? post_content = null,
-        string[,]? parameters = null,
+        Parameter[]? parameters = null,
         Header[]? headers = null
     ) {
         if (parameters != null) {
@@ -269,7 +274,7 @@ public sealed class ApiBase.SoupWrapper : Object {
     public new GLib.Bytes @get (
         owned string uri,
         string[]? header_preset_names = null,
-        string[,]? parameters = null,
+        Parameter[]? parameters = null,
         Header[]? headers = null,
         Cancellable? cancellable = null
     ) throws CommonError, BadStatusCodeError {
@@ -287,7 +292,7 @@ public sealed class ApiBase.SoupWrapper : Object {
         owned string uri,
         string[]? header_preset_names = null,
         PostContent? post_content = null,
-        string[,]? parameters = null,
+        Parameter[]? parameters = null,
         Header[]? headers = null,
         Cancellable? cancellable = null
     ) throws CommonError, BadStatusCodeError {
@@ -361,7 +366,7 @@ public sealed class ApiBase.SoupWrapper : Object {
     public async new GLib.Bytes get_async (
         owned string uri,
         string[]? header_preset_names = null,
-        string[,]? parameters = null,
+        Parameter[]? parameters = null,
         Header[]? headers = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
@@ -380,7 +385,7 @@ public sealed class ApiBase.SoupWrapper : Object {
         owned string uri,
         string[]? header_preset_names = null,
         PostContent? post_content = null,
-        string[,]? parameters = null,
+        Parameter[]? parameters = null,
         Header[]? headers = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
