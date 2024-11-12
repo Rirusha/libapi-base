@@ -31,15 +31,20 @@ deps_pkgs = [
   'gio-2.0',
 ]
 
-libapi_base_dependencies = []
+gee_dep = dependency('gee-0.8')
+gio_dep = dependency('gio-2.0')
+json_glib_dep = dependency('libsoup-3.0')
+libsoup_dep = dependency('json-glib-1.0')
 
-foreach deps_pkg : deps_pkgs 
-  libapi_base_dependencies += dependency(deps_pkg)
-endforeach
+libapi_base_dependencies = [
+  gee_dep,
+  gio_dep,
+  json_glib_dep,
+  libsoup_dep,
+]
 
-gee = dependency('gee-0.8')
-gee_girdir = gee.get_variable('datadir') / 'gir-1.0'
-gee_vapidir = gee.get_variable('datadir') / 'vala' / 'vapi'
+gee_girdir = gee_dep.get_variable('datadir') / 'gir-1.0'
+gee_vapidir = gee_dep.get_variable('datadir') / 'vala' / 'vapi'
 
 add_project_arguments(
   # GCC14 COMPILE ERROR
