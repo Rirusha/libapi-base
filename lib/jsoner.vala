@@ -464,7 +464,7 @@ public class ApiBase.Jsoner : Object {
         }
 
         var jarray = node.get_array ();
- 
+
         if (array_list.element_type == typeof (ArrayList)) {
             var narray_list = array_list as ArrayList<ArrayList>;
 
