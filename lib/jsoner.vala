@@ -289,7 +289,7 @@ public class ApiBase.Jsoner : Object {
 
                 serialize_array (builder, array_list, element_type, names_case);
 
-            } else if (property.value_type.parent () == typeof (Object)) {
+            } else if (property.value_type.is_object ()) {
                 serialize_object (builder, (Object) prop_val.get_object (), names_case);
 
             } else {
@@ -507,22 +507,10 @@ public class ApiBase.Jsoner : Object {
         }
 
         var jarray = node.get_array ();
-
-        if (array_list.element_type.parent () == typeof (Object)) {
-            array_list.clear ();
-            var narray_list = array_list as ArrayList<Object>;
-
-            foreach (var sub_node in jarray.get_elements ()) {
-                try {
-                    narray_list.add (deserialize_object (narray_list.element_type, sub_node));
-                } catch (CommonError e) {}
-            }
-
-            // Нужен только для YaMAPI.Album.tracks, так как апи возвращает массив из массивов
-        } else if (array_list.element_type == typeof (ArrayList)) {
+ 
+        if (array_list.element_type == typeof (ArrayList)) {
             var narray_list = array_list as ArrayList<ArrayList>;
 
-            // Проверка, если ли в массиве массив, из которого будет взят тип
             assert (narray_list.size != 0);
 
             Type sub_element_type = narray_list[0].element_type;
@@ -546,6 +534,16 @@ public class ApiBase.Jsoner : Object {
             }
 
             narray_list.remove (narray_list[0]);
+        } else if (array_list.element_type.is_object ()) {
+            array_list.clear ();
+            var narray_list = array_list as ArrayList<Object>;
+
+            foreach (var sub_node in jarray.get_elements ()) {
+                try {
+                    narray_list.add (deserialize_object (narray_list.element_type, sub_node));
+                } catch (CommonError e) {}
+            }
+
         } else {
             array_list.clear ();
 
@@ -615,14 +613,7 @@ public class ApiBase.Jsoner : Object {
     ) {
         builder.begin_array ();
 
-        if (element_type.parent () == typeof (Object)) {
-            foreach (var api_obj in (ArrayList<Object>) array_list) {
-                yield serialize_object_async (builder, api_obj, names_case);
-
-                Idle.add (serialize_array_async.callback);
-                yield;
-            }
-        } else if (element_type == typeof (ArrayList)) {
+        if (element_type == typeof (ArrayList)) {
             var array_of_arrays = (ArrayList<ArrayList?>) array_list;
 
             if (array_of_arrays.size > 0) {
@@ -634,6 +625,13 @@ public class ApiBase.Jsoner : Object {
                     Idle.add (serialize_array_async.callback);
                     yield;
                 }
+            }
+        } else if (element_type.is_object ()) {
+            foreach (var api_obj in (ArrayList<Object>) array_list) {
+                yield serialize_object_async (builder, api_obj, names_case);
+
+                Idle.add (serialize_array_async.callback);
+                yield;
             }
         } else {
             switch (element_type) {
@@ -706,7 +704,7 @@ public class ApiBase.Jsoner : Object {
                 Type element_type = array_list.element_type;
 
                 yield serialize_array_async (builder, array_list, element_type, names_case);
-            } else if (property.value_type.parent () == typeof (Object)) {
+            } else if (property.value_type.is_object ()) {
                 yield serialize_object_async (builder, (Object) prop_val.get_object (), names_case);
             } else {
                 serialize_value (builder, prop_val);
@@ -854,21 +852,7 @@ public class ApiBase.Jsoner : Object {
 
         var jarray = node.get_array ();
 
-        if (array_list.element_type.parent () == typeof (Object)) {
-            array_list.clear ();
-            var narray_list = array_list as ArrayList<Object>;
-
-            foreach (var sub_node in jarray.get_elements ()) {
-                try {
-                    narray_list.add (yield deserialize_object_async (narray_list.element_type, sub_node));
-                } catch (CommonError e) {}
-
-                Idle.add (deserialize_array_async.callback);
-                yield;
-            }
-
-            // Нужен только для YaMAPI.Album.tracks, так как апи возвращает массив из массивов
-        } else if (array_list.element_type == typeof (ArrayList)) {
+        if (array_list.element_type == typeof (ArrayList)) {
             var narray_list = array_list as ArrayList<ArrayList>;
 
             // Проверка, если ли в массиве массив, из которого будет взят тип
@@ -898,6 +882,19 @@ public class ApiBase.Jsoner : Object {
             }
 
             narray_list.remove (narray_list[0]);
+        } else if (array_list.element_type.is_object ()) {
+            array_list.clear ();
+            var narray_list = array_list as ArrayList<Object>;
+
+            foreach (var sub_node in jarray.get_elements ()) {
+                try {
+                    narray_list.add (yield deserialize_object_async (narray_list.element_type, sub_node));
+                } catch (CommonError e) {}
+
+                Idle.add (deserialize_array_async.callback);
+                yield;
+            }
+
         } else {
             array_list.clear ();
 
