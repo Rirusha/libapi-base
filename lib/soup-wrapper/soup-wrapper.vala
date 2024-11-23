@@ -49,6 +49,15 @@ public sealed class ApiBase.SoupWrapper : Object {
         }
     }
 
+    /**
+     * @param cookie_jar_type   Type of cookie storage
+     *                          doesn't make sense if cookies_file_path
+     *                          is null
+     * @param user_agent        Session user agent
+     * @param cookies_file_path Path to cookie file
+     *                          if cookie_jar_type is null and file_path not null,
+     *                          assertion will be thrown
+     */
     public SoupWrapper (
         CookieJarType cookie_jar_type = NONE,
         string? user_agent = null,
@@ -127,6 +136,9 @@ public sealed class ApiBase.SoupWrapper : Object {
         }
     }
 
+    /**
+     * Add preset to session. Headers presets can be used later in requests
+     */
     public void add_headers_preset (string preset_name, Header[] headers_arr) {
         var headers = new Headers ();
         headers.set_headers (headers_arr);

@@ -24,25 +24,18 @@ using Gee;
  */
 public class ApiBase.Jsoner : Object {
 
-    /**
-     * Нейм кейс для десериализации
-     */
     public Case names_case { get; construct; }
 
-    /**
-     * Корневая нода, получается после прохождения по названиям элементов json,
-     * указанных в sub_members конструктора
-     */
     public Json.Node root { get; construct; }
 
     /**
-     * Базовый конструктор класса. Выполняет инициализацию для десериализации.
-     * Принимает json строку. В случе ошибки при парсинге,
-     * выбрасывает ``ApiBase.Error.PARSE_JSON``
+     * Performs initialization for deserialization. Accepts a json string. In case of
+     * a parsing error, it throws {@link CommonError.PARSE_JSON}
      *
-     * @param json_string   json строка
-     * @param sub_members   массив имён элементов json, по которым нужно пройти до целевой ноды
-     * @param names_case    нейм кейс имён элементов в json строке
+     * @param json_string   Corrent json string
+     * @param sub_members   An array of names of json elements that need to be traversed
+     *                      to the target node
+     * @param names_case    Name case of element names in a json string
      */
     public Jsoner (
         string json_string,
@@ -74,13 +67,13 @@ public class ApiBase.Jsoner : Object {
     }
 
     /**
-     * Конструктор класса. Выполняет инициализацию для десериализации.
-     * Принимает json строку в виде байтов, объекта ``GLib.Bytes``. В случе ошибки при парсинге,
-     * выбрасывает ``ApiBase.Error.PARSE_JSON``
+     * Performs initialization for deserialization. Accepts a json string in the
+     * form of bytes, the object {@link GLib.Bytes}. In case of a parsing error,
+     * it throws {@link CommonError.PARSE_JSON}
      *
-     * @param bytes         json строка в виде байтов, объекта ``GLib.Bytes``
-     * @param sub_members   массив имён элементов json, по которым нужно пройти до целевой ноды
-     * @param names_case    нейм кейс имён элементов в json строке
+     * @param bytes         Json string in the form of bytes, the object {@link GLib.Bytes}
+     * @param sub_members   An array of names of json elements that need to be traversed to the target node
+     * @param names_case    Name case of element names in a json string
      */
     public static Jsoner from_bytes (
         Bytes bytes,
@@ -95,13 +88,12 @@ public class ApiBase.Jsoner : Object {
     }
 
     /**
-     * Конструктор класса. Выполняет инициализацию для десериализации.
-     * Принимает json строку в виде байтов, массива ``uint8``. В случе ошибки при парсинге,
-     * выбрасывает ``ApiBase.Error.PARSE_JSON``
+     * Performs initialization for deserialization. Accepts a json string in the form of bytes,
+     * an {@link uint8} array. In case of a parsing error, it throws {@link CommonError.PARSE_JSON}
      *
-     * @param bytes         json строка в виде байтов, массива ``uint8``
-     * @param sub_members   массив имён элементов json, по которым нужно пройти до целевой ноды
-     * @param names_case    нейм кейс имён элементов в json строке
+     * @param bytes         json string in the form of bytes, {@link uint8} array
+     * @param sub_members   An array of names of json elements that need to be traversed to the target node
+     * @param names_case    Name case of element names in a json string
      */
     public static Jsoner from_data (
         uint8[] data,
@@ -111,15 +103,6 @@ public class ApiBase.Jsoner : Object {
         return new Jsoner ((string) data, sub_members, names_case);
     }
 
-    /**
-     * Функция для выполнения перехода в переданной ноде по названиям элементов.
-     * В случае, если элемент не найден, будет выкинута ``ApiBase.Error.PARSE_JSON``
-     *
-     * @param node          исходная json нода
-     * @param sub_members   массив "путь" имён элементов, по которому нужно пройти
-     *
-     * @return              целевая json нода
-     */
     static Json.Node? steps (
         Json.Node node,
         string[] sub_members
@@ -144,11 +127,11 @@ public class ApiBase.Jsoner : Object {
     /////////////////
 
     /**
-     * Функция для сериализации ``GLib.Datalist<string>`` в json строку.
+     * Serialize {@link GLib.Datalist<string>} into a correct json string
      *
-     * @param datalist  объект ``Glib.Datalist``, который нужно сериализовать
+     * @param datalist  {@link GLib.Datalist<string>}
      *
-     * @return          json строка
+     * @return          json string
      */
     public static string serialize_datalist (Datalist<string> datalist) {
         var builder = new Json.Builder ();
@@ -169,12 +152,12 @@ public class ApiBase.Jsoner : Object {
     }
 
     /**
-     * Функция для сериализации ``YaMObject`` в json строку.
+     * Serialize {@link Object} into a correct json string
      *
-     * @param datalist      объект ``YaMObject``, который нужно сериализовать
-     * @param names_case    нейм кейс имён элементов в json строке
+     * @param datalist      {@link Object}
+     * @param names_case    Name case of element names in a json string
      *
-     * @return              json строка
+     * @return              json string
      */
     public static string serialize (
         Object api_obj,
@@ -186,21 +169,6 @@ public class ApiBase.Jsoner : Object {
         return Json.to_string (builder.get_root (), false);
     }
 
-    /**
-     * Функция для сериализации ``Gee.ArrayList``.
-     * Элементы списка могут быть:
-     *  - ``Tape.YaMObject``
-     *  - ``string``
-     *  - ``int32``
-     *  - ``int64``
-     *  - ``double``
-     *  - ``Gee.ArrayList``
-     *
-     * @param builder       объект ``Json.Builder``
-     * @param array_list    объект ``Gee.ArrayList``, который нужно сериализовать
-     * @param element_type  тип элементов в array_list
-     * @param names_case    нейм кейс имён элементов в json строке
-     */
     static void serialize_array (
         Json.Builder builder,
         ArrayList array_list,
@@ -241,14 +209,6 @@ public class ApiBase.Jsoner : Object {
         builder.end_array ();
     }
 
-    /**
-     * Функция для сериализации ``ApiBase.Object`` или ``null``.
-     *
-     * @param builder       объект ``Json.Builder``
-     * @param api_obj       объект ``ApiBase.Object``, который нужно сериализовать.
-     *                      Может быть ``null``
-     * @param names_case    нейм кейс имён элементов в json строке
-     */
     static void serialize_object (
         Json.Builder builder,
         Object? api_obj,
@@ -305,13 +265,6 @@ public class ApiBase.Jsoner : Object {
         builder.end_object ();
     }
 
-    /**
-     * Функция для сериализации ``GLib.Value`` или ``null``.
-     *
-     * @param builder       объект ``Json.Builder``
-     * @param prop_val      значение базового типа, который нужно сериализовать.
-     *                      Может содержать ``null``
-     */
     static void serialize_value (Json.Builder builder, Value prop_val) {
         switch (prop_val.type ()) {
             case Type.INT:
@@ -349,13 +302,13 @@ public class ApiBase.Jsoner : Object {
     ///////////////////
 
     /**
-     * Метод для десериализации объекта ``ApiBase.Object``.
+     * Method for deserializing the {@link Object}
      *
-     * @param obj_type  тип объекта, по которому будет десериализован json
-     * @param node      нода, которая будет десериализована. Будет использовано свойство
-     *                  root, если передан ``null``
+     * @param obj_type  the type of object that the json will be deserialized by
+     * @param node      the node that will be deserialized. Will be used
+     *                  root if `null` is passed
      *
-     * @return          десериализованный объект
+     * @return deserialized object
      */
     public Object deserialize_object (
         GLib.Type obj_type,
@@ -461,12 +414,12 @@ public class ApiBase.Jsoner : Object {
     }
 
     /**
-     * Метод для десериализации значения.
+     * Method for deserializing the {@link GLib.Value}
      *
-     * @param node      нода, которая будет десериализована. Будет использовано свойство
-     *                  root, если передан ``null``
+     * @param node      the node that will be deserialized. Will be used
+     *                  root if `null` is passed
      *
-     * @return          десериализованное значение
+     * @return deserialized value
      */
     public Value deserialize_value (Json.Node? node = null) throws CommonError {
         if (node == null) {
@@ -486,13 +439,12 @@ public class ApiBase.Jsoner : Object {
     }
 
     /**
-     * Метод для десериализации ``Gee.ArrayList``.
-     * Поддерживает только одиночную вложенность (список в списке).
-     * В сучае вложенности, массив должен содержать в себе массив с определенным типом элементов
+     * Method for deserializing the {@link Gee.ArrayList}
      *
-     * @param array_list    Reference of {@link Gee.ArrayList}
-     * @param node          нода, которая будет десериализована. Будет использовано свойство
-     *                      root, если передан ``null``
+     * @param array_list        array
+     * @param node              the node that will be deserialized. Will be used
+     *                          root if `null` is passed
+     * @param sub_creation_func a function for creating subsets in the case of arrays in an array
      */
     public void deserialize_array (
         ArrayList array_list,
