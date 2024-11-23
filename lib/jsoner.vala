@@ -65,6 +65,11 @@ public class ApiBase.Jsoner : Object {
             node = steps (node, sub_members);
         }
 
+        debug (
+            "Jsoner work with:\n%s",
+            json_string
+        );
+
         Object (root : node, names_case : names_case);
     }
 
