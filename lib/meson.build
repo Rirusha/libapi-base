@@ -20,7 +20,7 @@ libapi_base_sources = [
 ]
 
 libapi_base = shared_library(
-  'api-base',
+  project_name,
   libapi_base_sources,
   dependencies: libapi_base_dependencies,
   vala_header: libapi_base_header,
@@ -41,7 +41,7 @@ deps_conf = configuration_data()
 deps_conf.set ('DEPS',  '\n'.join (deps_pkgs))
 
 configure_file(
-  input: 'libapi-base.deps.in',
+  input: libapi_base_deps + '.in',
   output: libapi_base_deps,
   configuration: deps_conf,
   install: true,
