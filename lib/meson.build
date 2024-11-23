@@ -41,7 +41,7 @@ deps_conf = configuration_data()
 deps_conf.set ('DEPS',  '\n'.join (deps_pkgs))
 
 configure_file(
-  input: libapi_base_deps + '.in',
+  input: project_name + '.in',
   output: libapi_base_deps,
   configuration: deps_conf,
   install: true,
