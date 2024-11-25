@@ -238,12 +238,12 @@ public sealed class ApiBase.SoupWrapper : Object {
         ApiError error = new ApiError ();
 
         try {
-            var jsoner = Jsoner.from_bytes (bytes, { "error" }, Case.CAMEL);
+            var jsoner = new Jsoner.from_bytes (bytes, { "error" }, Case.CAMEL);
             if (jsoner.root.get_node_type () == Json.NodeType.OBJECT) {
                 error = (ApiError) jsoner.deserialize_object (typeof (ApiError));
 
             } else {
-                jsoner = Jsoner.from_bytes (bytes, null, Case.SNAKE);
+                jsoner = new Jsoner.from_bytes (bytes, null, Case.SNAKE);
                 error = (ApiError) jsoner.deserialize_object (typeof (ApiError));
             }
         } catch (CommonError e) {}
@@ -329,12 +329,12 @@ public sealed class ApiBase.SoupWrapper : Object {
         ApiError error = new ApiError ();
 
         try {
-            var jsoner = Jsoner.from_bytes (bytes, { "error" }, Case.CAMEL);
+            var jsoner = new Jsoner.from_bytes (bytes, { "error" }, Case.CAMEL);
             if (jsoner.root.get_node_type () == Json.NodeType.OBJECT) {
                 error = (ApiError) yield jsoner.deserialize_object_async (typeof (ApiError));
 
             } else {
-                jsoner = Jsoner.from_bytes (bytes, null, Case.SNAKE);
+                jsoner = new Jsoner.from_bytes (bytes, null, Case.SNAKE);
                 error = (ApiError) yield jsoner.deserialize_object_async (typeof (ApiError));
             }
         } catch (CommonError e) {}

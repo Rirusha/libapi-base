@@ -79,7 +79,7 @@ public class ApiBase.Jsoner : Object {
      * @param sub_members   An array of names of json elements that need to be traversed to the target node
      * @param names_case    Name case of element names in a json string
      */
-    public static Jsoner from_bytes (
+    public Jsoner.from_bytes (
         Bytes bytes,
         string[]? sub_members = null,
         Case names_case = Case.KEBAB
@@ -90,7 +90,7 @@ public class ApiBase.Jsoner : Object {
             throw new CommonError.PARSE_JSON ("Json string is empty");
         }
 
-        return from_data (data, sub_members, names_case);
+        this.from_data (data, sub_members, names_case);
     }
 
     /**
@@ -101,12 +101,12 @@ public class ApiBase.Jsoner : Object {
      * @param sub_members   An array of names of json elements that need to be traversed to the target node
      * @param names_case    Name case of element names in a json string
      */
-    public static Jsoner from_data (
+    public Jsoner.from_data (
         uint8[] data,
         string[]? sub_members = null,
         Case names_case = Case.KEBAB
     ) throws CommonError {
-        return new Jsoner ((string) data, sub_members, names_case);
+        this ((string) data, sub_members, names_case);
     }
 
     static Json.Node? steps (
