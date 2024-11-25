@@ -235,34 +235,7 @@ public sealed class ApiBase.SoupWrapper : Object {
             return;
         }
 
-        ApiError error = new ApiError ();
-
-        try {
-            var jsoner = new Jsoner.from_bytes (bytes, { "error" }, Case.CAMEL);
-            if (jsoner.root.get_node_type () == Json.NodeType.OBJECT) {
-                error = (ApiError) jsoner.deserialize_object (typeof (ApiError));
-
-            } else {
-                jsoner = new Jsoner.from_bytes (bytes, null, Case.SNAKE);
-                error = (ApiError) jsoner.deserialize_object (typeof (ApiError));
-            }
-        } catch (CommonError e) {}
-
-        error.status_code = msg.status_code;
-
-        switch (msg.status_code) {
-            case Soup.Status.BAD_REQUEST:
-                throw new BadStatusCodeError.BAD_REQUEST (error.msg);
-
-            case Soup.Status.NOT_FOUND:
-                throw new BadStatusCodeError.NOT_FOUND (error.msg);
-
-            case Soup.Status.FORBIDDEN:
-                throw new BadStatusCodeError.FORBIDDEN (error.msg);
-
-            default:
-                throw new BadStatusCodeError.UNKNOWN (msg.status_code.to_string () + ": " + error.msg);
-        }
+        throw get_error (msg.status_code, (string) (bytes.get_data ()));
     }
 
     GLib.Bytes run (
@@ -321,41 +294,6 @@ public sealed class ApiBase.SoupWrapper : Object {
 
     // ASYNC
 
-    async void check_status_code_async (Soup.Message msg, Bytes bytes) throws CommonError, BadStatusCodeError {
-        if (msg.status_code == Soup.Status.OK) {
-            return;
-        }
-
-        ApiError error = new ApiError ();
-
-        try {
-            var jsoner = new Jsoner.from_bytes (bytes, { "error" }, Case.CAMEL);
-            if (jsoner.root.get_node_type () == Json.NodeType.OBJECT) {
-                error = (ApiError) yield jsoner.deserialize_object_async (typeof (ApiError));
-
-            } else {
-                jsoner = new Jsoner.from_bytes (bytes, null, Case.SNAKE);
-                error = (ApiError) yield jsoner.deserialize_object_async (typeof (ApiError));
-            }
-        } catch (CommonError e) {}
-
-        error.status_code = msg.status_code;
-
-        switch (msg.status_code) {
-            case Soup.Status.BAD_REQUEST:
-                throw new BadStatusCodeError.BAD_REQUEST (error.msg);
-
-            case Soup.Status.NOT_FOUND:
-                throw new BadStatusCodeError.NOT_FOUND (error.msg);
-
-            case Soup.Status.FORBIDDEN:
-                throw new BadStatusCodeError.FORBIDDEN (error.msg);
-
-            default:
-                throw new BadStatusCodeError.UNKNOWN (msg.status_code.to_string () + ": " + error.msg);
-        }
-    }
-
     async GLib.Bytes run_async (
         Soup.Message msg,
         int priority = Priority.DEFAULT,
@@ -370,7 +308,7 @@ public sealed class ApiBase.SoupWrapper : Object {
             throw new CommonError.SOUP ("%s %s: %s".printf (msg.method, msg.uri.to_string (), e.message));
         }
 
-        yield check_status_code_async (msg, bytes);
+        check_status_code (msg, bytes);
 
         return bytes;
     }
