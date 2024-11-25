@@ -84,13 +84,11 @@ public class ApiBase.Jsoner : Object {
         string[]? sub_members = null,
         Case names_case = Case.KEBAB
     ) throws CommonError {
-        var data = bytes.get_data ();
-
-        if (data == null) {
+        if (bytes.length == 0) {
             throw new CommonError.PARSE_JSON ("Json string is empty");
         }
 
-        this.from_data (data, sub_members, names_case);
+        this.from_data (bytes.get_data (), sub_members, names_case);
     }
 
     /**
