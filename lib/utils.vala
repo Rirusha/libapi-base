@@ -72,6 +72,11 @@ namespace ApiBase {
          * Error from api get
          */
         ANSWER,
+
+        /**
+         * Authentication error
+         */
+        AUTH_ERROR,
     }
 
     /**
