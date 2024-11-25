@@ -42,6 +42,10 @@ public class ApiBase.Jsoner : Object {
         string[]? sub_members = null,
         Case names_case = Case.KEBAB
     ) throws CommonError {
+        if (json_string.length < 1) {
+            throw new CommonError.PARSE_JSON ("Json string is empty");
+        }
+
         Json.Node? node;
         try {
             node = Json.from_string (json_string);
@@ -80,11 +84,13 @@ public class ApiBase.Jsoner : Object {
         string[]? sub_members = null,
         Case names_case = Case.KEBAB
     ) throws CommonError {
-        if (bytes.length < 1) {
+        var data = bytes.get_data ();
+
+        if (data == null) {
             throw new CommonError.PARSE_JSON ("Json string is empty");
         }
 
-        return from_data (bytes.get_data (), sub_members, names_case);
+        return from_data (data, sub_members, names_case);
     }
 
     /**
