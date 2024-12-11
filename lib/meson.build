@@ -13,35 +13,35 @@ vala_sources = files(
   'utils.vala',
 )
 
-libapi_base_sources = [
+sources = [
   vapi_sources,
   vala_sources,
 ]
 
-libapi_base = shared_library(
-  lib_name,
-  libapi_base_sources,
-  dependencies: libapi_base_dependencies,
-  vala_header: libapi_base_header,
-  vala_vapi: libapi_base_vapi,
-  vala_gir: libapi_base_gir,
+lib = shared_library(
+  versioned_name,
+  sources,
+  dependencies: dependencies,
+  vala_header: header_name,
+  vala_vapi: vapi_name,
+  vala_gir: gir_name,
   version: meson.project_version(),
   install: true,
   install_dir: [ true, true, true, true ],
 )
 
-libapi_base_dep = declare_dependency(
-  link_with: libapi_base,
+lib_dep = declare_dependency(
+  link_with: lib,
   include_directories: include_directories('.'),
-  dependencies: libapi_base_dependencies
+  dependencies: dependencies
 )
 
 deps_conf = configuration_data()
 deps_conf.set ('DEPS',  '\n'.join (deps_pkgs))
 
 configure_file(
-  input: project_name + '.deps.in',
-  output: libapi_base_deps,
+  input: 'lib.deps.in',
+  output: deps_name,
   configuration: deps_conf,
   install: true,
   install_dir: get_option('datadir') / 'vala' / 'vapi',
@@ -56,21 +56,21 @@ if get_option('introspection')
       '--shared-library', '@PLAINNAME@',
       '--output', '@OUTPUT@',
       '--includedir', gee_girdir,
-      meson.current_build_dir() / libapi_base_gir,
+      meson.current_build_dir() / gir_name,
     ],
-    input: libapi_base,
-    output: libapi_base_typelib,
-    depends: libapi_base,
+    input: lib,
+    output: typelib_name,
+    depends: lib,
     install: true,
     install_dir: get_option('libdir') / 'girepository-1.0',
   )
 endif
 
 pkgconfig.generate(
-  libapi_base,
-  name: versioned_name,
-  requires: libapi_base_dependencies,
-  subdirs: [ versioned_name ],
+  lib,
+  name: versioned_lib_name,
+  requires: pkgconfig_requires,
+  subdirs: [ versioned_lib_name ],
   description: 'Base objects for API libraries',
   version: meson.project_version(),
   url: 'https://github.com/Rirusha/libapi-base',

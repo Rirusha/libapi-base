@@ -131,9 +131,9 @@ public class ApiBase.Jsoner : Object {
     /////////////////
 
     /**
-     * Serialize {@link GLib.Datalist<string>} into a correct json string
+     * Serialize {@link GLib.Datalist} into a correct json string
      *
-     * @param datalist  {@link GLib.Datalist<string>}
+     * @param datalist  {@link GLib.Datalist}
      *
      * @return          json string
      */
