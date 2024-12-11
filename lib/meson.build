@@ -73,5 +73,5 @@ pkgconfig.generate(
   subdirs: [ versioned_lib_name ],
   description: 'Base objects for API libraries',
   version: meson.project_version(),
-  url: 'https://github.com/Rirusha/libapi-base',
+  url: 'https://gitlab.gnome.org/Rirusha/libapi-base',
 )
