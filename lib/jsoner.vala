@@ -32,7 +32,7 @@ public class ApiBase.Jsoner : Object {
      * Performs initialization for deserialization. Accepts a json string. In case of
      * a parsing error, it throws {@link CommonError.PARSE_JSON}
      *
-     * @param json_string   Corrent json string
+     * @param json_string   Correct json string
      * @param sub_members   An array of names of json elements that need to be traversed
      *                      to the target node
      * @param names_case    Name case of element names in a json string
