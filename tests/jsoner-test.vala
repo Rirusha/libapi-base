@@ -31,6 +31,15 @@ public class TestObjectDouble : Object {
     public double value { get; set; }
 }
 
+public enum TestEnum {
+    VALUE_1,
+    VALUE_2,
+}
+
+public class TestObjectEnum : Object {
+    public TestEnum value { get; set; }
+}
+
 public class TestObjectObject : Object {
     public string string_value { get; set; }
     public int int_value { get; set; }
@@ -120,6 +129,18 @@ public int main (string[] args) {
         }
     });
 
+    Test.add_func ("/jsoner/serialize/enum", () => {
+        var test_object = new TestObjectEnum ();
+        test_object.value = TestEnum.VALUE_2;
+
+        string expectation = "{\"value\":\"VALUE-2\"}";
+        string result = Jsoner.serialize (test_object);
+
+        if (result != expectation) {
+            Test.fail_printf (result + " != " + expectation);
+        }
+    });
+
     Test.add_func ("/jsoner/serialize/null", () => {
         var test_object = new TestObjectString ();
         test_object.value = null;
@@ -197,6 +218,19 @@ public int main (string[] args) {
 
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
+        }
+    });
+
+    Test.add_func ("/jsoner/deserialize/enum", () => {
+        try {
+            var jsoner = new Jsoner ("{\"value\":\"VALUE-2\"}");
+            var result = (TestObjectEnum) jsoner.deserialize_object (typeof (TestObjectEnum));
+
+            if (result.value != TestEnum.VALUE_2) {
+                Test.fail_printf (result.value.to_string () + " != " + TestEnum.VALUE_2.to_string ());
+            }
+        } catch (CommonError e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
