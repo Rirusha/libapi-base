@@ -261,12 +261,21 @@ public class ApiBase.Jsoner : Object {
             } else if (property.value_type.is_object ()) {
                 serialize_object (builder, (Object) prop_val.get_object (), names_case);
 
+            } else if (property.value_type.is_enum ()) {
+                serialize_enum (builder, property.value_type, prop_val);
+
             } else {
                 serialize_value (builder, prop_val);
             }
         }
 
         builder.end_object ();
+    }
+
+    static void serialize_enum (Json.Builder builder, Type enum_type, Value prop_val) {
+        var string_enum = ((EnumClass) enum_type.class_ref ()).get_value (prop_val.get_enum ()).value_nick.up ();
+
+        builder.add_string_value (string_enum);
     }
 
     static void serialize_value (Json.Builder builder, Value prop_val) {
@@ -395,6 +404,13 @@ public class ApiBase.Jsoner : Object {
                             property.name,
                             val.get_int64 ().to_string ()
                         );
+
+                    } else if (prop_type.is_enum ()) {
+                        api_object.set_property (
+                            property.name,
+                            ((EnumClass) prop_type.class_ref ()).get_value_by_nick (val.get_string ().down ()).value
+                        );
+
                     } else {
                         api_object.set_property (
                             property.name,
@@ -665,8 +681,13 @@ public class ApiBase.Jsoner : Object {
                 Type element_type = array_list.element_type;
 
                 yield serialize_array_async (builder, array_list, element_type, names_case);
+
             } else if (property.value_type.is_object ()) {
                 yield serialize_object_async (builder, (Object) prop_val.get_object (), names_case);
+
+            } else if (property.value_type.is_enum ()) {
+                serialize_enum (builder, property.value_type, prop_val);
+
             } else {
                 serialize_value (builder, prop_val);
             }
