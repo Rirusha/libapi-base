@@ -546,7 +546,7 @@ public class ApiBase.Jsoner : Object {
                     break;
 
                 case Type.INT64:
-                    var narray_list = array_list as ArrayList<int64>;
+                    var narray_list = array_list as ArrayList<int64?>;
 
                     foreach (var sub_node in jarray.get_elements ()) {
                         try {
@@ -908,7 +908,7 @@ public class ApiBase.Jsoner : Object {
                     break;
 
                 case Type.INT64:
-                    var narray_list = array_list as ArrayList<int64>;
+                    var narray_list = array_list as ArrayList<int64?>;
 
                     foreach (var sub_node in jarray.get_elements ()) {
                         try {
