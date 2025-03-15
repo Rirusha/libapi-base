@@ -1,12 +1,12 @@
 project(
   'libapi-base',
   ['c', 'vala'],
-  version: '1.9',
+  version: '2.0',
   meson_version: '>= 1.0.0',
   license: 'GPL-3.0-or-later',
 )
 
-api_version = '1'
+api_version = '2'
 glib_min_version = '2.76'
 
 name = 'api-base'
