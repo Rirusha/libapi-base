@@ -46,11 +46,11 @@ public class TestObjectObject : Object {
     public bool bool_value { get; set; }
 }
 
-public class TestObjectArrayString : Object {
+public class TestObjectArrayString : DataObject {
     public Gee.ArrayList<string> value { get; set; default = new Gee.ArrayList<string> (); }
 }
 
-public class TestObjectArrayObject : Object {
+public class TestObjectArrayObject : DataObject {
     public Gee.ArrayList<TestObjectObject> value { get; set; default = new Gee.ArrayList<TestObjectObject> (); }
 }
 
@@ -196,6 +196,23 @@ public int main (string[] args) {
         }
     });
 
+    Test.add_func ("/jsoner/serialize/array/string2", () => {
+        var test_object = new TestObjectArrayString ();
+        test_object.value.add ("everything that lives is designed to end");
+        test_object.value.add ("we are perpetually trapped in a neverending spyral of life and death");
+        test_object.value.add ("is this a curse?");
+        test_object.value.add ("or some kind of punishment?");
+        test_object.value.add ("i often thinking about the god who blessed us with this cryptic puzzle");
+        test_object.value.add ("and wonder if we'll ever have a chance to kill him");
+
+        string expectation = "{\"value\":[\"everything that lives is designed to end\",\"we are perpetually trapped in a neverending spyral of life and death\",\"is this a curse?\",\"or some kind of punishment?\",\"i often thinking about the god who blessed us with this cryptic puzzle\",\"and wonder if we'll ever have a chance to kill him\"]}";
+        string result = test_object.to_json ();
+
+        if (result != expectation) {
+            Test.fail_printf (result + " != " + expectation);
+        }
+    });
+
     Test.add_func ("/jsoner/serialize/array/object", () => {
         var test_object = new TestObjectArrayObject ();
         test_object.value.add (new TestObjectObject ());
@@ -207,6 +224,23 @@ public int main (string[] args) {
 
         string expectation = "{\"value\":[{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":\"why are we still here\",\"int-value\":42,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":\"kekw\",\"int-value\":0,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false}]}";
         string result = Jsoner.serialize (test_object);
+
+        if (result != expectation) {
+            Test.fail_printf (result + " != " + expectation);
+        }
+    });
+
+    Test.add_func ("/jsoner/serialize/array/object2", () => {
+        var test_object = new TestObjectArrayObject ();
+        test_object.value.add (new TestObjectObject ());
+        test_object.value.add (new TestObjectObject () { string_value = "why are we still here", int_value = 42 });
+        test_object.value.add (new TestObjectObject () { bool_value = false });
+        test_object.value.add (new TestObjectObject ());
+        test_object.value.add (new TestObjectObject () { string_value = "kekw" });
+        test_object.value.add (new TestObjectObject ());
+
+        string expectation = "{\"value\":[{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":\"why are we still here\",\"int-value\":42,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":\"kekw\",\"int-value\":0,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false}]}";
+        string result = test_object.to_json ();
 
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
@@ -349,6 +383,19 @@ public int main (string[] args) {
         }
     });
 
+    Test.add_func ("/jsoner/deserialize/array/string2", () => {
+        try {
+            var result = new TestObjectArrayString ();
+            result.fill_from_json ("{\"value\":[\"kekw\",\"yes\",\"no\"]}");
+
+            if (result.value[0] != "kekw" || result.value[1] != "yes" || result.value[2] != "no") {
+                Test.fail_printf (string.joinv (", ", result.value.to_array ()) + " != kekw, yes, no");
+            }
+        } catch (CommonError e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
     Test.add_func ("/jsoner/deserialize/array/direct", () => {
         try {
             var jsoner = new Jsoner ("{\"value\":[\"kekw\",\"yes\",\"no\"]}", {"value"});
@@ -367,6 +414,23 @@ public int main (string[] args) {
         try {
             var jsoner = new Jsoner ("{\"value\":[{\"string-value\":\"Baby one more time\",\"int-value\":42,\"bool-value\":true},{\"string-value\":\"I want it that way\",\"int-value\":17,\"bool-value\":false},{\"string-value\":\"Gonna make you sweat\",\"int-value\":99,\"bool-value\":true}]}");
             var result = (TestObjectArrayObject) jsoner.deserialize_object (typeof (TestObjectArrayObject));
+
+            if (result.value[0].string_value != "Baby one more time" || result.value[1].int_value != 17 || result.value[2].bool_value != true) {
+                Test.fail_printf (
+                    result.value[0].string_value + " != Baby one more time\n" +
+                    result.value[1].int_value.to_string () + " != 17\n" +
+                    result.value[2].bool_value.to_string () + " != true"
+                );
+            }
+        } catch (CommonError e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
+    Test.add_func ("/jsoner/deserialize/array/object2", () => {
+        try {
+            var result = new TestObjectArrayObject ();
+            result.fill_from_json ("{\"value\":[{\"string-value\":\"Baby one more time\",\"int-value\":42,\"bool-value\":true},{\"string-value\":\"I want it that way\",\"int-value\":17,\"bool-value\":false},{\"string-value\":\"Gonna make you sweat\",\"int-value\":99,\"bool-value\":true}]}");
 
             if (result.value[0].string_value != "Baby one more time" || result.value[1].int_value != 17 || result.value[2].bool_value != true) {
                 Test.fail_printf (
