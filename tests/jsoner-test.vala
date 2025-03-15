@@ -3,7 +3,7 @@
 
 using ApiBase;
 
-public class TestObjectString : Object {
+public class TestObjectString : DataObject {
     public string? value { get; set; }
 }
 
@@ -75,6 +75,18 @@ public int main (string[] args) {
 
         string expectation = "{\"value\":\"test\"}";
         var result = Jsoner.serialize (test_object);
+
+        if (result != expectation) {
+            Test.fail_printf (result + " != " + expectation);
+        }
+    });
+
+    Test.add_func ("/jsoner/serialize/string2", () => {
+        var test_object = new TestObjectString ();
+        test_object.value = "test";
+
+        string expectation = "{\"value\":\"test\"}";
+        var result = test_object.to_json ();
 
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
@@ -272,6 +284,19 @@ public int main (string[] args) {
         }
     });
 
+    Test.add_func ("/jsoner/deserialize/object2", () => {
+        try {
+            var result = new TestObjectString ();
+            result.fill_from_json ("{\"value\":\"test\"}");
+
+            if (result.value != "test") {
+                Test.fail_printf (result.value + " != test");
+            }
+        } catch (CommonError e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
     Test.add_func ("/jsoner/deserialize/object_camel", () => {
         try {
             var jsoner = new Jsoner ("{\"stringValue\":\"test\"}", null, Case.CAMEL);
@@ -328,7 +353,7 @@ public int main (string[] args) {
         try {
             var jsoner = new Jsoner ("{\"value\":[\"kekw\",\"yes\",\"no\"]}", {"value"});
             var array = new Gee.ArrayList<string> ();
-            jsoner.deserialize_array (array);
+            jsoner.deserialize_array_into (array);
 
             if (array[0] != "kekw" || array[1] != "yes" || array[2] != "no") {
                 Test.fail_printf (string.joinv (", ", array.to_array ()) + " != kekw, yes, no");

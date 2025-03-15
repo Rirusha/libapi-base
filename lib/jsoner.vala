@@ -328,6 +328,27 @@ public class ApiBase.Jsoner : Object {
         Json.Node? node = null,
         SubArrayCreationFunc? sub_creation_func = null
     ) throws CommonError {
+        var api_object = (Object) Object.new (obj_type);
+
+        deserialize_object_into (api_object, node, sub_creation_func);
+
+        return api_object;
+    }
+
+    /**
+     * Method for deserializing the {@link Object} into the given object
+     *
+     * @param api_object    already created object
+     * @param node          the node that will be deserialized. Will be used
+     *                      root if `null` is passed
+     *
+     * @return deserialized object
+     */
+    public void deserialize_object_into (
+        Object api_object,
+        Json.Node? node = null,
+        SubArrayCreationFunc? sub_creation_func = null
+    ) throws CommonError {
         if (node == null) {
             node = root;
         }
@@ -340,9 +361,9 @@ public class ApiBase.Jsoner : Object {
             throw new CommonError.PARSE_JSON ("Node isn't object");
         }
 
-        var api_object = (Object) Object.new (obj_type);
         api_object.freeze_notify ();
 
+        var obj_type = api_object.get_type ();
         var class_ref = (ObjectClass) obj_type.class_ref ();
         ParamSpec[] properties = class_ref.list_properties ();
 
@@ -383,7 +404,7 @@ public class ApiBase.Jsoner : Object {
                     api_object.get_property (property.name, ref arrayval);
                     ArrayList array_list = (Gee.ArrayList) arrayval.get_object ();
 
-                    deserialize_array (array_list, sub_node, sub_creation_func);
+                    deserialize_array_into (array_list, sub_node, sub_creation_func);
                     api_object.set_property (
                         property.name,
                         array_list
@@ -429,8 +450,6 @@ public class ApiBase.Jsoner : Object {
         }
 
         api_object.thaw_notify ();
-
-        return api_object;
     }
 
     /**
@@ -466,7 +485,7 @@ public class ApiBase.Jsoner : Object {
      *                          root if `null` is passed
      * @param sub_creation_func a function for creating subsets in the case of arrays in an array
      */
-    public void deserialize_array (
+    public void deserialize_array_into (
         ArrayList array_list,
         Json.Node? node = null,
         SubArrayCreationFunc? sub_creation_func = null
@@ -505,7 +524,7 @@ public class ApiBase.Jsoner : Object {
                 }
 
                 try {
-                    deserialize_array (new_array_list, sub_node, sub_creation_func);
+                    deserialize_array_into (new_array_list, sub_node, sub_creation_func);
                     narray_list.add (new_array_list);
                 } catch (CommonError e) {}
             }
@@ -711,6 +730,21 @@ public class ApiBase.Jsoner : Object {
         Json.Node? node = null,
         SubArrayCreationFunc? sub_creation_func = null
     ) throws CommonError {
+        var api_object = (Object) Object.new (obj_type);
+
+        yield deserialize_object_into_async (api_object, node, sub_creation_func);
+
+        return api_object;
+    }
+
+    /**
+     * Asynchronous version of method {@link deserialize_object_into}
+     */
+    public async void deserialize_object_into_async (
+        Object api_object,
+        Json.Node? node = null,
+        SubArrayCreationFunc? sub_creation_func = null
+    ) throws CommonError {
         if (node == null) {
             node = root;
         }
@@ -723,9 +757,9 @@ public class ApiBase.Jsoner : Object {
             throw new CommonError.PARSE_JSON ("Node isn't object");
         }
 
-        var api_object = (Object) Object.new (obj_type);
         api_object.freeze_notify ();
 
+        var obj_type = api_object.get_type ();
         var class_ref = (ObjectClass) obj_type.class_ref ();
         ParamSpec[] properties = class_ref.list_properties ();
 
@@ -766,7 +800,7 @@ public class ApiBase.Jsoner : Object {
                     api_object.get_property (property.name, ref arrayval);
                     ArrayList array_list = (Gee.ArrayList) arrayval.get_object ();
 
-                    yield deserialize_array_async (array_list, sub_node, sub_creation_func);
+                    yield deserialize_array_into_async (array_list, sub_node, sub_creation_func);
                     api_object.set_property (
                         property.name,
                         array_list
@@ -803,19 +837,17 @@ public class ApiBase.Jsoner : Object {
                     break;
             }
 
-            Idle.add (deserialize_object_async.callback);
+            Idle.add (deserialize_object_into_async.callback);
             yield;
         }
 
         api_object.thaw_notify ();
-
-        return api_object;
     }
 
     /**
-     * Asynchronous version of method {@link deserialize_array}
+     * Asynchronous version of method {@link deserialize_array_into}
      */
-    public async void deserialize_array_async (
+    public async void deserialize_array_into_async (
         ArrayList array_list,
         Json.Node? node = null,
         SubArrayCreationFunc? sub_creation_func = null
@@ -855,11 +887,11 @@ public class ApiBase.Jsoner : Object {
                 }
 
                 try {
-                    yield deserialize_array_async (new_array_list, sub_node, sub_creation_func);
+                    yield deserialize_array_into_async (new_array_list, sub_node, sub_creation_func);
                     narray_list.add (new_array_list);
                 } catch (CommonError e) {}
 
-                Idle.add (deserialize_array_async.callback);
+                Idle.add (deserialize_array_into_async.callback);
                 yield;
             }
 
@@ -873,7 +905,7 @@ public class ApiBase.Jsoner : Object {
                     narray_list.add (yield deserialize_object_async (narray_list.element_type, sub_node));
                 } catch (CommonError e) {}
 
-                Idle.add (deserialize_array_async.callback);
+                Idle.add (deserialize_array_into_async.callback);
                 yield;
             }
 
@@ -889,7 +921,7 @@ public class ApiBase.Jsoner : Object {
                             narray_list.add (deserialize_value (sub_node).get_string ());
                         } catch (CommonError e) {}
 
-                        Idle.add (deserialize_array_async.callback);
+                        Idle.add (deserialize_array_into_async.callback);
                         yield;
                     }
                     break;
@@ -902,7 +934,7 @@ public class ApiBase.Jsoner : Object {
                             narray_list.add ((int) deserialize_value (sub_node).get_int64 ());
                         } catch (CommonError e) {}
 
-                        Idle.add (deserialize_array_async.callback);
+                        Idle.add (deserialize_array_into_async.callback);
                         yield;
                     }
                     break;
@@ -915,7 +947,7 @@ public class ApiBase.Jsoner : Object {
                             narray_list.add (deserialize_value (sub_node).get_int64 ());
                         } catch (CommonError e) {}
 
-                        Idle.add (deserialize_array_async.callback);
+                        Idle.add (deserialize_array_into_async.callback);
                         yield;
                     }
                     break;

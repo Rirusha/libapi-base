@@ -9,6 +9,7 @@ vala_sources = files(
   'soup-wrapper/post-content.vala',
   'soup-wrapper/soup-wrapper.vala',
 
+  'data-object.vala',
   'jsoner.vala',
   'utils.vala',
 )
