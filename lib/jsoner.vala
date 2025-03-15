@@ -181,11 +181,7 @@ public class ApiBase.Jsoner : Object {
     ) {
         builder.begin_array ();
 
-        if (element_type.parent () == typeof (Object)) {
-            foreach (var api_obj in (ArrayList<Object>) array_list) {
-                serialize_object (builder, api_obj, names_case);
-            }
-        } else if (element_type == typeof (ArrayList)) {
+        if (element_type == typeof (ArrayList)) {
             var array_of_arrays = (ArrayList<ArrayList?>) array_list;
 
             if (array_of_arrays.size > 0) {
@@ -195,6 +191,12 @@ public class ApiBase.Jsoner : Object {
                     serialize_array (builder, sub_array_list, sub_element_type, names_case);
                 }
             }
+
+        } else if (element_type.is_object ()) {
+            foreach (var api_obj in (ArrayList<Object>) array_list) {
+                serialize_object (builder, api_obj, names_case);
+            }
+
         } else {
             switch (element_type) {
                 case Type.STRING:
