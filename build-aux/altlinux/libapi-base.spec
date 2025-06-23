@@ -9,7 +9,7 @@
 
 Name: %bare_name%api_version
 Version: %api_version.%minor_version
-Release: alt1
+Release: @RELEASE@
 
 Summary: Base objects for API libraries
 License: GPL-3.0-or-later
@@ -21,7 +21,7 @@ Source0: %name-%version.tar
 Patch: %name-%version-%release.patch
 
 Provides: %old_package = %version
-Obsoletes: %old_package
+Obsoletes: %old_package < %version
 
 BuildRequires(pre): rpm-macros-meson rpm-build-vala rpm-build-gir
 BuildRequires: meson
@@ -43,7 +43,7 @@ Summary: Development files for %name
 Group: Development/C
 
 Provides: %bare_name-devel = %version
-Obsoletes: %old_package-devel
+Obsoletes: %old_package-devel < %version
 
 Requires: %name = %EVR
 
@@ -56,7 +56,7 @@ Group: System/Libraries
 BuildArch: noarch
 
 Provides: %old_package-devel-vala = %version
-Obsoletes: %old_package-devel-vala
+Obsoletes: %old_package-devel-vala < %version
 
 Requires: %name-devel = %EVR
 
@@ -68,7 +68,7 @@ Summary: Typelib files for %name
 Group: System/Libraries
 
 Provides: %old_package-gir = %version
-Obsoletes: %old_package-gir
+Obsoletes: %old_package-gir < %version
 
 Requires: %name = %EVR
 
@@ -81,7 +81,7 @@ Group: Development/Other
 BuildArch: noarch
 
 Provides: %old_package-gir-devel = %version
-Obsoletes: %old_package-gir-devel
+Obsoletes: %old_package-gir-devel < %version
 
 Requires: %name-gir = %EVR
 
