@@ -1,8 +1,5 @@
 %define _unpackaged_files_terminate_build 1
 
-%define old_package libapi-base-1
-%define old_package_last_vr 1.6-alt1
-
 %define bare_name libapi-base
 %define api_version @LAST_API_VERSION@
 %define minor_version @LAST_MINOR_VERSION@
@@ -21,9 +18,6 @@ Vcs: https://gitlab.gnome.org/Rirusha/libapi-base.git
 
 Source0: %name-%version.tar
 Patch: %name-%version-%release.patch
-
-Provides: %old_package = %EVR
-Obsoletes: %old_package <= %old_package_last_vr
 
 BuildRequires(pre): rpm-macros-meson rpm-build-vala rpm-build-gir
 BuildRequires: meson
@@ -45,7 +39,6 @@ Summary: Development files for %name
 Group: Development/C
 
 Provides: %bare_name-devel = %EVR
-Obsoletes: %old_package-devel <= %old_package_last_vr
 
 Requires: %name = %EVR
 
@@ -57,9 +50,6 @@ Summary: Development vapi files for %name
 Group: System/Libraries
 BuildArch: noarch
 
-Provides: %old_package-devel-vala = %EVR
-Obsoletes: %old_package-devel-vala <= %old_package_last_vr
-
 Requires: %name-devel = %EVR
 
 %description devel-vala
@@ -68,9 +58,6 @@ Requires: %name-devel = %EVR
 %package gir
 Summary: Typelib files for %name
 Group: System/Libraries
-
-Provides: %old_package-gir = %EVR
-Obsoletes: %old_package-gir <= %old_package_last_vr
 
 Requires: %name = %EVR
 
@@ -81,9 +68,6 @@ Requires: %name = %EVR
 Summary: Development gir files for %name for various bindings
 Group: Development/Other
 BuildArch: noarch
-
-Provides: %old_package-gir-devel = %EVR
-Obsoletes: %old_package-gir-devel <= %old_package_last_vr
 
 Requires: %name-gir = %EVR
 
