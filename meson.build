@@ -1,7 +1,7 @@
 project(
   'libapi-base',
   ['c', 'vala'],
-  version: '2.3',
+  version: '2.4',
   meson_version: '>= 1.0.0',
   license: 'GPL-3.0-or-later',
 )
