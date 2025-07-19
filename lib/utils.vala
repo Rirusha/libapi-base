@@ -144,6 +144,13 @@ namespace ApiBase {
         }
     }
 
+    public string get_enum_nick (Type enum_type, int enum_) {
+        var enum_class = (EnumClass) enum_type.class_ref ();
+        var enum_value = enum_class.get_value (enum_);
+
+        return kebab2snake (enum_value.value_nick.down ());
+    }
+
     /**
      * Delete all {@link char} from start and end of {@link string}
      *
