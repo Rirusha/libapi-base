@@ -540,9 +540,6 @@ public class ApiBase.Jsoner : Object {
     /**
      * Method for deserializing the {@link GLib.Value}
      *
-     * @param node      the node that will be deserialized. Will be used
-     *                  root if `null` is passed
-     *
      * @return deserialized value
      */
     public Value deserialize_value () throws CommonError {
