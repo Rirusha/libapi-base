@@ -3,6 +3,21 @@
 
 using ApiBase;
 
+public class ValuesData : DataObject {
+    public string string_val { get; set; }
+    public int64 int64_val { get; set; }
+    public int int_val { get; set; }
+    public double double_val { get; set; }
+    public bool bool_val { get; set; }
+    public TestEnum enum_val { get; set; }
+
+    //  Strange names
+
+    // Property with 'type' name cannot exists
+    public string type_ { get; set; }
+}
+
+
 public class TestObjectString : DataObject {
     public string? value { get; set; }
 }
@@ -69,87 +84,48 @@ public class TestObjectAlbum : Object {
 public int main (string[] args) {
     Test.init (ref args);
 
-    Test.add_func ("/jsoner/serialize/string", () => {
-        var test_object = new TestObjectString ();
-        test_object.value = "test";
+    Test.add_func ("/jsoner/serialize/values", () => {
+        string test_string_val = "test";
+        int64 test_int64_val = 1234;
+        int test_int_val = 1234;
+        double test_double_val = 45.1;
+        bool test_bool_val = true;
+        TestEnum test_enum_val = VALUE_2;
+        string test_type_ = "some text";
 
-        string expectation = "{\"value\":\"test\"}";
-        var result = Jsoner.serialize (test_object);
+        Case[] cases = {KEBAB, SNAKE, CAMEL};
+        foreach (var c in cases) {
+            var test_object = new ValuesData ();
 
-        if (result != expectation) {
-            Test.fail_printf (result + " != " + expectation);
-        }
-    });
+            test_object.string_val = test_string_val;
+            test_object.int64_val = test_int64_val;
+            test_object.int_val = test_int_val;
+            test_object.double_val = test_double_val;
+            test_object.bool_val = test_bool_val;
+            test_object.enum_val = test_enum_val;
+            test_object.type_ = test_type_;
 
-    Test.add_func ("/jsoner/serialize/string2", () => {
-        var test_object = new TestObjectString ();
-        test_object.value = "test";
+            var enum_expected_val = kebab2snake (((EnumClass) ((typeof (TestEnum)).class_ref ())).get_value (test_enum_val).value_nick.down ());
 
-        string expectation = "{\"value\":\"test\"}";
-        var result = test_object.to_json ();
+            string expectation = "";
 
-        if (result != expectation) {
-            Test.fail_printf (result + " != " + expectation);
-        }
-    });
+            switch (c) {
+                case KEBAB:
+                    expectation = @"{\"string-val\":\"$test_string_val\",\"int64-val\":$test_int64_val,\"int-val\":$test_int_val,\"double-val\":$test_double_val,\"bool-val\":$test_bool_val,\"enum-val\":\"$(enum_expected_val)\",\"type\":\"$test_type_\"}";
+                    break;
+                case SNAKE:
+                    expectation = @"{\"string_val\":\"$test_string_val\",\"int64_val\":$test_int64_val,\"int_val\":$test_int_val,\"double_val\":$test_double_val,\"bool_val\":$test_bool_val,\"enum_val\":\"$(enum_expected_val)\",\"type\":\"$test_type_\"}";
+                    break;
+                case CAMEL:
+                    expectation = @"{\"stringVal\":\"$test_string_val\",\"int64Val\":$test_int64_val,\"intVal\":$test_int_val,\"doubleVal\":$test_double_val,\"boolVal\":$test_bool_val,\"enumVal\":\"$(enum_expected_val)\",\"type\":\"$test_type_\"}";
+                    break;
+            }
 
-    Test.add_func ("/jsoner/serialize/int", () => {
-        var test_object = new TestObjectInt ();
-        test_object.value = 42;
+            var result = Jsoner.serialize (test_object, c);
 
-        string expectation = "{\"value\":42}";
-        string result = Jsoner.serialize (test_object);
-
-        if (result != expectation) {
-            Test.fail_printf (result + " != " + expectation);
-        }
-    });
-
-    Test.add_func ("/jsoner/serialize/int64", () => {
-        var test_object = new TestObjectInt64 ();
-        test_object.value = 3636346346363452;
-
-        string expectation = "{\"value\":3636346346363452}";
-        string result = Jsoner.serialize (test_object);
-
-        if (result != expectation) {
-            Test.fail_printf (result + " != " + expectation);
-        }
-    });
-
-    Test.add_func ("/jsoner/serialize/bool", () => {
-        var test_object = new TestObjectBool ();
-        test_object.value = true;
-
-        string expectation = "{\"value\":true}";
-        string result = Jsoner.serialize (test_object);
-
-        if (result != expectation) {
-            Test.fail_printf (result + " != " + expectation);
-        }
-    });
-
-    Test.add_func ("/jsoner/serialize/double", () => {
-        var test_object = new TestObjectDouble () { value = 42.5 };
-        test_object.value = 42.5;
-
-        string expectation = "{\"value\":42.5}";
-        string result = Jsoner.serialize (test_object);
-
-        if (result != expectation) {
-            Test.fail_printf (result + " != " + expectation);
-        }
-    });
-
-    Test.add_func ("/jsoner/serialize/enum", () => {
-        var test_object = new TestObjectEnum ();
-        test_object.value = TestEnum.VALUE_2;
-
-        string expectation = "{\"value\":\"VALUE-2\"}";
-        string result = Jsoner.serialize (test_object);
-
-        if (result != expectation) {
-            Test.fail_printf (result + " != " + expectation);
+            if (result != expectation) {
+                Test.fail_printf (result + " != " + expectation);
+            }
         }
     });
 
@@ -269,8 +245,8 @@ public int main (string[] args) {
 
     Test.add_func ("/jsoner/deserialize/enum", () => {
         try {
-            var jsoner = new Jsoner ("{\"value\":\"VALUE-2\"}");
-            var result = (TestObjectEnum) jsoner.deserialize_object (typeof (TestObjectEnum));
+            var jsoner = new Jsoner ("{\"value\":\"value_2\"}");
+            var result = jsoner.deserialize_object<TestObjectEnum> ();
 
             if (result.value != TestEnum.VALUE_2) {
                 Test.fail_printf (result.value.to_string () + " != " + TestEnum.VALUE_2.to_string ());
@@ -308,7 +284,7 @@ public int main (string[] args) {
     Test.add_func ("/jsoner/deserialize/object", () => {
         try {
             var jsoner = new Jsoner ("{\"value\":\"test\"}");
-            var result = (TestObjectString) jsoner.deserialize_object (typeof (TestObjectString));
+            var result = jsoner.deserialize_object<TestObjectString> ();
 
             if (result.value != "test") {
                 Test.fail_printf (result.value + " != test");
@@ -334,7 +310,7 @@ public int main (string[] args) {
     Test.add_func ("/jsoner/deserialize/object_camel", () => {
         try {
             var jsoner = new Jsoner ("{\"stringValue\":\"test\"}", null, Case.CAMEL);
-            var result = (TestObjectStringCamel) jsoner.deserialize_object (typeof (TestObjectStringCamel));
+            var result = jsoner.deserialize_object<TestObjectStringCamel> ();
 
             if (result.string_value != "test") {
                 Test.fail_printf (result.string_value + " != test");
@@ -347,7 +323,7 @@ public int main (string[] args) {
     Test.add_func ("/jsoner/deserialize/object_camel_", () => {
         try {
             var jsoner = new Jsoner ("{\"stringValue\":\"test\"}", null, Case.CAMEL);
-            var result = (TestObjectStringCamelW) jsoner.deserialize_object (typeof (TestObjectStringCamelW));
+            var result = jsoner.deserialize_object<TestObjectStringCamelW> ();
 
             if (result.string_value_ != "test") {
                 Test.fail_printf (result.string_value_ + " != test");
@@ -360,7 +336,7 @@ public int main (string[] args) {
     Test.add_func ("/jsoner/deserialize/int_to_string", () => {
         try {
             var jsoner = new Jsoner ("{\"value\":6}");
-            var result = (TestObjectString) jsoner.deserialize_object (typeof (TestObjectString));
+            var result = jsoner.deserialize_object<TestObjectString> ();
 
             if (result.value != "6") {
                 Test.fail_printf (result.value + " != \"6\"");
@@ -373,7 +349,7 @@ public int main (string[] args) {
     Test.add_func ("/jsoner/deserialize/array/string", () => {
         try {
             var jsoner = new Jsoner ("{\"value\":[\"kekw\",\"yes\",\"no\"]}");
-            var result = (TestObjectArrayString) jsoner.deserialize_object (typeof (TestObjectArrayString));
+            var result = jsoner.deserialize_object<TestObjectArrayString> ();
 
             if (result.value[0] != "kekw" || result.value[1] != "yes" || result.value[2] != "no") {
                 Test.fail_printf (string.joinv (", ", result.value.to_array ()) + " != kekw, yes, no");
@@ -413,7 +389,7 @@ public int main (string[] args) {
     Test.add_func ("/jsoner/deserialize/array/object", () => {
         try {
             var jsoner = new Jsoner ("{\"value\":[{\"string-value\":\"Baby one more time\",\"int-value\":42,\"bool-value\":true},{\"string-value\":\"I want it that way\",\"int-value\":17,\"bool-value\":false},{\"string-value\":\"Gonna make you sweat\",\"int-value\":99,\"bool-value\":true}]}");
-            var result = (TestObjectArrayObject) jsoner.deserialize_object (typeof (TestObjectArrayObject));
+            var result = jsoner.deserialize_object<TestObjectArrayObject> ();
 
             if (result.value[0].string_value != "Baby one more time" || result.value[1].int_value != 17 || result.value[2].bool_value != true) {
                 Test.fail_printf (
@@ -447,7 +423,7 @@ public int main (string[] args) {
     Test.add_func ("/jsoner/deserialize/array/array", () => {
         try {
             var jsoner = new Jsoner ("{\"value\":[[{\"value\":7}],[{\"value\":98}]]}");
-            var result = (TestObjectAlbum) jsoner.deserialize_object (typeof (TestObjectAlbum), null, (out array, type) => {
+            var result = jsoner.deserialize_object<TestObjectAlbum> ((out array, type) => {
                 if (type == typeof (TestObjectInt)) {
                     array = new Gee.ArrayList<TestObjectInt> ();
                     return true;

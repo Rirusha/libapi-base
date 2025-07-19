@@ -130,14 +130,7 @@ public class ApiBase.Jsoner : Object {
     // Serialize  //
     /////////////////
 
-    /**
-     * Serialize {@link GLib.Datalist} into a correct json string
-     *
-     * @param datalist  {@link GLib.Datalist}
-     *
-     * @return          json string
-     */
-    public static string serialize_datalist (Datalist<string> datalist) {
+    internal static string serialize_datalist (Datalist<string> datalist) {
         var builder = new Json.Builder ();
         builder.begin_object ();
 
@@ -213,13 +206,17 @@ public class ApiBase.Jsoner : Object {
 
                 case Type.INT64:
                     foreach (var val in (ArrayList<int64?>) array_list) {
-                        serialize_value (builder, val);
+                        var tval = Value (Type.INT64);
+                        tval.set_int64 (val);
+                        serialize_value (builder, tval);
                     }
                     break;
 
                 case Type.DOUBLE:
                     foreach (var val in (ArrayList<double?>) array_list) {
-                        serialize_value (builder, val);
+                        var tval = Value (Type.DOUBLE);
+                        tval.set_double (val);
+                        serialize_value (builder, tval);
                     }
                     break;
 
@@ -266,14 +263,18 @@ public class ApiBase.Jsoner : Object {
                 case Type.INT64:
                     foreach (var entry in (HashMap<string, int64?>) hash_map) {
                         builder.set_member_name (entry.key);
-                        serialize_value (builder, entry.value);
+                        var tval = Value (Type.INT64);
+                        tval.set_int64 (entry.value);
+                        serialize_value (builder, tval);
                     }
                     break;
 
                 case Type.DOUBLE:
                     foreach (var entry in (HashMap<string, double?>) hash_map) {
                         builder.set_member_name (entry.key);
-                        serialize_value (builder, entry.value);
+                        var tval = Value (Type.DOUBLE);
+                        tval.set_double (entry.value);
+                        serialize_value (builder, tval);
                     }
                     break;
 
@@ -804,7 +805,7 @@ public class ApiBase.Jsoner : Object {
                     break;
 
                 case Type.DOUBLE:
-                    var narray_list = hash_map as HashMap<string, double>;
+                    var narray_list = hash_map as HashMap<string, double?>;
 
                     foreach (var member_name in jobject.get_members ()) {
                         var sub_node = jobject.get_member (member_name);

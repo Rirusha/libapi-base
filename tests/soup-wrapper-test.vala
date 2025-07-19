@@ -30,7 +30,7 @@ public int main (string[] args) {
             var response = soup_wrapper.get ("https://reqbin.com/echo/get/json");
             var jsoner = new Jsoner.from_bytes (response);
 
-            var obj = (TestObject) jsoner.deserialize_object (typeof (TestObject));
+            var obj = jsoner.deserialize_object<TestObject> ();
 
             if (obj.success != "true") {
                 Test.fail_printf ("Wrong result: \n%s", (string) (response.get_data ()));
