@@ -281,23 +281,20 @@ public class ApiBase.Jsoner : Object {
     static void serialize_value (Json.Builder builder, Value prop_val) {
         switch (prop_val.type ()) {
             case Type.INT:
-                builder.add_int_value (prop_val.get_int ());
-                break;
-
             case Type.INT64:
-                builder.add_int_value (prop_val.get_int64 ());
+                builder.add_int_value (convert_to_int64 (prop_val));
                 break;
 
             case Type.DOUBLE:
-                builder.add_double_value (prop_val.get_double ());
+                builder.add_double_value (convert_to_double (prop_val));
                 break;
 
             case Type.STRING:
-                builder.add_string_value (prop_val.get_string ());
+                builder.add_string_value (convert_to_string (prop_val));
                 break;
 
             case Type.BOOLEAN:
-                builder.add_boolean_value (prop_val.get_boolean ());
+                builder.add_boolean_value (convert_to_bool (prop_val));
                 break;
 
             case Type.NONE:
@@ -324,14 +321,14 @@ public class ApiBase.Jsoner : Object {
      * @return deserialized object
      */
     public T deserialize_object<T> (
-        SubArrayCreationFunc? sub_creation_func = null
+        SubCollectionCreationFunc? sub_creation_func = null
     ) throws CommonError {
         return deserialize_object_by_type (typeof (T), sub_creation_func);
     }
 
     public Object deserialize_object_by_type (
         GLib.Type obj_type,
-        SubArrayCreationFunc? sub_creation_func = null
+        SubCollectionCreationFunc? sub_creation_func = null
     ) throws CommonError {
         var obj = Object.new (obj_type);
 
@@ -343,7 +340,7 @@ public class ApiBase.Jsoner : Object {
     internal Object deserialize_object_by_type_real (
         GLib.Type obj_type,
         Json.Node? node = null,
-        SubArrayCreationFunc? sub_creation_func = null
+        SubCollectionCreationFunc? sub_creation_func = null
     ) throws CommonError {
         var obj = Object.new (obj_type);
 
@@ -354,7 +351,7 @@ public class ApiBase.Jsoner : Object {
 
     public void deserialize_object_into (
         Object obj,
-        SubArrayCreationFunc? sub_creation_func = null
+        SubCollectionCreationFunc? sub_creation_func = null
     ) throws CommonError {
         deserialize_object_into_real (obj, null, sub_creation_func);
     }
@@ -371,7 +368,7 @@ public class ApiBase.Jsoner : Object {
     internal void deserialize_object_into_real (
         Object obj,
         Json.Node? node = null,
-        SubArrayCreationFunc? sub_creation_func = null
+        SubCollectionCreationFunc? sub_creation_func = null
     ) throws CommonError {
         if (node == null) {
             node = root;
@@ -428,7 +425,7 @@ public class ApiBase.Jsoner : Object {
                     obj.get_property (property.name, ref arrayval);
                     ArrayList array_list = (Gee.ArrayList) arrayval.get_object ();
 
-                    deserialize_array_into (array_list, sub_node, sub_creation_func);
+                    deserialize_array_into_real (array_list, sub_node, sub_creation_func);
                     obj.set_property (
                         property.name,
                         array_list
@@ -444,13 +441,7 @@ public class ApiBase.Jsoner : Object {
 
                 case Json.NodeType.VALUE:
                     var val = deserialize_value (sub_node);
-                    if ((val.type () == Type.INT64) && (prop_type == Type.STRING)) {
-                        obj.set_property (
-                            property.name,
-                            val.get_int64 ().to_string ()
-                        );
-
-                    } else if (prop_type.is_enum ()) {
+                    if (prop_type.is_enum ()) {
                         obj.set_property (
                             property.name,
                             get_enum_by_nick (prop_type, val.get_string ())
@@ -459,7 +450,7 @@ public class ApiBase.Jsoner : Object {
                     } else {
                         obj.set_property (
                             property.name,
-                            val
+                            convert_type (prop_type, val)
                         );
                     }
                     break;
@@ -511,8 +502,15 @@ public class ApiBase.Jsoner : Object {
      */
     public void deserialize_array_into (
         ArrayList array_list,
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws CommonError {
+        deserialize_array_into_real (array_list, null, sub_creation_func);
+    }
+
+    internal void deserialize_array_into_real (
+        ArrayList array_list,
         Json.Node? node = null,
-        SubArrayCreationFunc? sub_creation_func = null
+        SubCollectionCreationFunc? sub_creation_func = null
     ) throws CommonError {
         if (node == null) {
             node = root;
@@ -536,10 +534,10 @@ public class ApiBase.Jsoner : Object {
             Type sub_element_type = narray_list[0].element_type;
 
             foreach (var sub_node in jarray.get_elements ()) {
-                ArrayList new_array_list;
+                Traversable new_col;
 
                 if (sub_creation_func != null) {
-                    if (!sub_creation_func (out new_array_list, sub_element_type)) {
+                    if (!sub_creation_func (out new_col, sub_element_type)) {
                         error ("Creation func failed");
                     }
 
@@ -547,8 +545,11 @@ public class ApiBase.Jsoner : Object {
                     error ("Creation func is null");
                 }
 
+                assert (new_col is ArrayList);
+                var new_array_list = (ArrayList) new_col;
+
                 try {
-                    deserialize_array_into (new_array_list, sub_node, sub_creation_func);
+                    deserialize_array_into_real (new_array_list, sub_node, sub_creation_func);
                     narray_list.add (new_array_list);
                 } catch (CommonError e) {}
             }
@@ -573,7 +574,7 @@ public class ApiBase.Jsoner : Object {
 
                     foreach (var sub_node in jarray.get_elements ()) {
                         try {
-                            narray_list.add (deserialize_value (sub_node).get_string ());
+                            narray_list.add (convert_to_string (deserialize_value (sub_node)));
                         } catch (CommonError e) {}
                     }
                     break;
@@ -583,7 +584,7 @@ public class ApiBase.Jsoner : Object {
 
                     foreach (var sub_node in jarray.get_elements ()) {
                         try {
-                            narray_list.add ((int) deserialize_value (sub_node).get_int64 ());
+                            narray_list.add (convert_to_int (deserialize_value (sub_node)));
                         } catch (CommonError e) {}
                     }
                     break;
@@ -593,7 +594,27 @@ public class ApiBase.Jsoner : Object {
 
                     foreach (var sub_node in jarray.get_elements ()) {
                         try {
-                            narray_list.add (deserialize_value (sub_node).get_int64 ());
+                            narray_list.add (convert_to_int64 (deserialize_value (sub_node)));
+                        } catch (CommonError e) {}
+                    }
+                    break;
+
+                case Type.DOUBLE:
+                    var narray_list = array_list as ArrayList<double>;
+
+                    foreach (var sub_node in jarray.get_elements ()) {
+                        try {
+                            narray_list.add (convert_to_double (deserialize_value (sub_node)));
+                        } catch (CommonError e) {}
+                    }
+                    break;
+
+                case Type.BOOLEAN:
+                    var narray_list = array_list as ArrayList<bool>;
+
+                    foreach (var sub_node in jarray.get_elements ()) {
+                        try {
+                            narray_list.add (convert_to_bool (deserialize_value (sub_node)));
                         } catch (CommonError e) {}
                     }
                     break;
@@ -632,7 +653,7 @@ public class ApiBase.Jsoner : Object {
      * Asynchronous version of method {@link deserialize_object}
      */
     public async T deserialize_object_async<T> (
-        SubArrayCreationFunc? sub_creation_func = null
+        SubCollectionCreationFunc? sub_creation_func = null
     ) throws CommonError {
         CommonError? error = null;
 
@@ -663,7 +684,7 @@ public class ApiBase.Jsoner : Object {
      */
     public async Object deserialize_object_by_type_async (
         GLib.Type obj_type,
-        SubArrayCreationFunc? sub_creation_func = null
+        SubCollectionCreationFunc? sub_creation_func = null
     ) throws CommonError {
         CommonError? error = null;
 
@@ -694,7 +715,7 @@ public class ApiBase.Jsoner : Object {
      */
     public async void deserialize_object_into_async (
         Object obj,
-        SubArrayCreationFunc? sub_creation_func = null
+        SubCollectionCreationFunc? sub_creation_func = null
     ) throws CommonError {
         CommonError? error = null;
 
@@ -723,14 +744,13 @@ public class ApiBase.Jsoner : Object {
      */
     public async void deserialize_array_into_async (
         ArrayList array_list,
-        Json.Node? node = null,
-        SubArrayCreationFunc? sub_creation_func = null
+        SubCollectionCreationFunc? sub_creation_func = null
     ) throws CommonError {
         CommonError? error = null;
 
         var thread = new Thread<void> (null, () => {
             try {
-                deserialize_array_into (array_list, node, sub_creation_func);
+                deserialize_array_into (array_list, sub_creation_func);
             } catch (CommonError e) {
                 error = e;
             }

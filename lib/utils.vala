@@ -22,7 +22,7 @@ namespace ApiBase {
     /**
      * 
      */
-    public delegate bool SubArrayCreationFunc (out Gee.ArrayList array, Type element_type);
+    public delegate bool SubCollectionCreationFunc (out Gee.Traversable collection, Type element_type);
 
     internal const string GET = "GET";
     internal const string POST = "POST";
@@ -146,6 +146,103 @@ namespace ApiBase {
 
     internal EnumClass get_enum_class (Type enum_type) {
         return (EnumClass) enum_type.class_ref ();
+    }
+
+    internal int64 convert_to_int64 (Value value) {
+        if (value.holds (Type.STRING)) {
+            return int64.parse (value.get_string ());
+        } else if (value.holds (Type.INT)) {
+            return (int64) value.get_int ();
+        } else if (value.holds (Type.INT64)) {
+            return value.get_int64 ();
+        } else if (value.holds (Type.DOUBLE)) {
+            return (int64) value.get_double ();
+        } else if (value.holds (Type.BOOLEAN)) {
+            return value.get_boolean () ? 1 : 0;
+        } else {
+            error ("Cannot convert to int64");
+        }
+    }
+
+    internal double convert_to_double (Value value) {
+        if (value.holds (Type.STRING)) {
+            return double.parse (value.get_string ());
+        } else if (value.holds (Type.INT)) {
+            return (double) value.get_int ();
+        } else if (value.holds (Type.INT64)) {
+            return (double) value.get_int64 ();
+        } else if (value.holds (Type.DOUBLE)) {
+            return value.get_double ();
+        } else if (value.holds (Type.BOOLEAN)) {
+            return value.get_boolean () ? 1 : 0;
+        } else {
+            error ("Cannot convert to double");
+        }
+    }
+
+    internal string convert_to_string (Value value) {
+        if (value.holds (Type.STRING)) {
+            return value.get_string ();
+        } else if (value.holds (Type.INT)) {
+            return value.get_int ().to_string ();
+        } else if (value.holds (Type.INT64)) {
+            return value.get_int64 ().to_string ();
+        } else if (value.holds (Type.DOUBLE)) {
+            return value.get_double ().to_string ();
+        } else if (value.holds (Type.BOOLEAN)) {
+            return value.get_boolean ().to_string ();
+        } else {
+            error ("Cannot convert to string");
+        }
+    }
+
+    internal int convert_to_int (Value value) {
+        if (value.holds (Type.STRING)) {
+            return int.parse (value.get_string ());
+        } else if (value.holds (Type.INT)) {
+            return value.get_int ();
+        } else if (value.holds (Type.INT64)) {
+            return int.MIN < value.get_int64 () < int.MAX ? (int) value.get_int64 () : 0;
+        } else if (value.holds (Type.DOUBLE)) {
+            return (int) value.get_double ();
+        } else if (value.holds (Type.BOOLEAN)) {
+            return value.get_boolean () ? 1 : 0;
+        } else {
+            error ("Cannot convert to int");
+        }
+    }
+
+    internal bool convert_to_bool (Value value) {
+        if (value.holds (Type.STRING)) {
+            return bool.parse (value.get_string ());
+        } else if (value.holds (Type.INT)) {
+            return value.get_int () > 0 ? true : false;
+        } else if (value.holds (Type.INT64)) {
+            return value.get_int64 () > 0 ? true : false;
+        } else if (value.holds (Type.DOUBLE)) {
+            return value.get_double () > 0 ? true : false;
+        } else if (value.holds (Type.BOOLEAN)) {
+            return value.get_boolean ();
+        } else {
+            error ("Cannot convert to bool");
+        }
+    }
+
+    internal Value convert_type (Type desired_type, Value value) {
+        switch (desired_type) {
+            case Type.STRING:
+                return convert_to_string (value);
+            case Type.INT:
+                return convert_to_int (value);
+            case Type.INT64:
+                return convert_to_int64 (value);
+            case Type.DOUBLE:
+                return convert_to_double (value);
+            case Type.BOOLEAN:
+                return convert_to_bool (value);
+            default:
+                error ("Cannot convert to %s", desired_type.name ());
+        }
     }
 
     internal int get_enum_by_nick (Type enum_type, string nick) {
