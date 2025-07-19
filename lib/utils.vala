@@ -144,8 +144,17 @@ namespace ApiBase {
         }
     }
 
-    public string get_enum_nick (Type enum_type, int enum_) {
-        var enum_class = (EnumClass) enum_type.class_ref ();
+    internal EnumClass get_enum_class (Type enum_type) {
+        return (EnumClass) enum_type.class_ref ();
+    }
+
+    internal int get_enum_by_nick (Type enum_type, string nick) {
+        var enum_class = get_enum_class (enum_type);
+        return enum_class.get_value_by_nick (snake2kebab (nick)).value;
+    }
+
+    internal string get_enum_nick (Type enum_type, int enum_) {
+        var enum_class = get_enum_class (enum_type);
         var enum_value = enum_class.get_value (enum_);
 
         return kebab2snake (enum_value.value_nick.down ());

@@ -429,7 +429,7 @@ public class ApiBase.Jsoner : Object {
                     } else if (prop_type.is_enum ()) {
                         obj.set_property (
                             property.name,
-                            ((EnumClass) prop_type.class_ref ()).get_value_by_nick (val.get_string ().down ()).value
+                            get_enum_by_nick (prop_type, val.get_string ())
                         );
 
                     } else {
