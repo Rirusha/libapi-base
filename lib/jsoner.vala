@@ -193,26 +193,99 @@ public class ApiBase.Jsoner : Object {
             }
 
         } else if (element_type.is_object ()) {
-            foreach (var api_obj in (ArrayList<Object>) array_list) {
-                serialize_object (builder, api_obj, names_case);
+            foreach (var obj in (ArrayList<Object>) array_list) {
+                serialize_object (builder, obj, names_case);
             }
 
         } else {
             switch (element_type) {
                 case Type.STRING:
-                    foreach (string val in (ArrayList<string>) array_list) {
+                    foreach (var val in (ArrayList<string>) array_list) {
                         serialize_value (builder, val);
                     }
                     break;
 
                 case Type.INT:
-                    foreach (int val in (ArrayList<int>) array_list) {
+                    foreach (var val in (ArrayList<int>) array_list) {
+                        serialize_value (builder, val);
+                    }
+                    break;
+
+                case Type.INT64:
+                    foreach (var val in (ArrayList<int64?>) array_list) {
+                        serialize_value (builder, val);
+                    }
+                    break;
+
+                case Type.DOUBLE:
+                    foreach (var val in (ArrayList<double?>) array_list) {
+                        serialize_value (builder, val);
+                    }
+                    break;
+
+                case Type.BOOLEAN:
+                    foreach (var val in (ArrayList<bool>) array_list) {
                         serialize_value (builder, val);
                     }
                     break;
             }
         }
         builder.end_array ();
+    }
+
+    static void serialize_hash_map (
+        Json.Builder builder,
+        HashMap hash_map,
+        Type element_type,
+        Case names_case = Case.KEBAB
+    ) {
+        builder.begin_object ();
+
+        if (element_type.is_object ()) {
+            foreach (var entry in (HashMap<string, Object>) hash_map) {
+                builder.set_member_name (entry.key);
+                serialize_object (builder, entry.value, names_case);
+            }
+
+        } else {
+            switch (element_type) {
+                case Type.STRING:
+                    foreach (var entry in (HashMap<string, string>) hash_map) {
+                        builder.set_member_name (entry.key);
+                        serialize_value (builder, entry.value);
+                    }
+                    break;
+
+                case Type.INT:
+                    foreach (var entry in (HashMap<string, int>) hash_map) {
+                        builder.set_member_name (entry.key);
+                        serialize_value (builder, entry.value);
+                    }
+                    break;
+
+                case Type.INT64:
+                    foreach (var entry in (HashMap<string, int64?>) hash_map) {
+                        builder.set_member_name (entry.key);
+                        serialize_value (builder, entry.value);
+                    }
+                    break;
+
+                case Type.DOUBLE:
+                    foreach (var entry in (HashMap<string, double?>) hash_map) {
+                        builder.set_member_name (entry.key);
+                        serialize_value (builder, entry.value);
+                    }
+                    break;
+
+                case Type.BOOLEAN:
+                    foreach (var entry in (HashMap<string, bool>) hash_map) {
+                        builder.set_member_name (entry.key);
+                        serialize_value (builder, entry.value);
+                    }
+                    break;
+            }
+        }
+        builder.end_object ();
     }
 
     static void serialize_object (
@@ -259,6 +332,12 @@ public class ApiBase.Jsoner : Object {
                 Type element_type = array_list.element_type;
 
                 serialize_array (builder, array_list, element_type, names_case);
+
+            } else if (property.value_type == typeof (HashMap)) {
+                var hash_map = (HashMap) prop_val.get_object ();
+                Type element_type = hash_map.element_type;
+
+                serialize_hash_map (builder, hash_map, element_type, names_case);
 
             } else if (property.value_type.is_object ()) {
                 serialize_object (builder, (Object) prop_val.get_object (), names_case);
@@ -414,6 +493,7 @@ public class ApiBase.Jsoner : Object {
             }
 
             if (!node.get_object ().has_member (member_name)) {
+                warning ("Json string hasn't '%s' of %s::%s", member_name, obj_type.name (), property.name);
                 continue;
             }
 
@@ -433,10 +513,25 @@ public class ApiBase.Jsoner : Object {
                     break;
 
                 case Json.NodeType.OBJECT:
-                    obj.set_property (
-                        property.name,
-                        deserialize_object_by_type_real (prop_type, sub_node, sub_creation_func)
-                    );
+                    if (prop_type.is_a (typeof (HashMap))) {
+                        var dictval = Value (prop_type);
+                        obj.get_property (property.name, ref dictval);
+                        HashMap hash_map = (HashMap) dictval.get_object ();
+
+                        deserialize_dict_into_real (hash_map, sub_node, sub_creation_func);
+                        obj.set_property (
+                            property.name,
+                            hash_map
+                        );
+                        break;
+
+                    } else {
+                        obj.set_property (
+                            property.name,
+                            deserialize_object_by_type_real (prop_type, sub_node, sub_creation_func)
+                        );
+                    }
+
                     break;
 
                 case Json.NodeType.VALUE:
@@ -600,7 +695,7 @@ public class ApiBase.Jsoner : Object {
                     break;
 
                 case Type.DOUBLE:
-                    var narray_list = array_list as ArrayList<double>;
+                    var narray_list = array_list as ArrayList<double?>;
 
                     foreach (var sub_node in jarray.get_elements ()) {
                         try {
@@ -622,6 +717,130 @@ public class ApiBase.Jsoner : Object {
                 default:
                     warning ("Unknown type of element of array - %s",
                         array_list.element_type.name ()
+                    );
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Method for deserializing the {@link Gee.ArrayList}
+     *
+     * @param array_list        array
+     * @param node              the node that will be deserialized. Will be used
+     *                          root if `null` is passed
+     * @param sub_creation_func a function for creating subsets in the case of arrays in an array
+     */
+    public void deserialize_dict_into (
+        HashMap hash_map,
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws CommonError {
+        deserialize_dict_into_real (hash_map, null, sub_creation_func);
+    }
+
+    internal void deserialize_dict_into_real (
+        HashMap hash_map,
+        Json.Node? node = null,
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws CommonError {
+        if (node == null) {
+            node = root;
+        }
+
+        if (node.get_node_type () != Json.NodeType.OBJECT) {
+            warning ("Wrong type: expected %s, got %s",
+                Json.NodeType.OBJECT.to_string (),
+                node.get_node_type ().to_string ()
+            );
+            throw new CommonError.PARSE_JSON ("Node isn't object");
+        }
+
+        if (hash_map.key_type != Type.STRING) {
+            error ("HashMap can only have string as key type");
+        }
+
+        var jobject = node.get_object ();
+
+        if (hash_map.element_type.is_object ()) {
+            hash_map.clear ();
+            var narray_list = hash_map as HashMap<string, Object>;
+
+            foreach (var member_name in jobject.get_members ()) {
+                var sub_node = jobject.get_member (member_name);
+
+                try {
+                    narray_list[member_name] = deserialize_object_by_type_real (narray_list.element_type, sub_node);
+                } catch (CommonError e) {}
+            }
+
+        } else {
+            hash_map.clear ();
+
+            switch (hash_map.element_type) {
+                case Type.STRING:
+                    var narray_list = hash_map as HashMap<string, string>;
+
+                    foreach (var member_name in jobject.get_members ()) {
+                        var sub_node = jobject.get_member (member_name);
+
+                        try {
+                            narray_list[member_name] = convert_to_string (deserialize_value (sub_node));
+                        } catch (CommonError e) {}
+                    }
+
+                    break;
+
+                case Type.INT:
+                    var narray_list = hash_map as HashMap<string, int>;
+
+                    foreach (var member_name in jobject.get_members ()) {
+                        var sub_node = jobject.get_member (member_name);
+
+                        try {
+                            narray_list[member_name] = convert_to_int (deserialize_value (sub_node));
+                        } catch (CommonError e) {}
+                    }
+                    break;
+
+                case Type.INT64:
+                    var narray_list = hash_map as HashMap<string, int64?>;
+
+                    foreach (var member_name in jobject.get_members ()) {
+                        var sub_node = jobject.get_member (member_name);
+
+                        try {
+                            narray_list[member_name] = convert_to_int64 (deserialize_value (sub_node));
+                        } catch (CommonError e) {}
+                    }
+                    break;
+
+                case Type.DOUBLE:
+                    var narray_list = hash_map as HashMap<string, double>;
+
+                    foreach (var member_name in jobject.get_members ()) {
+                        var sub_node = jobject.get_member (member_name);
+
+                        try {
+                            narray_list[member_name] = convert_to_double (deserialize_value (sub_node));
+                        } catch (CommonError e) {}
+                    }
+                    break;
+
+                case Type.BOOLEAN:
+                    var narray_list = hash_map as HashMap<string, bool>;
+
+                    foreach (var member_name in jobject.get_members ()) {
+                        var sub_node = jobject.get_member (member_name);
+
+                        try {
+                            narray_list[member_name] = convert_to_bool (deserialize_value (sub_node));
+                        } catch (CommonError e) {}
+                    }
+                    break;
+
+                default:
+                    warning ("Unknown type of element of hashmap - %s",
+                        hash_map.element_type.name ()
                     );
                     break;
             }
