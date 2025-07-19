@@ -32,4 +32,18 @@ public abstract class ApiBase.DataObject : Object {
     public string to_json (ApiBase.Case names_case = ApiBase.Case.KEBAB) {
         return Jsoner.serialize (this, names_case);
     }
+
+    public static T from_json<T> (
+        string json,
+        string[]? sub_members = null,
+        ApiBase.Case names_case = ApiBase.Case.KEBAB
+    ) throws ApiBase.CommonError {
+        var type_ = typeof (T);
+        assert (type_.is_a (typeof (DataObject)));
+
+        var obj = (DataObject) Object.new (type_);
+        obj.fill_from_json (json, sub_members, names_case);
+
+        return (T) obj;
+    }
 }
