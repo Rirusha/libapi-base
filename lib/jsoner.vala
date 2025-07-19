@@ -323,16 +323,40 @@ public class ApiBase.Jsoner : Object {
      *
      * @return deserialized object
      */
-    public Object deserialize_object (
+    public T deserialize_object<T> (
+        SubArrayCreationFunc? sub_creation_func = null
+    ) throws CommonError {
+        return deserialize_object_by_type (typeof (T), sub_creation_func);
+    }
+
+    public Object deserialize_object_by_type (
+        GLib.Type obj_type,
+        SubArrayCreationFunc? sub_creation_func = null
+    ) throws CommonError {
+        var obj = Object.new (obj_type);
+
+        deserialize_object_into (obj, sub_creation_func);
+
+        return obj;
+    }
+
+    internal Object deserialize_object_by_type_real (
         GLib.Type obj_type,
         Json.Node? node = null,
         SubArrayCreationFunc? sub_creation_func = null
     ) throws CommonError {
-        var api_object = (Object) Object.new (obj_type);
+        var obj = Object.new (obj_type);
 
-        deserialize_object_into (api_object, node, sub_creation_func);
+        deserialize_object_into_real (obj, node, sub_creation_func);
 
-        return api_object;
+        return obj;
+    }
+
+    public void deserialize_object_into (
+        Object obj,
+        SubArrayCreationFunc? sub_creation_func = null
+    ) throws CommonError {
+        deserialize_object_into_real (obj, null, sub_creation_func);
     }
 
     /**
@@ -344,7 +368,7 @@ public class ApiBase.Jsoner : Object {
      *
      * @return deserialized object
      */
-    public void deserialize_object_into (
+    internal void deserialize_object_into_real (
         Object obj,
         Json.Node? node = null,
         SubArrayCreationFunc? sub_creation_func = null
@@ -414,7 +438,7 @@ public class ApiBase.Jsoner : Object {
                 case Json.NodeType.OBJECT:
                     obj.set_property (
                         property.name,
-                        deserialize_object (prop_type, sub_node, sub_creation_func)
+                        deserialize_object_by_type_real (prop_type, sub_node, sub_creation_func)
                     );
                     break;
 
@@ -536,7 +560,7 @@ public class ApiBase.Jsoner : Object {
 
             foreach (var sub_node in jarray.get_elements ()) {
                 try {
-                    narray_list.add (deserialize_object (narray_list.element_type, sub_node));
+                    narray_list.add (deserialize_object_by_type_real (narray_list.element_type, sub_node));
                 } catch (CommonError e) {}
             }
 
@@ -607,18 +631,16 @@ public class ApiBase.Jsoner : Object {
     /**
      * Asynchronous version of method {@link deserialize_object}
      */
-    public async Object deserialize_object_async (
-        GLib.Type obj_type,
-        Json.Node? node = null,
+    public async T deserialize_object_async<T> (
         SubArrayCreationFunc? sub_creation_func = null
     ) throws CommonError {
         CommonError? error = null;
 
-        var thread = new Thread<Object?> (null, () => {
-            Object? result = null;
+        var thread = new Thread<T?> (null, () => {
+            T? result = null;
 
             try {
-                result = deserialize_object (obj_type, node, sub_creation_func);
+                result = deserialize_object<T> (sub_creation_func);
             } catch (CommonError e) {
                 error = e;
             }
@@ -637,18 +659,48 @@ public class ApiBase.Jsoner : Object {
     }
 
     /**
+     * Asynchronous version of method {@link deserialize_object_by_type}
+     */
+    public async Object deserialize_object_by_type_async (
+        GLib.Type obj_type,
+        SubArrayCreationFunc? sub_creation_func = null
+    ) throws CommonError {
+        CommonError? error = null;
+
+        var thread = new Thread<Object?> (null, () => {
+            Object? result = null;
+
+            try {
+                result = deserialize_object_by_type (obj_type, sub_creation_func);
+            } catch (CommonError e) {
+                error = e;
+            }
+
+            Idle.add (deserialize_object_by_type_async.callback);
+            return result;
+        });
+
+        yield;
+
+        if (error != null) {
+            throw error;
+        }
+
+        return thread.join ();
+    }
+
+    /**
      * Asynchronous version of method {@link deserialize_object_into}
      */
     public async void deserialize_object_into_async (
         Object obj,
-        Json.Node? node = null,
         SubArrayCreationFunc? sub_creation_func = null
     ) throws CommonError {
         CommonError? error = null;
 
         var thread = new Thread<void> (null, () => {
             try {
-                deserialize_object_into (obj, node, sub_creation_func);
+                deserialize_object_into (obj, sub_creation_func);
             } catch (CommonError e) {
                 error = e;
             }
