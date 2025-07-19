@@ -510,7 +510,7 @@ public class ApiBase.Jsoner : Object {
                     break;
 
                 case Json.NodeType.VALUE:
-                    var val = deserialize_value (sub_node);
+                    var val = deserialize_value_real (sub_node);
                     if (prop_type.is_enum ()) {
                         obj.set_property (
                             property.name,
@@ -545,7 +545,11 @@ public class ApiBase.Jsoner : Object {
      *
      * @return deserialized value
      */
-    public Value deserialize_value (Json.Node? node = null) throws CommonError {
+    public Value deserialize_value () throws CommonError {
+        return deserialize_value_real (null);
+    }
+
+    internal Value deserialize_value_real (Json.Node? node = null) throws CommonError {
         if (node == null) {
             node = root;
         }
@@ -643,9 +647,7 @@ public class ApiBase.Jsoner : Object {
                     var narray_list = array_list as ArrayList<string>;
 
                     foreach (var sub_node in jarray.get_elements ()) {
-                        try {
-                            narray_list.add (convert_to_string (deserialize_value (sub_node)));
-                        } catch (CommonError e) {}
+                        narray_list.add (convert_to_string (deserialize_value_real (sub_node)));
                     }
                     break;
 
@@ -653,9 +655,7 @@ public class ApiBase.Jsoner : Object {
                     var narray_list = array_list as ArrayList<int>;
 
                     foreach (var sub_node in jarray.get_elements ()) {
-                        try {
-                            narray_list.add (convert_to_int (deserialize_value (sub_node)));
-                        } catch (CommonError e) {}
+                        narray_list.add (convert_to_int (deserialize_value_real (sub_node)));
                     }
                     break;
 
@@ -663,9 +663,7 @@ public class ApiBase.Jsoner : Object {
                     var narray_list = array_list as ArrayList<int64?>;
 
                     foreach (var sub_node in jarray.get_elements ()) {
-                        try {
-                            narray_list.add (convert_to_int64 (deserialize_value (sub_node)));
-                        } catch (CommonError e) {}
+                        narray_list.add (convert_to_int64 (deserialize_value_real (sub_node)));
                     }
                     break;
 
@@ -673,9 +671,7 @@ public class ApiBase.Jsoner : Object {
                     var narray_list = array_list as ArrayList<double?>;
 
                     foreach (var sub_node in jarray.get_elements ()) {
-                        try {
-                            narray_list.add (convert_to_double (deserialize_value (sub_node)));
-                        } catch (CommonError e) {}
+                        narray_list.add (convert_to_double (deserialize_value_real (sub_node)));
                     }
                     break;
 
@@ -683,9 +679,7 @@ public class ApiBase.Jsoner : Object {
                     var narray_list = array_list as ArrayList<bool>;
 
                     foreach (var sub_node in jarray.get_elements ()) {
-                        try {
-                            narray_list.add (convert_to_bool (deserialize_value (sub_node)));
-                        } catch (CommonError e) {}
+                        narray_list.add (convert_to_bool (deserialize_value_real (sub_node)));
                     }
                     break;
 
@@ -744,7 +738,11 @@ public class ApiBase.Jsoner : Object {
                 var sub_node = jobject.get_member (member_name);
 
                 try {
-                    narray_list[member_name] = deserialize_object_by_type_real (narray_list.element_type, sub_node);
+                    narray_list[member_name] = deserialize_object_by_type_real (
+                        narray_list.element_type,
+                        sub_node,
+                        sub_creation_func
+                    );
                 } catch (CommonError e) {}
             }
 
@@ -758,9 +756,7 @@ public class ApiBase.Jsoner : Object {
                     foreach (var member_name in jobject.get_members ()) {
                         var sub_node = jobject.get_member (member_name);
 
-                        try {
-                            narray_list[member_name] = convert_to_string (deserialize_value (sub_node));
-                        } catch (CommonError e) {}
+                        narray_list[member_name] = convert_to_string (deserialize_value_real (sub_node));
                     }
 
                     break;
@@ -771,9 +767,7 @@ public class ApiBase.Jsoner : Object {
                     foreach (var member_name in jobject.get_members ()) {
                         var sub_node = jobject.get_member (member_name);
 
-                        try {
-                            narray_list[member_name] = convert_to_int (deserialize_value (sub_node));
-                        } catch (CommonError e) {}
+                        narray_list[member_name] = convert_to_int (deserialize_value_real (sub_node));
                     }
                     break;
 
@@ -783,9 +777,7 @@ public class ApiBase.Jsoner : Object {
                     foreach (var member_name in jobject.get_members ()) {
                         var sub_node = jobject.get_member (member_name);
 
-                        try {
-                            narray_list[member_name] = convert_to_int64 (deserialize_value (sub_node));
-                        } catch (CommonError e) {}
+                        narray_list[member_name] = convert_to_int64 (deserialize_value_real (sub_node));
                     }
                     break;
 
@@ -795,9 +787,7 @@ public class ApiBase.Jsoner : Object {
                     foreach (var member_name in jobject.get_members ()) {
                         var sub_node = jobject.get_member (member_name);
 
-                        try {
-                            narray_list[member_name] = convert_to_double (deserialize_value (sub_node));
-                        } catch (CommonError e) {}
+                        narray_list[member_name] = convert_to_double (deserialize_value_real (sub_node));
                     }
                     break;
 
@@ -807,9 +797,7 @@ public class ApiBase.Jsoner : Object {
                     foreach (var member_name in jobject.get_members ()) {
                         var sub_node = jobject.get_member (member_name);
 
-                        try {
-                            narray_list[member_name] = convert_to_bool (deserialize_value (sub_node));
-                        } catch (CommonError e) {}
+                        narray_list[member_name] = convert_to_bool (deserialize_value_real (sub_node));
                     }
                     break;
 
