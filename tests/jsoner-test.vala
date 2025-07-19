@@ -134,6 +134,7 @@ public int main (string[] args) {
         test_object.value = null;
 
         string expectation = "{\"value\":null}";
+        message ("kek");
         string result = Jsoner.serialize (test_object);
 
         if (result != expectation) {

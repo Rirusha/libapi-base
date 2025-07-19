@@ -361,20 +361,27 @@ public class ApiBase.Jsoner : Object {
     static void serialize_value (Json.Builder builder, Value prop_val) {
         switch (prop_val.type ()) {
             case Type.INT:
+                builder.add_int_value ((int64) prop_val.get_int ());
+                break;
+
             case Type.INT64:
-                builder.add_int_value (convert_to_int64 (prop_val));
+                builder.add_int_value (prop_val.get_int64 ());
+                break;
+
+            case Type.FLOAT:
+                builder.add_double_value ((double) prop_val.get_float ());
                 break;
 
             case Type.DOUBLE:
-                builder.add_double_value (convert_to_double (prop_val));
+                builder.add_double_value (prop_val.get_double ());
                 break;
 
             case Type.STRING:
-                builder.add_string_value (convert_to_string (prop_val));
+                builder.add_string_value (prop_val.get_string ());
                 break;
 
             case Type.BOOLEAN:
-                builder.add_boolean_value (convert_to_bool (prop_val));
+                builder.add_boolean_value (prop_val.get_boolean ());
                 break;
 
             case Type.NONE:
@@ -544,9 +551,11 @@ public class ApiBase.Jsoner : Object {
                         );
 
                     } else {
+                        var new_val = Value (prop_type);
+                        val.transform (ref new_val);
                         obj.set_property (
                             property.name,
-                            convert_type (prop_type, val)
+                            new_val
                         );
                     }
                     break;
@@ -665,52 +674,43 @@ public class ApiBase.Jsoner : Object {
         } else {
             array_list.clear ();
 
-            switch (array_list.element_type) {
-                case Type.STRING:
-                    var narray_list = array_list as ArrayList<string>;
+            foreach (var sub_node in jarray.get_elements ()) {
+                var dval = deserialize_value_real (sub_node);
+                var new_val = Value (array_list.element_type);
+                dval.transform (ref new_val);
 
-                    foreach (var sub_node in jarray.get_elements ()) {
-                        narray_list.add (convert_to_string (deserialize_value_real (sub_node)));
-                    }
-                    break;
+                switch (array_list.element_type) {
+                    case Type.STRING:
+                        var narray_list = array_list as ArrayList<string>;
+                        narray_list.add (new_val.get_string ());
+                        break;
 
-                case Type.INT:
-                    var narray_list = array_list as ArrayList<int>;
+                    case Type.INT:
+                        var narray_list = array_list as ArrayList<int>;
+                        narray_list.add (new_val.get_int ());
+                        break;
 
-                    foreach (var sub_node in jarray.get_elements ()) {
-                        narray_list.add (convert_to_int (deserialize_value_real (sub_node)));
-                    }
-                    break;
+                    case Type.INT64:
+                        var narray_list = array_list as ArrayList<int64?>;
+                        narray_list.add (new_val.get_int64 ());
+                        break;
 
-                case Type.INT64:
-                    var narray_list = array_list as ArrayList<int64?>;
+                    case Type.DOUBLE:
+                        var narray_list = array_list as ArrayList<double?>;
+                        narray_list.add (new_val.get_double ());
+                        break;
 
-                    foreach (var sub_node in jarray.get_elements ()) {
-                        narray_list.add (convert_to_int64 (deserialize_value_real (sub_node)));
-                    }
-                    break;
+                    case Type.BOOLEAN:
+                        var narray_list = array_list as ArrayList<bool>;
+                        narray_list.add (new_val.get_boolean ());
+                        break;
 
-                case Type.DOUBLE:
-                    var narray_list = array_list as ArrayList<double?>;
-
-                    foreach (var sub_node in jarray.get_elements ()) {
-                        narray_list.add (convert_to_double (deserialize_value_real (sub_node)));
-                    }
-                    break;
-
-                case Type.BOOLEAN:
-                    var narray_list = array_list as ArrayList<bool>;
-
-                    foreach (var sub_node in jarray.get_elements ()) {
-                        narray_list.add (convert_to_bool (deserialize_value_real (sub_node)));
-                    }
-                    break;
-
-                default:
-                    warning ("Unknown type of element of array - %s",
-                        array_list.element_type.name ()
-                    );
-                    break;
+                    default:
+                        warning ("Unknown type of element of array - %s",
+                            array_list.element_type.name ()
+                        );
+                        break;
+                }
             }
         }
     }
@@ -772,63 +772,44 @@ public class ApiBase.Jsoner : Object {
         } else {
             hash_map.clear ();
 
-            switch (hash_map.element_type) {
-                case Type.STRING:
-                    var narray_list = hash_map as HashMap<string, string>;
+            foreach (var member_name in jobject.get_members ()) {
+                var sub_node = jobject.get_member (member_name);
+                var dval = deserialize_value_real (sub_node);
+                var new_val = Value (hash_map.element_type);
+                dval.transform (ref new_val);
 
-                    foreach (var member_name in jobject.get_members ()) {
-                        var sub_node = jobject.get_member (member_name);
+                switch (hash_map.element_type) {
+                    case Type.STRING:
+                        var narray_list = hash_map as HashMap<string, string>;
+                        narray_list[member_name] = new_val.get_string ();
+                        break;
 
-                        narray_list[member_name] = convert_to_string (deserialize_value_real (sub_node));
-                    }
+                    case Type.INT:
+                        var narray_list = hash_map as HashMap<string, int>;
+                        narray_list[member_name] = new_val.get_int ();
+                        break;
 
-                    break;
+                    case Type.INT64:
+                        var narray_list = hash_map as HashMap<string, int64?>;
+                        narray_list[member_name] = new_val.get_int64 ();
+                        break;
 
-                case Type.INT:
-                    var narray_list = hash_map as HashMap<string, int>;
+                    case Type.DOUBLE:
+                        var narray_list = hash_map as HashMap<string, double?>;
+                        narray_list[member_name] = new_val.get_double ();
+                        break;
 
-                    foreach (var member_name in jobject.get_members ()) {
-                        var sub_node = jobject.get_member (member_name);
+                    case Type.BOOLEAN:
+                        var narray_list = hash_map as HashMap<string, bool>;
+                        narray_list[member_name] = new_val.get_boolean ();
+                        break;
 
-                        narray_list[member_name] = convert_to_int (deserialize_value_real (sub_node));
-                    }
-                    break;
-
-                case Type.INT64:
-                    var narray_list = hash_map as HashMap<string, int64?>;
-
-                    foreach (var member_name in jobject.get_members ()) {
-                        var sub_node = jobject.get_member (member_name);
-
-                        narray_list[member_name] = convert_to_int64 (deserialize_value_real (sub_node));
-                    }
-                    break;
-
-                case Type.DOUBLE:
-                    var narray_list = hash_map as HashMap<string, double?>;
-
-                    foreach (var member_name in jobject.get_members ()) {
-                        var sub_node = jobject.get_member (member_name);
-
-                        narray_list[member_name] = convert_to_double (deserialize_value_real (sub_node));
-                    }
-                    break;
-
-                case Type.BOOLEAN:
-                    var narray_list = hash_map as HashMap<string, bool>;
-
-                    foreach (var member_name in jobject.get_members ()) {
-                        var sub_node = jobject.get_member (member_name);
-
-                        narray_list[member_name] = convert_to_bool (deserialize_value_real (sub_node));
-                    }
-                    break;
-
-                default:
-                    warning ("Unknown type of element of hashmap - %s",
-                        hash_map.element_type.name ()
-                    );
-                    break;
+                    default:
+                        warning ("Unknown type of element of hashmap - %s",
+                            hash_map.element_type.name ()
+                        );
+                        break;
+                }
             }
         }
     }
