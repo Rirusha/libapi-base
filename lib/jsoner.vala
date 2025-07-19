@@ -604,10 +604,6 @@ public class ApiBase.Jsoner : Object {
         return thread.join ();
     }
 
-    ///////////////////
-    // Deserialize  //
-    ///////////////////
-
     /**
      * Asynchronous version of method {@link deserialize_object}
      */
