@@ -131,31 +131,6 @@ public class ApiBase.Jsoner : Object {
     /////////////////
 
     /**
-     * Serialize {@link GLib.Datalist} into a correct json string
-     *
-     * @param datalist  {@link GLib.Datalist}
-     *
-     * @return          json string
-     */
-    public static string serialize_datalist (Datalist<string> datalist) {
-        var builder = new Json.Builder ();
-        builder.begin_object ();
-
-        datalist.foreach ((key_id, data) => {
-            builder.set_member_name (key_id.to_string ());
-
-            Jsoner.serialize_value (builder, data);
-        });
-
-        builder.end_object ();
-
-        var generator = new Json.Generator ();
-        generator.set_root (builder.get_root ());
-
-        return generator.to_data (null);
-    }
-
-    /**
      * Serialize {@link Object} into a correct json string
      *
      * @param datalist      {@link Object}
