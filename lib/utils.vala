@@ -22,7 +22,7 @@ namespace ApiBase {
     /**
      * 
      */
-    public delegate bool SubCollectionCreationFunc (out Gee.Traversable collection, Type element_type);
+    public delegate void SubCollectionCreationFunc (out Gee.Traversable collection, Type element_type);
 
     internal const string GET = "GET";
     internal const string POST = "POST";
@@ -158,6 +158,26 @@ namespace ApiBase {
         var enum_value = enum_class.get_value (enum_);
 
         return kebab2snake (enum_value.value_nick.down ());
+    }
+
+    public Datalist<T> hashmap_to_datalist<T> (Gee.HashMap<string, T> hash_map) {
+        var dl = Datalist<T> ();
+
+        foreach (var entry in hash_map) {
+            dl.set_data (entry.key, entry.value);
+        }
+
+        return dl;
+    }
+
+    public Gee.HashMap<string, T> datalist_to_hashmap<T> (Datalist<T> datalist) {
+        var hash_map = new Gee.HashMap<string, T> ();
+
+        datalist.foreach ((key_quark, value) => {
+            hash_map.set (key_quark.to_string (), value);
+        });
+
+        return hash_map;
     }
 
     /**

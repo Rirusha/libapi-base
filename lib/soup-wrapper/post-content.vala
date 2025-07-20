@@ -41,7 +41,7 @@ public struct ApiBase.PostContent {
             content = Soup.Form.encode_datalist (datalist);
             break;
         case JSON:
-            content = Jsoner.serialize_datalist (datalist);
+            content = Jsoner.serialize (datalist_to_hashmap<string> (datalist));
             break;
         default:
             assert_not_reached ();

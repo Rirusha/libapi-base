@@ -130,24 +130,6 @@ public class ApiBase.Jsoner : Object {
     // Serialize  //
     /////////////////
 
-    internal static string serialize_datalist (Datalist<string> datalist) {
-        var builder = new Json.Builder ();
-        builder.begin_object ();
-
-        datalist.foreach ((key_id, data) => {
-            builder.set_member_name (key_id.to_string ());
-
-            Jsoner.serialize_value (builder, data);
-        });
-
-        builder.end_object ();
-
-        var generator = new Json.Generator ();
-        generator.set_root (builder.get_root ());
-
-        return generator.to_data (null);
-    }
-
     /**
      * Serialize {@link Object} into a correct json string
      *
@@ -158,12 +140,19 @@ public class ApiBase.Jsoner : Object {
      */
     public static string serialize (
         Object obj,
-        Case names_case = Case.KEBAB
+        Case names_case = Case.KEBAB,
+        bool pretty = false
     ) {
         var builder = new Json.Builder ();
-        serialize_object (builder, obj, names_case);
 
-        return Json.to_string (builder.get_root (), false);
+        if (obj is HashMap) {
+            var dict = (HashMap) obj;
+            serialize_hash_map (builder, dict, dict.value_type, names_case);
+        } else {
+            serialize_object (builder, obj, names_case);
+        }
+
+        return Json.to_string (builder.get_root (), pretty);
     }
 
     static void serialize_array (
@@ -232,14 +221,14 @@ public class ApiBase.Jsoner : Object {
 
     static void serialize_hash_map (
         Json.Builder builder,
-        HashMap hash_map,
+        HashMap dict,
         Type element_type,
         Case names_case = Case.KEBAB
     ) {
         builder.begin_object ();
 
         if (element_type.is_object ()) {
-            foreach (var entry in (HashMap<string, Object>) hash_map) {
+            foreach (var entry in (HashMap<string, Object>) dict) {
                 builder.set_member_name (entry.key);
                 serialize_object (builder, entry.value, names_case);
             }
@@ -247,21 +236,21 @@ public class ApiBase.Jsoner : Object {
         } else {
             switch (element_type) {
                 case Type.STRING:
-                    foreach (var entry in (HashMap<string, string>) hash_map) {
+                    foreach (var entry in (HashMap<string, string>) dict) {
                         builder.set_member_name (entry.key);
                         serialize_value (builder, entry.value);
                     }
                     break;
 
                 case Type.INT:
-                    foreach (var entry in (HashMap<string, int>) hash_map) {
+                    foreach (var entry in (HashMap<string, int>) dict) {
                         builder.set_member_name (entry.key);
                         serialize_value (builder, entry.value);
                     }
                     break;
 
                 case Type.INT64:
-                    foreach (var entry in (HashMap<string, int64?>) hash_map) {
+                    foreach (var entry in (HashMap<string, int64?>) dict) {
                         builder.set_member_name (entry.key);
                         var tval = Value (Type.INT64);
                         tval.set_int64 (entry.value);
@@ -270,7 +259,7 @@ public class ApiBase.Jsoner : Object {
                     break;
 
                 case Type.DOUBLE:
-                    foreach (var entry in (HashMap<string, double?>) hash_map) {
+                    foreach (var entry in (HashMap<string, double?>) dict) {
                         builder.set_member_name (entry.key);
                         var tval = Value (Type.DOUBLE);
                         tval.set_double (entry.value);
@@ -279,7 +268,7 @@ public class ApiBase.Jsoner : Object {
                     break;
 
                 case Type.BOOLEAN:
-                    foreach (var entry in (HashMap<string, bool>) hash_map) {
+                    foreach (var entry in (HashMap<string, bool>) dict) {
                         builder.set_member_name (entry.key);
                         serialize_value (builder, entry.value);
                     }
@@ -651,9 +640,7 @@ public class ApiBase.Jsoner : Object {
                 Traversable new_col;
 
                 if (sub_creation_func != null) {
-                    if (!sub_creation_func (out new_col, sub_element_type)) {
-                        error ("Creation func failed");
-                    }
+                    sub_creation_func (out new_col, sub_element_type);
 
                 } else {
                     error ("Creation func is null");
@@ -829,10 +816,11 @@ public class ApiBase.Jsoner : Object {
      */
     public static async string serialize_async (
         Object obj,
-        Case names_case = Case.KEBAB
+        Case names_case = Case.KEBAB,
+        bool pretty = false
     ) {
         var thread = new Thread<string> (null, () => {
-            var result = serialize (obj, names_case);
+            var result = serialize (obj, names_case, pretty);
 
             Idle.add (serialize_async.callback);
             return result;

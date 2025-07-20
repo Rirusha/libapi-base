@@ -55,7 +55,7 @@ public class TestObjectEnum : Object {
     public TestEnum value { get; set; }
 }
 
-public class TestObjectObject : Object {
+public class SimpleObject : Object {
     public string string_value { get; set; }
     public int int_value { get; set; }
     public bool bool_value { get; set; }
@@ -70,11 +70,11 @@ public class TestObjectDictString : DataObject {
 }
 
 public class TestObjectArrayObject : DataObject {
-    public Gee.ArrayList<TestObjectObject> value { get; set; default = new Gee.ArrayList<TestObjectObject> (); }
+    public Gee.ArrayList<SimpleObject> value { get; set; default = new Gee.ArrayList<SimpleObject> (); }
 }
 
 public class TestObjectArrayArray : Object {
-    public Gee.ArrayList<Gee.ArrayList<TestObjectObject>> value { get; set; default = new Gee.ArrayList<Gee.ArrayList<TestObjectObject>> (); }
+    public Gee.ArrayList<Gee.ArrayList<SimpleObject>> value { get; set; default = new Gee.ArrayList<Gee.ArrayList<SimpleObject>> (); }
 }
 
 public class TestObjectAlbum : Object {
@@ -160,7 +160,14 @@ public int main (string[] args) {
                     break;
             }
 
-            var result = DataObject.from_json<ValuesData> (json, null, c);
+            ValuesData result;
+
+            try {
+                result = DataObject.from_json<ValuesData> (json, null, c);
+            } catch (Error e) {
+                Test.fail_printf (e.message);
+                return;
+            }
 
             if (result.string_val != test_string_val) {
                 Test.fail_printf (@"$(result.string_val) != $(test_string_val)");
@@ -200,7 +207,7 @@ public int main (string[] args) {
     });
 
     Test.add_func ("/jsoner/serialize/yam_obj", () => {
-        var test_object = new TestObjectObject ();
+        var test_object = new SimpleObject ();
         test_object.string_value = "test";
         test_object.int_value = 42;
         test_object.bool_value = true;
@@ -231,20 +238,30 @@ public int main (string[] args) {
     });
 
     Test.add_func ("/jsoner/serialize/dict/string", () => {
-        try {
-            var expected_json = "{\"value\":{\"kekw\":\"yes\",\"kek\":\"no\"}}";
+        var expected_json = "{\"value\":{\"kekw\":\"yes\",\"kek\":\"no\"}}";
 
-            var obj = new TestObjectDictString ();
-            obj.value.set ("kekw", "yes");
-            obj.value.set ("kek", "no");
+        var obj = new TestObjectDictString ();
+        obj.value.set ("kekw", "yes");
+        obj.value.set ("kek", "no");
 
-            var result = obj.to_json ();
+        var result = obj.to_json ();
 
-            if (result != expected_json) {
-                Test.fail_printf (@"$result != $expected_json");
-            }
-        } catch (CommonError e) {
-            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        if (result != expected_json) {
+            Test.fail_printf (@"$result != $expected_json");
+        }
+    });
+
+    Test.add_func ("/jsoner/serialize/dict/string/direct", () => {
+        var expected_json = "{\"kekw\":\"yes\",\"kek\":\"no\"}";
+
+        var obj = new Gee.HashMap<string, string> ();
+        obj.set ("kekw", "yes");
+        obj.set ("kek", "no");
+
+        var result = Jsoner.serialize (obj);
+
+        if (result != expected_json) {
+            Test.fail_printf (@"$result != $expected_json");
         }
     });
 
@@ -267,12 +284,12 @@ public int main (string[] args) {
 
     Test.add_func ("/jsoner/serialize/array/object", () => {
         var test_object = new TestObjectArrayObject ();
-        test_object.value.add (new TestObjectObject ());
-        test_object.value.add (new TestObjectObject () { string_value = "why are we still here", int_value = 42 });
-        test_object.value.add (new TestObjectObject () { bool_value = false });
-        test_object.value.add (new TestObjectObject ());
-        test_object.value.add (new TestObjectObject () { string_value = "kekw" });
-        test_object.value.add (new TestObjectObject ());
+        test_object.value.add (new SimpleObject ());
+        test_object.value.add (new SimpleObject () { string_value = "why are we still here", int_value = 42 });
+        test_object.value.add (new SimpleObject () { bool_value = false });
+        test_object.value.add (new SimpleObject ());
+        test_object.value.add (new SimpleObject () { string_value = "kekw" });
+        test_object.value.add (new SimpleObject ());
 
         string expectation = "{\"value\":[{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":\"why are we still here\",\"int-value\":42,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":\"kekw\",\"int-value\":0,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false}]}";
         string result = Jsoner.serialize (test_object);
@@ -284,12 +301,12 @@ public int main (string[] args) {
 
     Test.add_func ("/jsoner/serialize/array/object2", () => {
         var test_object = new TestObjectArrayObject ();
-        test_object.value.add (new TestObjectObject ());
-        test_object.value.add (new TestObjectObject () { string_value = "why are we still here", int_value = 42 });
-        test_object.value.add (new TestObjectObject () { bool_value = false });
-        test_object.value.add (new TestObjectObject ());
-        test_object.value.add (new TestObjectObject () { string_value = "kekw" });
-        test_object.value.add (new TestObjectObject ());
+        test_object.value.add (new SimpleObject ());
+        test_object.value.add (new SimpleObject () { string_value = "why are we still here", int_value = 42 });
+        test_object.value.add (new SimpleObject () { bool_value = false });
+        test_object.value.add (new SimpleObject ());
+        test_object.value.add (new SimpleObject () { string_value = "kekw" });
+        test_object.value.add (new SimpleObject ());
 
         string expectation = "{\"value\":[{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":\"why are we still here\",\"int-value\":42,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":\"kekw\",\"int-value\":0,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false}]}";
         string result = test_object.to_json ();
@@ -301,15 +318,15 @@ public int main (string[] args) {
 
     Test.add_func ("/jsoner/serialize/array/array", () => {
         var test_object = new TestObjectArrayArray ();
-        test_object.value.add (new Gee.ArrayList<TestObjectObject> ());
-        test_object.value.add (new Gee.ArrayList<TestObjectObject> ());
-        test_object.value.add (new Gee.ArrayList<TestObjectObject> ());
-        test_object.value[0].add (new TestObjectObject ());
-        test_object.value[0].add (new TestObjectObject ());
-        test_object.value[1].add (new TestObjectObject () { string_value = "why are we still here", int_value = 42 });
-        test_object.value[1].add (new TestObjectObject () { bool_value = false });
-        test_object.value[1].add (new TestObjectObject () { string_value = "kekw" });
-        test_object.value[2].add (new TestObjectObject () { int_value = 56 });
+        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
+        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
+        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
+        test_object.value[0].add (new SimpleObject ());
+        test_object.value[0].add (new SimpleObject ());
+        test_object.value[1].add (new SimpleObject () { string_value = "why are we still here", int_value = 42 });
+        test_object.value[1].add (new SimpleObject () { bool_value = false });
+        test_object.value[1].add (new SimpleObject () { string_value = "kekw" });
+        test_object.value[2].add (new SimpleObject () { int_value = 56 });
 
         string expectation = "{\"value\":[[{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false}],[{\"string-value\":\"why are we still here\",\"int-value\":42,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":\"kekw\",\"int-value\":0,\"bool-value\":false}],[{\"string-value\":null,\"int-value\":56,\"bool-value\":false}]]}";
         string result = Jsoner.serialize (test_object);
@@ -527,14 +544,7 @@ public int main (string[] args) {
     Test.add_func ("/jsoner/deserialize/array/array", () => {
         try {
             var jsoner = new Jsoner ("{\"value\":[[{\"value\":7}],[{\"value\":98}]]}");
-            var result = jsoner.deserialize_object<TestObjectAlbum> ((out array, type) => {
-                if (type == typeof (TestObjectInt)) {
-                    array = new Gee.ArrayList<TestObjectInt> ();
-                    return true;
-                }
-
-                return false;
-            });
+            var result = jsoner.deserialize_object<TestObjectAlbum> (sub_creation);
 
             if (result.value[0][0].value != 7 || result.value[1][0].value != 98) {
                 Test.fail_printf (
@@ -548,4 +558,13 @@ public int main (string[] args) {
     });
 
     return Test.run ();
+}
+
+void sub_creation (out Gee.Traversable collection, Type element_type) {
+    if (element_type == typeof (TestObjectInt)) {
+        collection = new Gee.ArrayList<TestObjectInt> ();
+        return;
+    }
+
+    assert_not_reached ();
 }
