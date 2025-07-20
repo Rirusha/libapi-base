@@ -34,7 +34,7 @@ public class TestObjectInt64 : Object {
     public int64 value { get; set; }
 }
 
-public class TestObjectInt : Object {
+public class TestObjectInt : DataObject {
     public int value { get; set; }
 }
 
@@ -42,7 +42,7 @@ public class TestObjectBool : Object {
     public bool value { get; set; }
 }
 
-public class TestObjectDouble : Object {
+public class TestObjectDouble : DataObject {
     public double value { get; set; }
 }
 
@@ -63,6 +63,10 @@ public class TestObjectObject : Object {
 
 public class TestObjectArrayString : DataObject {
     public Gee.ArrayList<string> value { get; set; default = new Gee.ArrayList<string> (); }
+}
+
+public class TestObjectDictString : DataObject {
+    public Gee.HashMap<string, string> value { get; set; default = new Gee.HashMap<string, string> (); }
 }
 
 public class TestObjectArrayObject : DataObject {
@@ -105,7 +109,7 @@ public int main (string[] args) {
             test_object.enum_val = test_enum_val;
             test_object.type_ = test_type_;
 
-            var enum_expected_val = kebab2snake (((EnumClass) ((typeof (TestEnum)).class_ref ())).get_value (test_enum_val).value_nick.down ());
+            var enum_expected_val = get_enum_nick (typeof (TestEnum), test_enum_val);
 
             string expectation = "";
 
@@ -125,6 +129,59 @@ public int main (string[] args) {
 
             if (result != expectation) {
                 Test.fail_printf (result + " != " + expectation);
+            }
+        }
+    });
+
+    Test.add_func ("/jsoner/deserialize/values", () => {
+        string test_string_val = "test";
+        int64 test_int64_val = 1234;
+        int test_int_val = 1234;
+        double test_double_val = 45.1;
+        bool test_bool_val = true;
+        TestEnum test_enum_val = VALUE_2;
+        string test_type_ = "some text";
+
+        Case[] cases = {KEBAB, SNAKE, CAMEL};
+        foreach (var c in cases) {
+            var enum_expected_val = get_enum_nick (typeof (TestEnum), test_enum_val);
+
+            string json = "";
+
+            switch (c) {
+                case KEBAB:
+                    json = @"{\"string-val\":\"$test_string_val\",\"int64-val\":$test_int64_val,\"int-val\":$test_int_val,\"double-val\":$test_double_val,\"bool-val\":$test_bool_val,\"enum-val\":\"$(enum_expected_val)\",\"type\":\"$test_type_\"}";
+                    break;
+                case SNAKE:
+                    json = @"{\"string_val\":\"$test_string_val\",\"int64_val\":$test_int64_val,\"int_val\":$test_int_val,\"double_val\":$test_double_val,\"bool_val\":$test_bool_val,\"enum_val\":\"$(enum_expected_val)\",\"type\":\"$test_type_\"}";
+                    break;
+                case CAMEL:
+                    json = @"{\"stringVal\":\"$test_string_val\",\"int64Val\":$test_int64_val,\"intVal\":$test_int_val,\"doubleVal\":$test_double_val,\"boolVal\":$test_bool_val,\"enumVal\":\"$(enum_expected_val)\",\"type\":\"$test_type_\"}";
+                    break;
+            }
+
+            var result = DataObject.from_json<ValuesData> (json, null, c);
+
+            if (result.string_val != test_string_val) {
+                Test.fail_printf (@"$(result.string_val) != $(test_string_val)");
+            }
+            if (result.int64_val != test_int64_val) {
+                Test.fail_printf (@"$(result.int64_val) != $(test_int64_val)");
+            }
+            if (result.int_val != test_int_val) {
+                Test.fail_printf (@"$(result.int_val) != $(test_int_val)");
+            }
+            if (result.double_val != test_double_val) {
+                Test.fail_printf (@"$(result.double_val) != $(test_double_val)");
+            }
+            if (result.bool_val != test_bool_val) {
+                Test.fail_printf (@"$(result.bool_val) != $(test_bool_val)");
+            }
+            if (result.enum_val != test_enum_val) {
+                Test.fail_printf (@"$(result.enum_val) != $(test_enum_val)");
+            }
+            if (result.type_ != test_type_) {
+                Test.fail_printf (@"$(result.type_) != $(test_type_)");
             }
         }
     });
@@ -170,6 +227,24 @@ public int main (string[] args) {
 
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
+        }
+    });
+
+    Test.add_func ("/jsoner/serialize/dict/string", () => {
+        try {
+            var expected_json = "{\"value\":{\"kekw\":\"yes\",\"kek\":\"no\"}}";
+
+            var obj = new TestObjectDictString ();
+            obj.value.set ("kekw", "yes");
+            obj.value.set ("kek", "no");
+
+            var result = obj.to_json ();
+
+            if (result != expected_json) {
+                Test.fail_printf (@"$result != $expected_json");
+            }
+        } catch (CommonError e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
@@ -347,6 +422,20 @@ public int main (string[] args) {
         }
     });
 
+    Test.add_func ("/jsoner/deserialize/int_to_double", () => {
+        try {
+            var json = "{\"value\":6}";
+
+            var result = DataObject.from_json<TestObjectDouble> (json);
+
+            if (result.value != 6.0) {
+                Test.fail_printf (@"$(result.value) != 6.0");
+            }
+        } catch (CommonError e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
     Test.add_func ("/jsoner/deserialize/array/string", () => {
         try {
             var jsoner = new Jsoner ("{\"value\":[\"kekw\",\"yes\",\"no\"]}");
@@ -354,6 +443,20 @@ public int main (string[] args) {
 
             if (result.value[0] != "kekw" || result.value[1] != "yes" || result.value[2] != "no") {
                 Test.fail_printf (string.joinv (", ", result.value.to_array ()) + " != kekw, yes, no");
+            }
+        } catch (CommonError e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
+    Test.add_func ("/jsoner/deserialize/dict/string", () => {
+        try {
+            var json = "{\"value\":{\"kekw\":\"yes\",\"kek\":\"no\"}}";
+
+            var result = DataObject.from_json<TestObjectDictString> (json);
+
+            if (result.value["kekw"] != "yes" || result.value["kek"] != "no") {
+                Test.fail_printf ("");
             }
         } catch (CommonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);

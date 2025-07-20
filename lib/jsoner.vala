@@ -336,7 +336,7 @@ public class ApiBase.Jsoner : Object {
 
             } else if (property.value_type == typeof (HashMap)) {
                 var hash_map = (HashMap) prop_val.get_object ();
-                Type element_type = hash_map.element_type;
+                Type element_type = hash_map.value_type;
 
                 serialize_hash_map (builder, hash_map, element_type, names_case);
 
@@ -552,7 +552,15 @@ public class ApiBase.Jsoner : Object {
 
                     } else {
                         var new_val = Value (prop_type);
-                        val.transform (ref new_val);
+                        if (!val.transform (ref new_val)) {
+                            warning (
+                                "Failed to transform %s to %s of %s::%s",
+                                val.type_name (),
+                                prop_type.name (),
+                                obj_type.name (),
+                                property.name
+                            );
+                        }
                         obj.set_property (
                             property.name,
                             new_val
@@ -753,7 +761,7 @@ public class ApiBase.Jsoner : Object {
 
         var jobject = node.get_object ();
 
-        if (hash_map.element_type.is_object ()) {
+        if (hash_map.value_type.is_object ()) {
             hash_map.clear ();
             var narray_list = hash_map as HashMap<string, Object>;
 
@@ -762,7 +770,7 @@ public class ApiBase.Jsoner : Object {
 
                 try {
                     narray_list[member_name] = deserialize_object_by_type_real (
-                        narray_list.element_type,
+                        narray_list.value_type,
                         sub_node,
                         sub_creation_func
                     );
@@ -775,10 +783,10 @@ public class ApiBase.Jsoner : Object {
             foreach (var member_name in jobject.get_members ()) {
                 var sub_node = jobject.get_member (member_name);
                 var dval = deserialize_value_real (sub_node);
-                var new_val = Value (hash_map.element_type);
+                var new_val = Value (hash_map.value_type);
                 dval.transform (ref new_val);
 
-                switch (hash_map.element_type) {
+                switch (hash_map.value_type) {
                     case Type.STRING:
                         var narray_list = hash_map as HashMap<string, string>;
                         narray_list[member_name] = new_val.get_string ();
@@ -806,7 +814,7 @@ public class ApiBase.Jsoner : Object {
 
                     default:
                         warning ("Unknown type of element of hashmap - %s",
-                            hash_map.element_type.name ()
+                            hash_map.value_type.name ()
                         );
                         break;
                 }
