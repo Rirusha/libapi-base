@@ -31,13 +31,7 @@ public sealed class ApiBase.SoupWrapper : Object {
         timeout = GLOBAL_TIMEOUT
     };
 
-    public string? user_agent {
-        construct {
-            if (value != null) {
-                session.user_agent = value;
-            }
-        }
-    }
+    public string? user_agent { get; construct; }
 
     /**
      * @param cookie_jar_type   Type of cookie storage
