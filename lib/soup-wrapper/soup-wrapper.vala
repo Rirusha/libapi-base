@@ -19,10 +19,19 @@
 
 using Soup;
 
+/**
+ * A wrapper class for libsoup
+ */
 public sealed class ApiBase.SoupWrapper : Object {
 
+    /**
+     * Cookies storage type
+     */
     public CookieJarType cookie_jar_type { get; private set; default = NONE; }
 
+    /**
+     * Path to cookies
+     */
     public string? cookies_file_path { get; private set; }
 
     Gee.HashMap<string, Headers> presets_table = new Gee.HashMap<string, Headers> ();
@@ -31,16 +40,13 @@ public sealed class ApiBase.SoupWrapper : Object {
         timeout = GLOBAL_TIMEOUT
     };
 
+    /**
+     * Session user agent
+     */
     public string? user_agent { get; construct; }
 
     /**
-     * @param cookie_jar_type   Type of cookie storage
-     *                          doesn't make sense if cookies_file_path
-     *                          is null
      * @param user_agent        Session user agent
-     * @param cookies_file_path Path to cookie file
-     *                          if cookie_jar_type is null and file_path not null,
-     *                          assertion will be thrown
      */
     public SoupWrapper (string? user_agent = null) {
         Object (user_agent: user_agent);
@@ -67,6 +73,12 @@ public sealed class ApiBase.SoupWrapper : Object {
         session.add_feature (logger);
     }
 
+    /**
+     * Init cookiew with type and path
+     *
+     * @param cookie_jar_type   Cookies storage type
+     * @param cookies_file_path Path to cookies
+     */
     public void init_cookies (
         CookieJarType cookie_jar_type,
         string cookies_file_path
@@ -77,6 +89,9 @@ public sealed class ApiBase.SoupWrapper : Object {
         reload_cookies ();
     }
 
+    /**
+     * Reload cookies, fully resetting it.
+     */
     public void reload_cookies () {
         Type? feature_type;
 
@@ -125,7 +140,7 @@ public sealed class ApiBase.SoupWrapper : Object {
     }
 
     /**
-     * Add preset to session. Headers presets can be used later in requests
+     * Add preset to session. Headers presets can be used with {@link Request.add_preset_name}
      */
     public void add_headers_preset (string preset_name, Header[] headers_arr) {
         var headers = new Headers ();
@@ -152,6 +167,9 @@ public sealed class ApiBase.SoupWrapper : Object {
         throw get_error (msg.status_code, error_message);
     }
 
+    /**
+     * Synchronously execute the {@link Request}
+     */
     public GLib.Bytes? exec (
         Request request,
         Cancellable? cancellable = null
@@ -174,6 +192,9 @@ public sealed class ApiBase.SoupWrapper : Object {
         return bytes;
     }
 
+    /**
+     * Asynchronously execute the {@link Request}
+     */
     public async GLib.Bytes? exec_async (
         Request request,
         int priority = Priority.DEFAULT,
