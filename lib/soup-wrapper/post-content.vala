@@ -15,36 +15,42 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-public struct ApiBase.PostContent {
+public sealed class ApiBase.PostContent : Object {
 
-    PostContentType content_type;
-    string content;
+    public PostContentType content_type { get; construct; }
+    public string content { get; set; }
 
-    public string get_content_type_string () {
-        switch (content_type) {
-        case X_WWW_FORM_URLENCODED:
-            return "application/x-www-form-urlencoded";
-        case JSON:
-            return "application/json";
-        default:
-            assert_not_reached ();
-        }
+    public PostContent (PostContentType content_type) {
+        Object (content_type: content_type);
     }
 
     public Bytes get_bytes () {
         return new Bytes (content.data);
     }
 
+    public void set_dict (Gee.HashMap<string, string> dict) {
+        switch (content_type) {
+            case X_WWW_FORM_URLENCODED:
+                content = Soup.Form.encode_datalist (hashmap_to_datalist<string> (dict));
+                break;
+            case JSON:
+                content = Jsoner.serialize (dict);
+                break;
+            default:
+                assert_not_reached ();
+            }
+    }
+
     public void set_datalist (Datalist<string> datalist) {
         switch (content_type) {
-        case X_WWW_FORM_URLENCODED:
-            content = Soup.Form.encode_datalist (datalist);
-            break;
-        case JSON:
-            content = Jsoner.serialize (datalist_to_hashmap<string> (datalist));
-            break;
-        default:
-            assert_not_reached ();
-        }
+            case X_WWW_FORM_URLENCODED:
+                content = Soup.Form.encode_datalist (datalist);
+                break;
+            case JSON:
+                content = Jsoner.serialize (datalist_to_hashmap<string> (datalist));
+                break;
+            default:
+                assert_not_reached ();
+            }
     }
 }

@@ -41,9 +41,7 @@ public abstract class ApiBase.DataObject : Object {
         var type_ = typeof (T);
         assert (type_.is_a (typeof (DataObject)));
 
-        var obj = (DataObject) Object.new (type_);
-        obj.fill_from_json (json, sub_members, names_case);
-
-        return (T) obj;
+        var jsoner = new Jsoner (json, sub_members, names_case);
+        return jsoner.deserialize_object<T> ();
     }
 }

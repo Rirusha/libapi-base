@@ -15,20 +15,16 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-public class ApiBase.Headers {
+internal class ApiBase.Headers : Object {
 
-    Header[] headers_arr = new Header[0];
+    Gee.ArrayList<Header?> headers = new Gee.ArrayList<Header?> ();
 
-    public void add (Header header) {
-        headers_arr.resize (headers_arr.length + 1);
-        headers_arr[headers_arr.length - 1] = header;
-    }
-
-    public void set_headers (Header[] headers_arr) {
-        this.headers_arr = headers_arr;
+    public void set_headers (Header[] headers) {
+        this.headers.clear ();
+        this.headers.add_all_array (headers);
     }
 
     public Header[] get_headers () {
-        return headers_arr;
+        return headers.to_array ();
     }
 }

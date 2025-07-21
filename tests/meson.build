@@ -10,6 +10,8 @@ if get_option('run_net_tests')
     executable('soup-wrapper-test',
       sources: ['soup-wrapper-test.vala'] + sources,
       dependencies: dependencies,
-    )
+    ),
+    is_parallel: true,
+    timeout: 9000
   )
 endif
