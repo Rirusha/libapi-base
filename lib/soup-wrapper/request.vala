@@ -58,66 +58,39 @@ public sealed class ApiBase.Request : Object {
     }
 
     public Request.GET (string uri) {
-        Object (
-            method: HttpMethod.GET,
-            uri: uri
-        );
+        this (HttpMethod.GET, uri);
     }
 
     public Request.HEAD (string uri) {
-        Object (
-            method: HttpMethod.HEAD,
-            uri: uri
-        );
+        this (HttpMethod.HEAD, uri);
     }
 
     public Request.OPTIONS (string uri) {
-        Object (
-            method: HttpMethod.OPTIONS,
-            uri: uri
-        );
+        this (HttpMethod.OPTIONS, uri);
     }
 
     public Request.TRACE (string uri) {
-        Object (
-            method: HttpMethod.TRACE,
-            uri: uri
-        );
+        this (HttpMethod.TRACE, uri);
     }
 
     public Request.PUT (string uri) {
-        Object (
-            method: HttpMethod.PUT,
-            uri: uri
-        );
+        this (HttpMethod.PUT, uri);
     }
 
     public Request.DELETE (string uri) {
-        Object (
-            method: HttpMethod.DELETE,
-            uri: uri
-        );
+        this (HttpMethod.DELETE, uri);
     }
 
     public Request.POST (string uri) {
-        Object (
-            method: HttpMethod.POST,
-            uri: uri
-        );
+        this (HttpMethod.POST, uri);
     }
 
     public Request.PATCH (string uri) {
-        Object (
-            method: HttpMethod.PATCH,
-            uri: uri
-        );
+        this (HttpMethod.PATCH, uri);
     }
 
     public Request.CONNECT (string uri) {
-        Object (
-            method: HttpMethod.CONNECT,
-            uri: uri
-        );
+        this (HttpMethod.CONNECT, uri);
     }
 
     construct {
