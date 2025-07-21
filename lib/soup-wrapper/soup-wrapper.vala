@@ -62,6 +62,8 @@ public sealed class ApiBase.SoupWrapper : Object {
             }
         });
 
+        bind_property ("user-agent", session, "user-agent", BindingFlags.SYNC_CREATE);
+
         session.add_feature (logger);
     }
 
