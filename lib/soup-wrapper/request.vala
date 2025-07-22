@@ -123,10 +123,6 @@ public sealed class ApiBase.Request : Object {
         }
     }
 
-    internal Header[] get_headers () {
-        return headers.to_array ();
-    }
-
     public void add_preset_name (string preset_name) {
         assert (!readonly);
 
