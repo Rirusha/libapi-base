@@ -63,7 +63,7 @@ public class ApiBase.Jsoner : Object {
         }
 
         debug (
-            "Jsoner work with:\n%s",
+            "Jsoner initted for deserialize with:\n%s",
             json_string
         );
 
@@ -152,7 +152,14 @@ public class ApiBase.Jsoner : Object {
             serialize_object (builder, obj, names_case);
         }
 
-        return Json.to_string (builder.get_root (), pretty);
+        var res = Json.to_string (builder.get_root (), pretty);
+
+        debug (
+            "Jsoner serialize complete:\n%s",
+            res
+        );
+
+        return res;
     }
 
     static void serialize_array (
