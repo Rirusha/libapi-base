@@ -162,7 +162,7 @@ public sealed class ApiBase.Request : Object {
         return message.get_status ();
     }
 
-    internal Soup.Message form_message () {
+    public Soup.Message form_message () {
         if (message != null) {
             return message;
         }
