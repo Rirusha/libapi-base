@@ -30,7 +30,7 @@ public class ApiBase.Jsoner : Object {
 
     /**
      * Performs initialization for deserialization. Accepts a json string. In case of
-     * a parsing error, it throws {@link CommonError.PARSE_JSON}
+     * a parsing error, it throws {@link JsonError}
      *
      * @param json_string   Correct json string
      * @param sub_members   An array of names of json elements that need to be traversed
@@ -41,9 +41,9 @@ public class ApiBase.Jsoner : Object {
         string json_string,
         string[]? sub_members = null,
         Case names_case = Case.KEBAB
-    ) throws CommonError {
+    ) throws JsonError {
         if (json_string.length < 1) {
-            throw new CommonError.PARSE_JSON ("Json string is empty");
+            throw new JsonError.EMPTY ("Json string is empty");
         }
 
         Json.Node? node;
@@ -51,11 +51,11 @@ public class ApiBase.Jsoner : Object {
             node = Json.from_string (json_string);
 
         } catch (GLib.Error e) {
-            throw new CommonError.PARSE_JSON ("'%s' is not correct json string".printf (json_string));
+            throw new JsonError.INVALID ("'%s' is not correct json string".printf (json_string));
         }
 
         if (node == null) {
-            throw new CommonError.PARSE_JSON ("Json string is empty");
+            throw new JsonError.EMPTY ("Json string is empty");
         }
 
         if (sub_members != null) {
@@ -73,7 +73,7 @@ public class ApiBase.Jsoner : Object {
     /**
      * Performs initialization for deserialization. Accepts a json string in the
      * form of bytes, the object {@link GLib.Bytes}. In case of a parsing error,
-     * it throws {@link CommonError.PARSE_JSON}
+     * it throws {@link JsonError}
      *
      * @param bytes         Json string in the form of bytes, the object {@link GLib.Bytes}
      * @param sub_members   An array of names of json elements that need to be traversed to the target node
@@ -83,9 +83,9 @@ public class ApiBase.Jsoner : Object {
         Bytes bytes,
         string[]? sub_members = null,
         Case names_case = Case.KEBAB
-    ) throws CommonError {
+    ) throws JsonError {
         if (bytes.length == 0) {
-            throw new CommonError.PARSE_JSON ("Json string is empty");
+            throw new JsonError.EMPTY ("Json string is empty");
         }
 
         this.from_data (bytes.get_data (), sub_members, names_case);
@@ -93,7 +93,7 @@ public class ApiBase.Jsoner : Object {
 
     /**
      * Performs initialization for deserialization. Accepts a json string in the form of bytes,
-     * an {@link uint8} array. In case of a parsing error, it throws {@link CommonError.PARSE_JSON}
+     * an {@link uint8} array. In case of a parsing error, it throws {@link JsonError}
      *
      * @param bytes         json string in the form of bytes, {@link uint8} array
      * @param sub_members   An array of names of json elements that need to be traversed to the target node
@@ -103,14 +103,14 @@ public class ApiBase.Jsoner : Object {
         uint8[] data,
         string[]? sub_members = null,
         Case names_case = Case.KEBAB
-    ) throws CommonError {
+    ) throws JsonError {
         this ((string) data, sub_members, names_case);
     }
 
     static Json.Node? steps (
         Json.Node node,
         string[] sub_members
-    ) throws CommonError {
+    ) throws JsonError {
         string has_members = "";
 
         foreach (string member_name in sub_members) {
@@ -119,7 +119,7 @@ public class ApiBase.Jsoner : Object {
                 has_members += member_name + "-";
 
             } else {
-                throw new CommonError.PARSE_JSON ("Json has no %s%s".printf (has_members, member_name));
+                throw new JsonError.NO_MEMBER ("Json has no %s%s".printf (has_members, member_name));
             }
         }
 
@@ -405,14 +405,14 @@ public class ApiBase.Jsoner : Object {
      */
     public T deserialize_object<T> (
         SubCollectionCreationFunc? sub_creation_func = null
-    ) throws CommonError {
+    ) throws JsonError {
         return deserialize_object_by_type (typeof (T), sub_creation_func);
     }
 
     public Object deserialize_object_by_type (
         GLib.Type obj_type,
         SubCollectionCreationFunc? sub_creation_func = null
-    ) throws CommonError {
+    ) throws JsonError {
         var obj = Object.new (obj_type);
 
         deserialize_object_into (obj, sub_creation_func);
@@ -424,7 +424,7 @@ public class ApiBase.Jsoner : Object {
         GLib.Type obj_type,
         Json.Node? node = null,
         SubCollectionCreationFunc? sub_creation_func = null
-    ) throws CommonError {
+    ) throws JsonError {
         var obj = Object.new (obj_type);
 
         deserialize_object_into_real (obj, node, sub_creation_func);
@@ -435,7 +435,7 @@ public class ApiBase.Jsoner : Object {
     public void deserialize_object_into (
         Object obj,
         SubCollectionCreationFunc? sub_creation_func = null
-    ) throws CommonError {
+    ) throws JsonError {
         deserialize_object_into_real (obj, null, sub_creation_func);
     }
 
@@ -452,7 +452,7 @@ public class ApiBase.Jsoner : Object {
         Object obj,
         Json.Node? node = null,
         SubCollectionCreationFunc? sub_creation_func = null
-    ) throws CommonError {
+    ) throws JsonError {
         if (node == null) {
             node = root;
         }
@@ -462,7 +462,7 @@ public class ApiBase.Jsoner : Object {
                 Json.NodeType.OBJECT.to_string (),
                 node.get_node_type ().to_string ()
             );
-            throw new CommonError.PARSE_JSON ("Node isn't object");
+            throw new JsonError.WRONG_TYPE ("Node isn't object");
         }
 
         obj.freeze_notify ();
@@ -581,11 +581,11 @@ public class ApiBase.Jsoner : Object {
      *
      * @return deserialized value
      */
-    public Value deserialize_value () throws CommonError {
+    public Value deserialize_value () throws JsonError {
         return deserialize_value_real (null);
     }
 
-    internal Value deserialize_value_real (Json.Node? node = null) throws CommonError {
+    internal Value deserialize_value_real (Json.Node? node = null) throws JsonError {
         if (node == null) {
             node = root;
         }
@@ -596,7 +596,7 @@ public class ApiBase.Jsoner : Object {
                 node.get_node_type ().to_string ()
             );
 
-            throw new CommonError.PARSE_JSON ("Node isn't value");
+            throw new JsonError.WRONG_TYPE ("Node isn't value");
         }
 
         return node.get_value ();
@@ -613,7 +613,7 @@ public class ApiBase.Jsoner : Object {
     public void deserialize_array_into (
         ArrayList array_list,
         SubCollectionCreationFunc? sub_creation_func = null
-    ) throws CommonError {
+    ) throws JsonError {
         deserialize_array_into_real (array_list, null, sub_creation_func);
     }
 
@@ -621,7 +621,7 @@ public class ApiBase.Jsoner : Object {
         ArrayList array_list,
         Json.Node? node = null,
         SubCollectionCreationFunc? sub_creation_func = null
-    ) throws CommonError {
+    ) throws JsonError {
         if (node == null) {
             node = root;
         }
@@ -631,7 +631,7 @@ public class ApiBase.Jsoner : Object {
                 Json.NodeType.ARRAY.to_string (),
                 node.get_node_type ().to_string ()
             );
-            throw new CommonError.PARSE_JSON ("Node isn't array");
+            throw new JsonError.WRONG_TYPE ("Node isn't array");
         }
 
         var jarray = node.get_array ();
@@ -659,7 +659,7 @@ public class ApiBase.Jsoner : Object {
                 try {
                     deserialize_array_into_real (new_array_list, sub_node, sub_creation_func);
                     narray_list.add (new_array_list);
-                } catch (CommonError e) {}
+                } catch (JsonError e) {}
             }
 
             narray_list.remove (narray_list[0]);
@@ -670,7 +670,7 @@ public class ApiBase.Jsoner : Object {
             foreach (var sub_node in jarray.get_elements ()) {
                 try {
                     narray_list.add (deserialize_object_by_type_real (narray_list.element_type, sub_node));
-                } catch (CommonError e) {}
+                } catch (JsonError e) {}
             }
 
         } else {
@@ -728,7 +728,7 @@ public class ApiBase.Jsoner : Object {
     public void deserialize_dict_into (
         HashMap hash_map,
         SubCollectionCreationFunc? sub_creation_func = null
-    ) throws CommonError {
+    ) throws JsonError {
         deserialize_dict_into_real (hash_map, null, sub_creation_func);
     }
 
@@ -736,7 +736,7 @@ public class ApiBase.Jsoner : Object {
         HashMap hash_map,
         Json.Node? node = null,
         SubCollectionCreationFunc? sub_creation_func = null
-    ) throws CommonError {
+    ) throws JsonError {
         if (node == null) {
             node = root;
         }
@@ -746,7 +746,7 @@ public class ApiBase.Jsoner : Object {
                 Json.NodeType.OBJECT.to_string (),
                 node.get_node_type ().to_string ()
             );
-            throw new CommonError.PARSE_JSON ("Node isn't object");
+            throw new JsonError.WRONG_TYPE ("Node isn't object");
         }
 
         if (hash_map.key_type != Type.STRING) {
@@ -768,7 +768,7 @@ public class ApiBase.Jsoner : Object {
                         sub_node,
                         sub_creation_func
                     );
-                } catch (CommonError e) {}
+                } catch (JsonError e) {}
             }
 
         } else {
@@ -843,15 +843,15 @@ public class ApiBase.Jsoner : Object {
      */
     public async T deserialize_object_async<T> (
         SubCollectionCreationFunc? sub_creation_func = null
-    ) throws CommonError {
-        CommonError? error = null;
+    ) throws JsonError {
+        JsonError? error = null;
 
         var thread = new Thread<T?> (null, () => {
             T? result = null;
 
             try {
                 result = deserialize_object<T> (sub_creation_func);
-            } catch (CommonError e) {
+            } catch (JsonError e) {
                 error = e;
             }
 
@@ -874,15 +874,15 @@ public class ApiBase.Jsoner : Object {
     public async Object deserialize_object_by_type_async (
         GLib.Type obj_type,
         SubCollectionCreationFunc? sub_creation_func = null
-    ) throws CommonError {
-        CommonError? error = null;
+    ) throws JsonError {
+        JsonError? error = null;
 
         var thread = new Thread<Object?> (null, () => {
             Object? result = null;
 
             try {
                 result = deserialize_object_by_type (obj_type, sub_creation_func);
-            } catch (CommonError e) {
+            } catch (JsonError e) {
                 error = e;
             }
 
@@ -905,13 +905,13 @@ public class ApiBase.Jsoner : Object {
     public async void deserialize_object_into_async (
         Object obj,
         SubCollectionCreationFunc? sub_creation_func = null
-    ) throws CommonError {
-        CommonError? error = null;
+    ) throws JsonError {
+        JsonError? error = null;
 
         var thread = new Thread<void> (null, () => {
             try {
                 deserialize_object_into (obj, sub_creation_func);
-            } catch (CommonError e) {
+            } catch (JsonError e) {
                 error = e;
             }
 
@@ -934,13 +934,13 @@ public class ApiBase.Jsoner : Object {
     public async void deserialize_array_into_async (
         ArrayList array_list,
         SubCollectionCreationFunc? sub_creation_func = null
-    ) throws CommonError {
-        CommonError? error = null;
+    ) throws JsonError {
+        JsonError? error = null;
 
         var thread = new Thread<void> (null, () => {
             try {
                 deserialize_array_into (array_list, sub_creation_func);
-            } catch (CommonError e) {
+            } catch (JsonError e) {
                 error = e;
             }
 

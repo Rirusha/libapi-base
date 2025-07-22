@@ -46,7 +46,7 @@ public sealed class ApiBase.SoupWrapper : Object {
     public string? user_agent { get; construct; }
 
     /**
-     * @param user_agent        Session user agent
+     * @param user_agent    Session user agent
      */
     public SoupWrapper (string? user_agent = null) {
         Object (user_agent: user_agent);
@@ -157,7 +157,7 @@ public sealed class ApiBase.SoupWrapper : Object {
         }
     }
 
-    void check_status_code (Soup.Message msg, Bytes? bytes) throws CommonError, BadStatusCodeError {
+    void check_status_code (Soup.Message msg, Bytes? bytes) throws SoupError, BadStatusCodeError {
         if (msg.status_code == Soup.Status.OK) {
             return;
         }
@@ -173,7 +173,7 @@ public sealed class ApiBase.SoupWrapper : Object {
     public GLib.Bytes? exec (
         Request request,
         Cancellable? cancellable = null
-    ) throws CommonError, BadStatusCodeError {
+    ) throws SoupError, BadStatusCodeError {
         GLib.Bytes? bytes = null;
 
         fill_request_presets (request);
@@ -184,7 +184,7 @@ public sealed class ApiBase.SoupWrapper : Object {
             bytes = session.send_and_read (message, cancellable);
 
         } catch (Error e) {
-            throw new CommonError.SOUP ("%s %s: %s".printf (message.method, message.uri.to_string (), e.message));
+            throw new SoupError.INTERNAL ("%s %s: %s".printf (message.method, message.uri.to_string (), e.message));
         }
 
         check_status_code (message, bytes);
@@ -199,7 +199,7 @@ public sealed class ApiBase.SoupWrapper : Object {
         Request request,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws CommonError, BadStatusCodeError {
+    ) throws SoupError, BadStatusCodeError {
         GLib.Bytes? bytes = null;
 
         fill_request_presets (request);
@@ -210,7 +210,7 @@ public sealed class ApiBase.SoupWrapper : Object {
             bytes = yield session.send_and_read_async (message, priority, cancellable);
 
         } catch (Error e) {
-            throw new CommonError.SOUP ("%s %s: %s".printf (message.method, message.uri.to_string (), e.message));
+            throw new SoupError.INTERNAL ("%s %s: %s".printf (message.method, message.uri.to_string (), e.message));
         }
 
         check_status_code (message, bytes);

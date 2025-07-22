@@ -347,7 +347,7 @@ public int main (string[] args) {
             if (result.value != TestEnum.VALUE_2) {
                 Test.fail_printf (result.value.to_string () + " != " + TestEnum.VALUE_2.to_string ());
             }
-        } catch (CommonError e) {
+        } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
@@ -361,7 +361,7 @@ public int main (string[] args) {
             if (result != "test") {
                 Test.fail_printf (result + " != test");
             }
-        } catch (CommonError e) {
+        } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
@@ -372,7 +372,7 @@ public int main (string[] args) {
             jsoner.deserialize_value ();
 
             Test.fail_printf ("Value parsed without error");
-        } catch (CommonError e) {
+        } catch (JsonError e) {
             Test.skip (e.domain.to_string () + ": " + e.message);
         }
     });
@@ -385,7 +385,7 @@ public int main (string[] args) {
             if (result.value != "test") {
                 Test.fail_printf (result.value + " != test");
             }
-        } catch (CommonError e) {
+        } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
@@ -398,7 +398,7 @@ public int main (string[] args) {
             if (result.value != "test") {
                 Test.fail_printf (result.value + " != test");
             }
-        } catch (CommonError e) {
+        } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
@@ -411,7 +411,7 @@ public int main (string[] args) {
             if (result.string_value != "test") {
                 Test.fail_printf (result.string_value + " != test");
             }
-        } catch (CommonError e) {
+        } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
@@ -424,7 +424,7 @@ public int main (string[] args) {
             if (result.string_value_ != "test") {
                 Test.fail_printf (result.string_value_ + " != test");
             }
-        } catch (CommonError e) {
+        } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
@@ -437,7 +437,7 @@ public int main (string[] args) {
             if (result.value != "6") {
                 Test.fail_printf (result.value + " != \"6\"");
             }
-        } catch (CommonError e) {
+        } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
@@ -451,7 +451,7 @@ public int main (string[] args) {
             if (result.value != 6.0) {
                 Test.fail_printf (@"$(result.value) != 6.0");
             }
-        } catch (CommonError e) {
+        } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
@@ -464,7 +464,7 @@ public int main (string[] args) {
             if (result.value[0] != "kekw" || result.value[1] != "yes" || result.value[2] != "no") {
                 Test.fail_printf (string.joinv (", ", result.value.to_array ()) + " != kekw, yes, no");
             }
-        } catch (CommonError e) {
+        } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
@@ -478,7 +478,7 @@ public int main (string[] args) {
             if (result.value["kekw"] != "yes" || result.value["kek"] != "no") {
                 Test.fail_printf ("");
             }
-        } catch (CommonError e) {
+        } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
@@ -491,7 +491,7 @@ public int main (string[] args) {
             if (result.value[0] != "kekw" || result.value[1] != "yes" || result.value[2] != "no") {
                 Test.fail_printf (string.joinv (", ", result.value.to_array ()) + " != kekw, yes, no");
             }
-        } catch (CommonError e) {
+        } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
@@ -505,7 +505,7 @@ public int main (string[] args) {
             if (array[0] != "kekw" || array[1] != "yes" || array[2] != "no") {
                 Test.fail_printf (string.joinv (", ", array.to_array ()) + " != kekw, yes, no");
             }
-        } catch (CommonError e) {
+        } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
@@ -522,7 +522,7 @@ public int main (string[] args) {
                     result.value[2].bool_value.to_string () + " != true"
                 );
             }
-        } catch (CommonError e) {
+        } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
@@ -539,7 +539,7 @@ public int main (string[] args) {
                     result.value[2].bool_value.to_string () + " != true"
                 );
             }
-        } catch (CommonError e) {
+        } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
@@ -555,7 +555,7 @@ public int main (string[] args) {
                     result.value[1][0].value.to_string () + " != 98\n"
                 );
             }
-        } catch (CommonError e) {
+        } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });

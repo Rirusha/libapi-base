@@ -18,30 +18,15 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+public errordomain ApiBase.JsonError {
+    EMPTY,
+    INVALID,
+    WRONG_TYPE,
+    NO_MEMBER;
+}
 
-/**
- * Common library error
- */
-public errordomain ApiBase.CommonError {
-    /**
-     * Can't parse json
-     */
-    PARSE_JSON,
-
-    /**
-     * Request send failed
-     */
-    SOUP,
-
-    /**
-     * Error from api get
-     */
-    ANSWER,
-
-    /**
-     * Authentication error
-     */
-    AUTH_ERROR;
+public errordomain ApiBase.SoupError {
+    INTERNAL;
 }
 
 /**

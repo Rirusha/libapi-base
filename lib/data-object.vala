@@ -18,26 +18,40 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+/**
+ * A class with convenient methods for fast de/serialization
+ */
 public abstract class ApiBase.DataObject : Object {
 
+    /**
+     * Parse json and fill up this object via
+     * {@link Jsoner.deserialize_object_into}
+     */
     public void fill_from_json (
         string json,
         string[]? sub_members = null,
         ApiBase.Case names_case = ApiBase.Case.KEBAB
-    ) throws ApiBase.CommonError {
+    ) throws JsonError {
         var jsoner = new Jsoner (json, sub_members, names_case);
         jsoner.deserialize_object_into (this);
     }
 
+    /**
+     * Serialize object to json
+     */
     public string to_json (ApiBase.Case names_case = ApiBase.Case.KEBAB) {
         return Jsoner.serialize (this, names_case);
     }
 
+    /**
+     * Object creation method from json 
+     * via {@link Jsoner.deserialize_object}
+     */
     public static T from_json<T> (
         string json,
         string[]? sub_members = null,
         ApiBase.Case names_case = ApiBase.Case.KEBAB
-    ) throws ApiBase.CommonError {
+    ) throws JsonError {
         var type_ = typeof (T);
         assert (type_.is_a (typeof (DataObject)));
 
