@@ -148,7 +148,7 @@ public int main (string[] args) {
         }
     });
 
-    Test.add_func ("/soup-wrapper/post/data", () => {
+    Test.add_func ("/soup-wrapper/post/data/dict", () => {
         try {
             var request = new Request.POST ("https://httpbin.org/post");
 
@@ -163,6 +163,33 @@ public int main (string[] args) {
             dict["comments"] = "FAST";
 
             post_content.set_dict (dict);
+            request.add_post_content (post_content);
+            var response = (string) (request.simple_exec ().get_data ());
+
+            if (!(response.strip ().has_prefix (EXPECTED_POST_START))) {
+                Test.fail ();
+            }
+
+        } catch (Error e) {
+            Test.fail_printf ("Error: \n%s", e.message);
+        }
+    });
+
+    Test.add_func ("/soup-wrapper/post/data/datalist", () => {
+        try {
+            var request = new Request.POST ("https://httpbin.org/post");
+
+            var post_content = new PostContent (X_WWW_FORM_URLENCODED);
+
+            var datalist = Datalist<string> ();
+            datalist.set_data ("custname", "Rirusha");
+            datalist.set_data ("custtel", "666666");
+            datalist.set_data ("custemail", "rirusha@altlinux.org");
+            datalist.set_data ("size", "large");
+            datalist.set_data ("delivery", "");
+            datalist.set_data ("comments", "FAST");
+
+            post_content.set_datalist (datalist);
             request.add_post_content (post_content);
             var response = (string) (request.simple_exec ().get_data ());
 
