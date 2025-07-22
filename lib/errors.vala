@@ -18,13 +18,34 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+/**
+ * @since 3.0
+ */
 public errordomain ApiBase.JsonError {
+    /**
+     * Json string is empty
+     */
     EMPTY,
+
+    /**
+     * Json string is invalid
+     */
     INVALID,
+
+    /**
+     * Try to deserislize wrong type
+     */
     WRONG_TYPE,
+
+    /**
+     * Try to 'step' non existing members
+     */
     NO_MEMBER;
 }
 
+/**
+ * @since 3.0
+ */
 public errordomain ApiBase.SoupError {
     INTERNAL;
 }

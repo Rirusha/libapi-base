@@ -18,6 +18,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+/**
+ * Request object. Can handle parameters, headers, post content.
+ * {@link Session.exec} and {@link Session.exec_async}
+ * form message via {@link form_message} and set {@link this} to readonly
+ *
+ * @since 3.0
+ */
 public sealed class ApiBase.Request : Object {
 
     public HttpMethod method { get; construct; }
@@ -104,10 +111,27 @@ public sealed class ApiBase.Request : Object {
         );
     }
 
+    /**
+     * Add header with header data
+     *
+     * @param name      Header name
+     * @param value     Header value
+     * @param replace   Replace existing header with equal name or not
+     *
+     * @since 3.0
+     */
     public void add_header_simple (string name, string value, bool replace = true) {
         add_header (new Header (name, value), replace);
     }
 
+    /**
+     * Add header with header object
+     *
+     * @param header    Header object
+     * @param replace   Replace existing header with equal name or not
+     *
+     * @since 3.0
+     */
     public void add_header (Header header, bool replace = true) {
         assert (!readonly);
 
@@ -117,12 +141,27 @@ public sealed class ApiBase.Request : Object {
         headers.add (header);
     }
 
+    /**
+     * Add header with header objects array
+     *
+     * @param headers   Header objects array
+     * @param replace   Replace existing header with equal name or not
+     *
+     * @since 3.0
+     */
     public void add_headers (Header[] headers, bool replace = true) {
         foreach (var header in headers) {
             add_header (header, replace);
         }
     }
 
+    /**
+     * Add header preset name. Presets can be set via {@link Session.add_headers_preset} and used only with {@link Session}
+     *
+     * @param preset_name   Name of preset
+     *
+     * @since 3.0
+     */
     public void add_preset_name (string preset_name) {
         assert (!readonly);
 
@@ -133,22 +172,51 @@ public sealed class ApiBase.Request : Object {
         return presets.to_array ();
     }
 
+    /**
+     * Add parameter with parameter data
+     *
+     * @param name      Parameter name
+     * @param value     Parameter value
+     *
+     * @since 3.0
+     */
     public void add_parameter_simple (string name, string value) {
         add_parameter (new ApiBase.Parameter (name, value));
     }
 
+    /**
+     * Add parameter with parameter object
+     *
+     * @param parameter Parameter objecct
+     *
+     * @since 3.0
+     */
     public void add_parameter (ApiBase.Parameter parameter) {
         assert (!readonly);
 
         parameters.add (parameter);
     }
 
+    /**
+     * Add parameters with an array
+     *
+     * @param parameters Parameter objeccts array
+     *
+     * @since 3.0
+     */
     public void add_parameters (ApiBase.Parameter[] parameters) {
         foreach (var parameter in parameters) {
             add_parameter (parameter);
         }
     }
 
+    /**
+     * Add post content to request
+     *
+     * @param post_content  Post content object
+     *
+     * @since 3.0
+     */
     public void add_post_content (PostContent post_content) {
         assert (!readonly);
         assert (method == HttpMethod.POST);
@@ -156,12 +224,31 @@ public sealed class ApiBase.Request : Object {
         this.post_content = post_content;
     }
 
+    /**
+     * Get status code from internal {@link Soup.Message}.
+     * Must be run after {@link form_message} or
+     * {@link Session.exec}/{@link Session.exec_async}
+     *
+     * @return  Status
+     *
+     * @since 3.0
+     */
     public Soup.Status get_status_code () {
         assert (message != null);
 
         return message.get_status ();
     }
 
+    /**
+     * Form message with all data (headers, params, etc).
+     * Request become readonly.
+     *
+     * If run second time, returns formed message.
+     *
+     * @return  Message object
+     *
+     * @since 3.0
+     */
     public Soup.Message form_message () {
         if (message != null) {
             return message;
@@ -204,6 +291,11 @@ public sealed class ApiBase.Request : Object {
         return new_uri;
     }
 
+    /**
+     * Simple request execution.
+     *
+     * @since 3.0
+     */
     public GLib.Bytes simple_exec (
         Cancellable? cancellable = null
     ) throws SoupError, BadStatusCodeError {
@@ -211,6 +303,11 @@ public sealed class ApiBase.Request : Object {
         return soup_wrapper.exec (this, cancellable);
     }
 
+    /**
+     * Asynchronious version of {@link simple_exec}
+     *
+     * @since 3.0
+     */
     public async GLib.Bytes simple_exec_async (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
