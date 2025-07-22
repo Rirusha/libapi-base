@@ -20,6 +20,8 @@
 using Gee;
 
 /**
+ * Json helper for de/serialization 
+ *
  * @since 0.1.0
  */
 public class ApiBase.Jsoner : Object {
