@@ -24,9 +24,12 @@ using Gee;
  */
 public class ApiBase.Jsoner : Object {
 
+    /**
+     * Names case used for deserialization
+     */
     public Case names_case { get; construct; }
 
-    public Json.Node root { get; construct; }
+    public Json.Node root { private get; construct; }
 
     /**
      * Performs initialization for deserialization. Accepts a json string. In case of
@@ -67,7 +70,7 @@ public class ApiBase.Jsoner : Object {
             json_string
         );
 
-        Object (root : node, names_case : names_case);
+        Object (root: node, names_case: names_case);
     }
 
     /**
@@ -95,7 +98,7 @@ public class ApiBase.Jsoner : Object {
      * Performs initialization for deserialization. Accepts a json string in the form of bytes,
      * an {@link uint8} array. In case of a parsing error, it throws {@link JsonError}
      *
-     * @param bytes         json string in the form of bytes, {@link uint8} array
+     * @param bytes         Json string in the form of bytes, {@link uint8} array
      * @param sub_members   An array of names of json elements that need to be traversed to the target node
      * @param names_case    Name case of element names in a json string
      */
@@ -133,10 +136,11 @@ public class ApiBase.Jsoner : Object {
     /**
      * Serialize {@link Object} into a correct json string
      *
-     * @param datalist      {@link Object}
+     * @param obj           {@link Object}
      * @param names_case    Name case of element names in a json string
+     * @param pretty        Pretty print of json or not
      *
-     * @return              json string
+     * @return              Json string
      */
     public static string serialize (
         Object obj,
@@ -413,11 +417,12 @@ public class ApiBase.Jsoner : Object {
     /**
      * Method for deserializing the {@link Object}
      *
-     * @param obj_type  the type of object that the json will be deserialized by
-     * @param node      the node that will be deserialized. Will be used
-     *                  root if `null` is passed
+     * @param sub_creation_func Function for creating collection
+     *                          objects with generics
      *
-     * @return deserialized object
+     * @return  Deserialized object
+     *
+     * @since 3.0
      */
     public T deserialize_object<T> (
         SubCollectionCreationFunc? sub_creation_func = null
@@ -425,6 +430,17 @@ public class ApiBase.Jsoner : Object {
         return deserialize_object_by_type (typeof (T), sub_creation_func);
     }
 
+    /**
+     * Method for deserializing the {@link Object} with {@link GLib.Type}
+     *
+     * @param sub_creation_func Function for creating collection
+     *                          objects with generics
+     * @param obj_type          Type of objects
+     *
+     * @return  Deserialized object
+     *
+     * @since 3.0
+     */
     public Object deserialize_object_by_type (
         GLib.Type obj_type,
         SubCollectionCreationFunc? sub_creation_func = null
@@ -448,6 +464,15 @@ public class ApiBase.Jsoner : Object {
         return obj;
     }
 
+    /**
+     * Method for deserializing into existing object
+     *
+     * @param obj               Object
+     * @param sub_creation_func Function for creating collection
+     *                          objects with generics
+     *
+     * @since 3.0
+     */
     public void deserialize_object_into (
         Object obj,
         SubCollectionCreationFunc? sub_creation_func = null
@@ -455,15 +480,6 @@ public class ApiBase.Jsoner : Object {
         deserialize_object_into_real (obj, null, sub_creation_func);
     }
 
-    /**
-     * Method for deserializing the {@link Object} into the given object
-     *
-     * @param obj    already created object
-     * @param node          the node that will be deserialized. Will be used
-     *                      root if `null` is passed
-     *
-     * @return deserialized object
-     */
     internal void deserialize_object_into_real (
         Object obj,
         Json.Node? node = null,
@@ -636,10 +652,8 @@ public class ApiBase.Jsoner : Object {
     /**
      * Method for deserializing the {@link Gee.ArrayList}
      *
-     * @param array_list        array
-     * @param node              the node that will be deserialized. Will be used
-     *                          root if `null` is passed
-     * @param sub_creation_func a function for creating subsets in the case of arrays in an array
+     * @param array_list        Array
+     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
      */
     public void deserialize_array_into (
         ArrayList array_list,
@@ -751,20 +765,20 @@ public class ApiBase.Jsoner : Object {
     /**
      * Method for deserializing the {@link Gee.ArrayList}
      *
-     * @param array_list        array
-     * @param node              the node that will be deserialized. Will be used
-     *                          root if `null` is passed
-     * @param sub_creation_func a function for creating subsets in the case of arrays in an array
+     * @param dict          Dict
+     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
+     *
+     * @since 3.0
      */
     public void deserialize_dict_into (
-        HashMap hash_map,
+        HashMap dict,
         SubCollectionCreationFunc? sub_creation_func = null
     ) throws JsonError {
-        deserialize_dict_into_real (hash_map, null, sub_creation_func);
+        deserialize_dict_into_real (dict, null, sub_creation_func);
     }
 
     internal void deserialize_dict_into_real (
-        HashMap hash_map,
+        HashMap dict,
         Json.Node? node = null,
         SubCollectionCreationFunc? sub_creation_func = null
     ) throws JsonError {
@@ -780,15 +794,15 @@ public class ApiBase.Jsoner : Object {
             throw new JsonError.WRONG_TYPE ("Node isn't object");
         }
 
-        if (hash_map.key_type != Type.STRING) {
+        if (dict.key_type != Type.STRING) {
             error ("HashMap can only have string as key type");
         }
 
         var jobject = node.get_object ();
 
-        if (hash_map.value_type.is_object ()) {
-            hash_map.clear ();
-            var narray_list = hash_map as HashMap<string, Object>;
+        if (dict.value_type.is_object ()) {
+            dict.clear ();
+            var narray_list = dict as HashMap<string, Object>;
 
             foreach (var member_name in jobject.get_members ()) {
                 var sub_node = jobject.get_member (member_name);
@@ -803,43 +817,43 @@ public class ApiBase.Jsoner : Object {
             }
 
         } else {
-            hash_map.clear ();
+            dict.clear ();
 
             foreach (var member_name in jobject.get_members ()) {
                 var sub_node = jobject.get_member (member_name);
                 var dval = deserialize_value_real (sub_node);
-                var new_val = Value (hash_map.value_type);
+                var new_val = Value (dict.value_type);
                 dval.transform (ref new_val);
 
-                switch (hash_map.value_type) {
+                switch (dict.value_type) {
                     case Type.STRING:
-                        var narray_list = hash_map as HashMap<string, string>;
+                        var narray_list = dict as HashMap<string, string>;
                         narray_list[member_name] = new_val.get_string ();
                         break;
 
                     case Type.INT:
-                        var narray_list = hash_map as HashMap<string, int>;
+                        var narray_list = dict as HashMap<string, int>;
                         narray_list[member_name] = new_val.get_int ();
                         break;
 
                     case Type.INT64:
-                        var narray_list = hash_map as HashMap<string, int64?>;
+                        var narray_list = dict as HashMap<string, int64?>;
                         narray_list[member_name] = new_val.get_int64 ();
                         break;
 
                     case Type.DOUBLE:
-                        var narray_list = hash_map as HashMap<string, double?>;
+                        var narray_list = dict as HashMap<string, double?>;
                         narray_list[member_name] = new_val.get_double ();
                         break;
 
                     case Type.BOOLEAN:
-                        var narray_list = hash_map as HashMap<string, bool>;
+                        var narray_list = dict as HashMap<string, bool>;
                         narray_list[member_name] = new_val.get_boolean ();
                         break;
 
                     default:
                         warning ("Unknown type of element of hashmap - %s",
-                            hash_map.value_type.name ()
+                            dict.value_type.name ()
                         );
                         break;
                 }

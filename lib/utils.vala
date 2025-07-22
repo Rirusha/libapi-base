@@ -20,7 +20,7 @@
 namespace ApiBase {
 
     /**
-     * 
+     * A function for creating subcollections in the case of arrays in an array
      */
     public delegate void SubCollectionCreationFunc (out Gee.Traversable collection, Type element_type);
 
@@ -148,7 +148,7 @@ namespace ApiBase {
         return false;
     }
 
-    public BadStatusCodeError get_error (Soup.Status status_code, string error_response) {
+    internal BadStatusCodeError get_error (Soup.Status status_code, string error_response) {
         switch (status_code) {
             case Soup.Status.BAD_REQUEST:
                 return new BadStatusCodeError.BAD_REQUEST (error_response);
@@ -249,11 +249,11 @@ namespace ApiBase {
     }
 
     /**
-     * Convert ``сamelCase`` to ``kebab-case`` string
+     * Convert `сamelCase` to `kebab-case` string
      *
-     * @param camel_string correct ``сamelCase`` string
+     * @param camel_string correct `сamelCase` string
      *
-     * @return ``kebab-case`` string
+     * @return `kebab-case` string
      *
      * @since 0.1.0
      */
@@ -275,11 +275,11 @@ namespace ApiBase {
     }
 
     /**
-     * Convert ``kebab-case`` to ``сamelCase`` string
+     * Convert `kebab-case` to `сamelCase` string
      *
-     * @param kebab_string correct ``kebab-case`` string
+     * @param kebab_string correct `kebab-case` string
      *
-     * @return ``сamelCase`` string
+     * @return `сamelCase` string
      *
      * @since 0.1.0
      */
@@ -301,11 +301,11 @@ namespace ApiBase {
     }
 
     /**
-     * Convert ``kebab-case`` to ``snake_case`` string
+     * Convert `kebab-case` to `snake_case` string
      *
-     * @param kebab_string correct ``kebab-case`` string
+     * @param kebab_string correct `kebab-case` string
      *
-     * @return ``snake_case`` string
+     * @return `snake_case` string
      *
      * @since 0.1.0
      */
@@ -326,11 +326,11 @@ namespace ApiBase {
     }
 
     /**
-     * Convert ``snake_case`` to ``kebab-case`` string
+     * Convert `snake_case` to `kebab-case` string
      *
-     * @param snake_string correct ``snake_case`` string
+     * @param snake_string correct `snake_case` string
      *
-     * @return ``kebab-case`` string
+     * @return `kebab-case` string
      *
      * @since 0.1.0
      */
@@ -350,6 +350,15 @@ namespace ApiBase {
         return builder.free_and_steal ();
     }
 
+    /**
+     * Detect case from `str`
+     *
+     * @param srt   String
+     *
+     * @return Case
+     *
+     * @since 3.0
+     */
     public Case detect_case (string str) {
         for (uint i = 0; i < str.char_count (); i++) {
             unichar c = str.get_char (i);
@@ -369,6 +378,15 @@ namespace ApiBase {
         return KEBAB;
     }
 
+    /**
+     * Convert any case string to kebab-case
+     *
+     * @param srt   String
+     *
+     * @return Kebab string
+     *
+     * @since 3.0
+     */
     public string any2kebab (string str) {
         var str_case = detect_case (str);
 

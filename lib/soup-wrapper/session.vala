@@ -78,6 +78,8 @@ public sealed class ApiBase.Session : Object {
      *
      * @param cookie_jar_type   Cookies storage type
      * @param cookies_file_path Path to cookies
+     *
+     * @since 3.0
      */
     public void init_cookies (
         CookieJarType cookie_jar_type,
@@ -169,6 +171,8 @@ public sealed class ApiBase.Session : Object {
 
     /**
      * Synchronously execute the {@link Request}
+     *
+     * @since 3.0
      */
     public GLib.Bytes? exec (
         Request request,
@@ -194,6 +198,8 @@ public sealed class ApiBase.Session : Object {
 
     /**
      * Asynchronously execute the {@link Request}
+     *
+     * @since 3.0
      */
     public async GLib.Bytes? exec_async (
         Request request,

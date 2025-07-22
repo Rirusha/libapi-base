@@ -24,10 +24,18 @@ public sealed class ApiBase.PostContent : Object {
         Object (content_type: content_type);
     }
 
+    /**
+     * @return content bytes
+     */
     public Bytes get_bytes () {
         return new Bytes (content.data);
     }
 
+    /**
+     * Set content dict
+     *
+     * @since 3.0
+     */
     public void set_dict (Gee.HashMap<string, string> dict) {
         switch (content_type) {
             case X_WWW_FORM_URLENCODED:
@@ -41,6 +49,9 @@ public sealed class ApiBase.PostContent : Object {
             }
     }
 
+    /**
+     * Set content datalist
+     */
     public void set_datalist (Datalist<string> datalist) {
         switch (content_type) {
             case X_WWW_FORM_URLENCODED:
