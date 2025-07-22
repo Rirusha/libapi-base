@@ -207,7 +207,7 @@ public sealed class ApiBase.Request : Object {
     public GLib.Bytes simple_exec (
         Cancellable? cancellable = null
     ) throws SoupError, BadStatusCodeError {
-        var soup_wrapper = new SoupWrapper ();
+        var soup_wrapper = new Session ();
         return soup_wrapper.exec (this, cancellable);
     }
 
@@ -215,7 +215,7 @@ public sealed class ApiBase.Request : Object {
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
     ) throws SoupError, BadStatusCodeError {
-        var soup_wrapper = new SoupWrapper ();
+        var soup_wrapper = new Session ();
         return yield soup_wrapper.exec_async (this, priority, cancellable);
     }
 }

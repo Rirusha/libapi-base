@@ -22,7 +22,7 @@ using Soup;
 /**
  * A wrapper class for libsoup
  */
-public sealed class ApiBase.SoupWrapper : Object {
+public sealed class ApiBase.Session : Object {
 
     /**
      * Cookies storage type
@@ -48,7 +48,7 @@ public sealed class ApiBase.SoupWrapper : Object {
     /**
      * @param user_agent    Session user agent
      */
-    public SoupWrapper (string? user_agent = null) {
+    public Session (string? user_agent = null) {
         Object (user_agent: user_agent);
     }
 

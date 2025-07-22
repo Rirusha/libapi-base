@@ -8,7 +8,7 @@ vala_sources = files(
   'soup-wrapper/parameter.vala',
   'soup-wrapper/post-content.vala',
   'soup-wrapper/request.vala',
-  'soup-wrapper/soup-wrapper.vala',
+  'soup-wrapper/session.vala',
 
   'data-object.vala',
   'enums.vala',

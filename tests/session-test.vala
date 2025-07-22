@@ -64,7 +64,7 @@ public int main (string[] args) {
 
     Test.add_func ("/soup-wrapper/get/json", () => {
         try {
-            var soup_wrapper = new SoupWrapper (USER_AGENT);
+            var soup_wrapper = new Session (USER_AGENT);
             var request = new Request.GET ("https://httpbin.org/json");
             var response = (string) (soup_wrapper.exec (request).get_data ());
 
@@ -133,7 +133,7 @@ public int main (string[] args) {
 
     Test.add_func ("/soup-wrapper/user-agent", () => {
         try {
-            var soup_wrapper = new SoupWrapper (USER_AGENT);
+            var soup_wrapper = new Session (USER_AGENT);
             var request = new Request.GET ("https://httpbin.org/user-agent");
             var respone = (string) (soup_wrapper.exec (request).get_data ());
 

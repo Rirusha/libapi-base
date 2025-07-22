@@ -7,8 +7,8 @@ test('Test Jsoner',
 
 if get_option('run_net_tests')
   test('Test SoupWrapper',
-    executable('soup-wrapper-test',
-      sources: ['soup-wrapper-test.vala'] + sources,
+    executable('session-test',
+      sources: ['session-test.vala'] + sources,
       dependencies: dependencies,
     ),
     is_parallel: true,
