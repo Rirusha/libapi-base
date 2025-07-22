@@ -148,7 +148,7 @@ namespace ApiBase {
         return false;
     }
 
-    public BadStatusCodeError get_error (uint status_code, string error_response) {
+    public BadStatusCodeError get_error (Soup.Status status_code, string error_response) {
         switch (status_code) {
             case Soup.Status.BAD_REQUEST:
                 return new BadStatusCodeError.BAD_REQUEST (error_response);

@@ -157,14 +157,14 @@ public sealed class ApiBase.SoupWrapper : Object {
         }
     }
 
-    void check_status_code (Soup.Message msg, Bytes? bytes) throws SoupError, BadStatusCodeError {
-        if (msg.status_code == Soup.Status.OK) {
+    void check_status_code (Soup.Status status_code, Bytes? bytes) throws SoupError, BadStatusCodeError {
+        if (status_code == Soup.Status.OK) {
             return;
         }
 
         string error_message = (string) (bytes.get_data ()) ?? "";
 
-        throw get_error (msg.status_code, error_message);
+        throw get_error (status_code, error_message);
     }
 
     /**
@@ -187,7 +187,7 @@ public sealed class ApiBase.SoupWrapper : Object {
             throw new SoupError.INTERNAL ("%s %s: %s".printf (message.method, message.uri.to_string (), e.message));
         }
 
-        check_status_code (message, bytes);
+        check_status_code (request.get_status_code (), bytes);
 
         return bytes;
     }
@@ -213,7 +213,7 @@ public sealed class ApiBase.SoupWrapper : Object {
             throw new SoupError.INTERNAL ("%s %s: %s".printf (message.method, message.uri.to_string (), e.message));
         }
 
-        check_status_code (message, bytes);
+        check_status_code (request.get_status_code (), bytes);
 
         return bytes;
     }
