@@ -57,6 +57,7 @@ public enum ApiBase.PostContentType {
  * Name cases
  */
 public enum ApiBase.Case {
+    AUTO,
     SNAKE,
     KEBAB,
     CAMEL;

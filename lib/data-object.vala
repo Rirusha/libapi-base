@@ -30,7 +30,7 @@ public abstract class ApiBase.DataObject : Object {
     public void fill_from_json (
         string json,
         string[]? sub_members = null,
-        ApiBase.Case names_case = ApiBase.Case.KEBAB
+        Case names_case = Case.AUTO
     ) throws JsonError {
         var jsoner = new Jsoner (json, sub_members, names_case);
         jsoner.deserialize_object_into (this);
@@ -39,7 +39,7 @@ public abstract class ApiBase.DataObject : Object {
     /**
      * Serialize object to json
      */
-    public string to_json (ApiBase.Case names_case = ApiBase.Case.KEBAB) {
+    public string to_json (Case names_case = Case.AUTO) {
         return Jsoner.serialize (this, names_case);
     }
 
@@ -50,7 +50,7 @@ public abstract class ApiBase.DataObject : Object {
     public static T from_json<T> (
         string json,
         string[]? sub_members = null,
-        ApiBase.Case names_case = ApiBase.Case.KEBAB
+        Case names_case = Case.AUTO
     ) throws JsonError {
         var type_ = typeof (T);
         assert (type_.is_a (typeof (DataObject)));

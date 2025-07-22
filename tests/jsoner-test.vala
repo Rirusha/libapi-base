@@ -73,7 +73,7 @@ public class TestObjectEnum : Object {
     public TestEnum value { get; set; }
 }
 
-public class SimpleObject : Object {
+public class SimpleObject : DataObject {
     public string string_value { get; set; }
     public int int_value { get; set; }
     public bool bool_value { get; set; }
@@ -111,9 +111,9 @@ string get_name_with_c (string name, ApiBase.Case c) {
             return kebab2snake (name);
         case CAMEL:
             return kebab2camel (name);
+        default:
+            assert_not_reached ();
     }
-
-    assert_not_reached ();
 }
 
 string get_exp_json (ApiBase.Case c) {
@@ -220,6 +220,26 @@ public int main (string[] args) {
 
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
+        }
+    });
+
+    Test.add_func ("/jsoner/deserialize/bad-json", () => {
+        var json = "{\"string-value\":\"test\",\"int_value\":42,\"boolValue\":true}";
+
+        SimpleObject obj;
+        try {
+            obj = DataObject.from_json<SimpleObject> (json);
+        } catch (JsonError e) {
+            Test.skip (e.domain.to_string () + ": " + e.message);
+            return;
+        }
+
+        if (
+            obj.string_value != "test" ||
+            obj.int_value != 42 ||
+            obj.bool_value != true
+        ) {
+            Test.fail ();
         }
     });
 

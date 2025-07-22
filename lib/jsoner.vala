@@ -40,7 +40,7 @@ public class ApiBase.Jsoner : Object {
     public Jsoner (
         string json_string,
         string[]? sub_members = null,
-        Case names_case = Case.KEBAB
+        Case names_case = Case.AUTO
     ) throws JsonError {
         if (json_string.length < 1) {
             throw new JsonError.EMPTY ("Json string is empty");
@@ -82,7 +82,7 @@ public class ApiBase.Jsoner : Object {
     public Jsoner.from_bytes (
         Bytes bytes,
         string[]? sub_members = null,
-        Case names_case = Case.KEBAB
+        Case names_case = Case.AUTO
     ) throws JsonError {
         if (bytes.length == 0) {
             throw new JsonError.EMPTY ("Json string is empty");
@@ -102,7 +102,7 @@ public class ApiBase.Jsoner : Object {
     public Jsoner.from_data (
         uint8[] data,
         string[]? sub_members = null,
-        Case names_case = Case.KEBAB
+        Case names_case = Case.AUTO
     ) throws JsonError {
         this ((string) data, sub_members, names_case);
     }
@@ -140,9 +140,13 @@ public class ApiBase.Jsoner : Object {
      */
     public static string serialize (
         Object obj,
-        Case names_case = Case.KEBAB,
+        Case names_case = Case.AUTO,
         bool pretty = false
     ) {
+        if (names_case == Case.AUTO) {
+            names_case = Case.KEBAB;
+        }
+
         var builder = new Json.Builder ();
 
         if (obj is HashMap) {
@@ -166,8 +170,12 @@ public class ApiBase.Jsoner : Object {
         Json.Builder builder,
         ArrayList array_list,
         Type element_type,
-        Case names_case = Case.KEBAB
+        Case names_case = Case.AUTO
     ) {
+        if (names_case == Case.AUTO) {
+            names_case = Case.KEBAB;
+        }
+
         builder.begin_array ();
 
         if (element_type == typeof (ArrayList)) {
@@ -230,8 +238,12 @@ public class ApiBase.Jsoner : Object {
         Json.Builder builder,
         HashMap dict,
         Type element_type,
-        Case names_case = Case.KEBAB
+        Case names_case = Case.AUTO
     ) {
+        if (names_case == Case.AUTO) {
+            names_case = Case.KEBAB;
+        }
+
         builder.begin_object ();
 
         if (element_type.is_object ()) {
@@ -288,8 +300,12 @@ public class ApiBase.Jsoner : Object {
     static void serialize_object (
         Json.Builder builder,
         Object? api_obj,
-        Case names_case = Case.KEBAB
+        Case names_case = Case.AUTO
     ) {
+        if (names_case == Case.AUTO) {
+            names_case = Case.KEBAB;
+        }
+
         if (api_obj == null) {
             builder.add_null_value ();
 
@@ -471,35 +487,50 @@ public class ApiBase.Jsoner : Object {
         var class_ref = (ObjectClass) obj_type.class_ref ();
         ParamSpec[] properties = class_ref.list_properties ();
 
+        var props_data = new Gee.HashMap<string, ParamSpec> ();
         foreach (ParamSpec property in properties) {
             if ((property.flags & ParamFlags.WRITABLE) == 0) {
                 continue;
             }
 
-            Type prop_type = property.value_type;
+            var stripped_name = strip (property.name, '-');
+            if (props_data.has_key (stripped_name)) {
+                warning ("Detected property collision");
+            }
+            props_data[strip (property.name, '-')] = property;
+        }
 
-            string member_name;
+        foreach (var member_name in node.get_object ().get_members ()) {
+            string kebabbed_member_name;
             switch (names_case) {
                 case Case.CAMEL:
-                    member_name = kebab2camel (strip (property.name, '-'));
+                    kebabbed_member_name = camel2kebab (member_name);
                     break;
-
                 case Case.SNAKE:
-                    member_name = kebab2snake (strip (property.name, '-'));
+                    kebabbed_member_name = snake2kebab (member_name);
                     break;
-
                 case Case.KEBAB:
-                    member_name = strip (property.name, '-');
+                    kebabbed_member_name = member_name;
                     break;
-
+                case Case.AUTO:
+                    kebabbed_member_name = any2kebab (member_name);
+                    break;
                 default:
-                    error ("Unknown case - %s", names_case.to_string ());
+                    assert_not_reached ();
             }
 
-            if (!node.get_object ().has_member (member_name)) {
-                warning ("Json string hasn't '%s' of %s::%s", member_name, obj_type.name (), property.name);
-                continue;
+            if (!props_data.has_key (kebabbed_member_name)) {
+                warning (
+                    "The object %s does not have a property %s corresponding to the json field %s",
+                    obj_type.name (),
+                    kebabbed_member_name,
+                    member_name
+                );
             }
+
+            var property = props_data[kebabbed_member_name];
+
+            Type prop_type = property.value_type;
 
             var sub_node = node.get_object ().get_member (member_name);
 
@@ -823,9 +854,13 @@ public class ApiBase.Jsoner : Object {
      */
     public static async string serialize_async (
         Object obj,
-        Case names_case = Case.KEBAB,
+        Case names_case = Case.AUTO,
         bool pretty = false
     ) {
+        if (names_case == Case.AUTO) {
+            names_case = Case.KEBAB;
+        }
+
         var thread = new Thread<string> (null, () => {
             var result = serialize (obj, names_case, pretty);
 

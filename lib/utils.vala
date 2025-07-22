@@ -349,4 +349,38 @@ namespace ApiBase {
 
         return builder.free_and_steal ();
     }
+
+    public Case detect_case (string str) {
+        for (uint i = 0; i < str.char_count (); i++) {
+            unichar c = str.get_char (i);
+
+            switch (c) {
+                case '_':
+                    return SNAKE;
+                case '-':
+                    return KEBAB;
+            }
+
+            if (c.isupper ()) {
+                return CAMEL;
+            }
+        }
+
+        return KEBAB;
+    }
+
+    public string any2kebab (string str) {
+        var str_case = detect_case (str);
+
+        switch (str_case) {
+            case Case.CAMEL:
+                return camel2kebab (str);
+            case Case.SNAKE:
+                return snake2kebab (str);
+            case Case.KEBAB:
+                return str;
+            default:
+                assert_not_reached ();
+        }
+    }
 }
