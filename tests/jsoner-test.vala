@@ -3,6 +3,23 @@
 
 using ApiBase;
 
+const string STRING_VAL_NAME = "string-val";
+const string STRING_VAL = "test";
+const string INT64_VAL_NAME = "int64-val";
+const int64 INT64_VAL = 1234;
+const string INT_VAL_NAME = "int-val";
+const int INT_VAL = 1234;
+const string DOUBLE_VAL_NAME = "double-val";
+const double DOUBLE_VAL = 45.1;
+const string BOOL_VAL_NAME = "bool-val";
+const bool BOOL_VAL = true;
+const string ENUM_VAL_NAME = "enum-val";
+const TestEnum ENUM_VAL = VALUE_2;
+const string TYPE__NAME = "type";
+const string TYPE_ = "some text";
+const string ERROR_CODE_NAME = "error-code";
+const int ERROR_CODE = 6;
+
 public class ValuesData : DataObject {
     public string string_val { get; set; }
     public int64 int64_val { get; set; }
@@ -11,12 +28,13 @@ public class ValuesData : DataObject {
     public bool bool_val { get; set; }
     public TestEnum enum_val { get; set; }
 
-    //  Strange names
+    // Strange names
 
     // Property with 'type' name cannot exists
     public string type_ { get; set; }
+    // The issue is lost, but there was an error about incorrect deserialization of "error_code"
+    public int error_code { get; set; }
 }
-
 
 public class TestObjectString : DataObject {
     public string? value { get; set; }
@@ -85,46 +103,50 @@ public class TestObjectAlbum : Object {
     }
 }
 
+string get_name_with_c (string name, ApiBase.Case c) {
+    switch (c) {
+        case KEBAB:
+            return name;
+        case SNAKE:
+            return kebab2snake (name);
+        case CAMEL:
+            return kebab2camel (name);
+    }
+
+    assert_not_reached ();
+}
+
+string get_exp_json (ApiBase.Case c) {
+    return "{%s}".printf (string.joinv (",", {
+        @"\"$(get_name_with_c (STRING_VAL_NAME, c))\":\"$STRING_VAL\"",
+        @"\"$(get_name_with_c (INT64_VAL_NAME, c))\":$INT64_VAL",
+        @"\"$(get_name_with_c (INT_VAL_NAME, c))\":$INT_VAL",
+        @"\"$(get_name_with_c (DOUBLE_VAL_NAME, c))\":$DOUBLE_VAL",
+        @"\"$(get_name_with_c (BOOL_VAL_NAME, c))\":$BOOL_VAL",
+        @"\"$(get_name_with_c (ENUM_VAL_NAME, c))\":\"$(get_enum_nick (typeof (TestEnum), ENUM_VAL))\"",
+        @"\"$(get_name_with_c (TYPE__NAME, c))\":\"$TYPE_\"",
+        @"\"$(get_name_with_c (ERROR_CODE_NAME, c))\":$ERROR_CODE",
+    }));
+}
+
 public int main (string[] args) {
     Test.init (ref args);
 
     Test.add_func ("/jsoner/serialize/values", () => {
-        string test_string_val = "test";
-        int64 test_int64_val = 1234;
-        int test_int_val = 1234;
-        double test_double_val = 45.1;
-        bool test_bool_val = true;
-        TestEnum test_enum_val = VALUE_2;
-        string test_type_ = "some text";
-
         Case[] cases = {KEBAB, SNAKE, CAMEL};
         foreach (var c in cases) {
             var test_object = new ValuesData ();
 
-            test_object.string_val = test_string_val;
-            test_object.int64_val = test_int64_val;
-            test_object.int_val = test_int_val;
-            test_object.double_val = test_double_val;
-            test_object.bool_val = test_bool_val;
-            test_object.enum_val = test_enum_val;
-            test_object.type_ = test_type_;
+            test_object.string_val = STRING_VAL;
+            test_object.int64_val = INT64_VAL;
+            test_object.int_val = INT_VAL;
+            test_object.double_val = DOUBLE_VAL;
+            test_object.bool_val = BOOL_VAL;
+            test_object.enum_val = ENUM_VAL;
+            test_object.type_ = TYPE_;
+            test_object.error_code = ERROR_CODE;
 
-            var enum_expected_val = get_enum_nick (typeof (TestEnum), test_enum_val);
-
-            string expectation = "";
-
-            switch (c) {
-                case KEBAB:
-                    expectation = @"{\"string-val\":\"$test_string_val\",\"int64-val\":$test_int64_val,\"int-val\":$test_int_val,\"double-val\":$test_double_val,\"bool-val\":$test_bool_val,\"enum-val\":\"$(enum_expected_val)\",\"type\":\"$test_type_\"}";
-                    break;
-                case SNAKE:
-                    expectation = @"{\"string_val\":\"$test_string_val\",\"int64_val\":$test_int64_val,\"int_val\":$test_int_val,\"double_val\":$test_double_val,\"bool_val\":$test_bool_val,\"enum_val\":\"$(enum_expected_val)\",\"type\":\"$test_type_\"}";
-                    break;
-                case CAMEL:
-                    expectation = @"{\"stringVal\":\"$test_string_val\",\"int64Val\":$test_int64_val,\"intVal\":$test_int_val,\"doubleVal\":$test_double_val,\"boolVal\":$test_bool_val,\"enumVal\":\"$(enum_expected_val)\",\"type\":\"$test_type_\"}";
-                    break;
-            }
-
+            string expectation = get_exp_json (c);
             var result = Jsoner.serialize (test_object, c);
 
             if (result != expectation) {
@@ -134,31 +156,9 @@ public int main (string[] args) {
     });
 
     Test.add_func ("/jsoner/deserialize/values", () => {
-        string test_string_val = "test";
-        int64 test_int64_val = 1234;
-        int test_int_val = 1234;
-        double test_double_val = 45.1;
-        bool test_bool_val = true;
-        TestEnum test_enum_val = VALUE_2;
-        string test_type_ = "some text";
-
         Case[] cases = {KEBAB, SNAKE, CAMEL};
         foreach (var c in cases) {
-            var enum_expected_val = get_enum_nick (typeof (TestEnum), test_enum_val);
-
-            string json = "";
-
-            switch (c) {
-                case KEBAB:
-                    json = @"{\"string-val\":\"$test_string_val\",\"int64-val\":$test_int64_val,\"int-val\":$test_int_val,\"double-val\":$test_double_val,\"bool-val\":$test_bool_val,\"enum-val\":\"$(enum_expected_val)\",\"type\":\"$test_type_\"}";
-                    break;
-                case SNAKE:
-                    json = @"{\"string_val\":\"$test_string_val\",\"int64_val\":$test_int64_val,\"int_val\":$test_int_val,\"double_val\":$test_double_val,\"bool_val\":$test_bool_val,\"enum_val\":\"$(enum_expected_val)\",\"type\":\"$test_type_\"}";
-                    break;
-                case CAMEL:
-                    json = @"{\"stringVal\":\"$test_string_val\",\"int64Val\":$test_int64_val,\"intVal\":$test_int_val,\"doubleVal\":$test_double_val,\"boolVal\":$test_bool_val,\"enumVal\":\"$(enum_expected_val)\",\"type\":\"$test_type_\"}";
-                    break;
-            }
+            string json = get_exp_json (c);
 
             ValuesData result;
 
@@ -169,26 +169,29 @@ public int main (string[] args) {
                 return;
             }
 
-            if (result.string_val != test_string_val) {
-                Test.fail_printf (@"$(result.string_val) != $(test_string_val)");
+            if (result.string_val != STRING_VAL) {
+                Test.fail_printf (@"$(result.string_val) != $(STRING_VAL)");
             }
-            if (result.int64_val != test_int64_val) {
-                Test.fail_printf (@"$(result.int64_val) != $(test_int64_val)");
+            if (result.int64_val != INT64_VAL) {
+                Test.fail_printf (@"$(result.int64_val) != $(INT64_VAL)");
             }
-            if (result.int_val != test_int_val) {
-                Test.fail_printf (@"$(result.int_val) != $(test_int_val)");
+            if (result.int_val != INT64_VAL) {
+                Test.fail_printf (@"$(result.int_val) != $(INT64_VAL)");
             }
-            if (result.double_val != test_double_val) {
-                Test.fail_printf (@"$(result.double_val) != $(test_double_val)");
+            if (result.double_val != DOUBLE_VAL) {
+                Test.fail_printf (@"$(result.double_val) != $(DOUBLE_VAL)");
             }
-            if (result.bool_val != test_bool_val) {
-                Test.fail_printf (@"$(result.bool_val) != $(test_bool_val)");
+            if (result.bool_val != BOOL_VAL) {
+                Test.fail_printf (@"$(result.bool_val) != $(BOOL_VAL)");
             }
-            if (result.enum_val != test_enum_val) {
-                Test.fail_printf (@"$(result.enum_val) != $(test_enum_val)");
+            if (result.enum_val != ENUM_VAL) {
+                Test.fail_printf (@"$(result.enum_val) != $(ENUM_VAL)");
             }
-            if (result.type_ != test_type_) {
-                Test.fail_printf (@"$(result.type_) != $(test_type_)");
+            if (result.type_ != TYPE_) {
+                Test.fail_printf (@"$(result.type_) != $(TYPE_)");
+            }
+            if (result.error_code != ERROR_CODE) {
+                Test.fail_printf (@"$(result.type_) != $(ERROR_CODE)");
             }
         }
     });
