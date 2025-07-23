@@ -1,0 +1,13 @@
+object fdb96a7da148aa530b16ad4ebc7644e308027fdc
+type commit
+tag v3.0
+tagger Gitea <gitea@fake.local> 1753195076 +0300
+
+v3.0
+
+- Objective requests
+- AUTO cases
+- Better object deserialization
+- Dict support
+- Auto type conversion
+- More tests!
