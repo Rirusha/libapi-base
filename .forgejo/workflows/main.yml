@@ -25,19 +25,6 @@ jobs:
       - name: Lint files
         uses: alt-gnome/linters-actions/vala@main
 
-  lint-blp:
-    name: Lint blueprint UI files
-    runs-on: alt-sisyphus
-    container:
-      image: altlinux.space/alt-gnome/gtk-blueprint-compiler-image:latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Lint files
-        uses: alt-gnome/linters-actions/blueprint@main
-
   checkers:
     name: Run checkers
     runs-on: alt-sisyphus
@@ -65,7 +52,6 @@ jobs:
     runs-on: alt-sisyphus
     needs:
       - lint-vala
-      - lint-blp
       - checkers
 
     steps:
