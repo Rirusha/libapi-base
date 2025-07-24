@@ -58,7 +58,7 @@ public enum ApiBase.PostContentType {
  */
 public enum ApiBase.Case {
     /**
-     * Jsoner will try detec name case for every member of
+     * Jsoner will try detect name case for every member of
      * json object. Useful for working with bad API developers
      */
     AUTO,
