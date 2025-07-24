@@ -1,0 +1,113 @@
+name: Main
+
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  lint-vala:
+    name: Lint vala files
+    runs-on: alt-sisyphus
+    container:
+      image: altlinux.space/alt-gnome/vala-linter-image:latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Lint files
+        uses: alt-gnome/linters-actions/vala@main
+
+  lint-blp:
+    name: Lint blueprint UI files
+    runs-on: alt-sisyphus
+    container:
+      image: altlinux.space/alt-gnome/gtk-blueprint-compiler-image:latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Lint files
+        uses: alt-gnome/linters-actions/blueprint@main
+
+  checkers:
+    name: Run checkers
+    runs-on: alt-sisyphus
+
+    steps:
+      - name: Update apt cache
+        run: apt-get -y update
+
+      - name: Install git and python
+        run: apt-get install -y git python3
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Run indentation checker
+        run: python3 vala-checkers/indentation_checker.py .
+
+      - name: Run empty lines checker
+        run: python3 vala-checkers/empty_lines_checker.py .
+
+  test-build:
+    name: Test Build
+    runs-on: alt-sisyphus
+    needs:
+      - lint-vala
+      - lint-blp
+      - checkers
+
+    steps:
+      - name: Install libs on container
+        run: |
+          apt-get update
+          apt-get install -y git meson vala "pkgconfig(json-glib-1.0)" "gir(Json)=1.0" "pkgconfig(gee-0.8)" "gir(Gee)=0.8" "pkgconfig(gio-2.0)" "pkgconfig(libsoup-3.0)" "gir(Soup)=3.0" "pkgconfig(json-glib-1.0)" "gobject-introspection-devel" valadoc
+          
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup
+        run: meson setup _build -Ddocumentation=true
+
+      - name: Build
+        run: meson compile -C _build
+
+      - name: Deploy pages
+        uses: actions/deploy-pages@v1
+        with:
+          directory: ./_build/doc/valagram-1-vala
+
+  build-altlinux:
+    name: Build RPM for altlinux
+
+    runs-on: alt-sisyphus
+    container:
+      image: altlinux.space/rirusha/riru-build-image:latest
+    needs:
+      - test-build
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: 'altlinux'
+
+      - uses: alt-gnome/build-rpm-action@main
+        name: Build RPMs
+
+      - uses: alt-gnome/upload-rpm-action@main
+        name: Upload RPMs
+        with:
+          directory: ~/.cache/hasherc/libapi-base3/out/RPMS
+          token: ${{ github.token }}
