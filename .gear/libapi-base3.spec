@@ -16,8 +16,8 @@ Release: alt1
 Summary: Base objects for API libraries
 License: GPL-3.0-or-later
 Group: System/Libraries
-Url: https://gitlab.gnome.org/Rirusha/libapi-base
-Vcs: https://gitlab.gnome.org/Rirusha/libapi-base.git
+Url: https://altlinux.space/rirusha/libapi-base
+Vcs: https://altlinux.space/rirusha/libapi-base.git
 
 Source0: %name-%version.tar
 Patch: %name-%version-%release.patch
