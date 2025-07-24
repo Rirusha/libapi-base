@@ -70,6 +70,7 @@ jobs:
         run: meson compile -C _build
 
       - name: Deploy pages
+        if: github.event_name != 'pull_request'
         uses: actions/deploy-pages@v1
         with:
           directory: ./_build/doc/libapi-base-3-vala
@@ -88,12 +89,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: 'altlinux'
+          fetch-tags: true
 
       - uses: alt-gnome/build-rpm-action@main
         name: Build RPMs
 
       - uses: alt-gnome/upload-rpm-action@main
         name: Upload RPMs
+        if: github.event_name != 'pull_request'
         with:
           directory: ~/.cache/hasherc/libapi-base3/out/RPMS
           token: ${{ github.token }}
