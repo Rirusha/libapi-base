@@ -58,7 +58,7 @@ jobs:
       - name: Install libs on container
         run: |
           apt-get update
-          apt-get install -y git meson vala "pkgconfig(json-glib-1.0)" "gir(Json)=1.0" "pkgconfig(gee-0.8)" "gir(Gee)=0.8" "pkgconfig(gio-2.0)" "pkgconfig(libsoup-3.0)" "gir(Soup)=3.0" "pkgconfig(json-glib-1.0)" "gobject-introspection-devel" valadoc
+          apt-get install -y git meson vala "pkgconfig(json-glib-1.0)" "gir(Json)=1.0" "pkgconfig(gee-0.8)" "gir(Gee)=0.8" "pkgconfig(gio-2.0)" "pkgconfig(libsoup-3.0)" "gir(Soup)=3.0" "pkgconfig(json-glib-1.0)" "gobject-introspection-devel" valadoc /usr/bin/gtkdoc-scan
           
       - name: Checkout repository
         uses: actions/checkout@v4
