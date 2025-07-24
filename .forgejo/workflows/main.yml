@@ -100,4 +100,4 @@ jobs:
         if: github.event_name != 'pull_request'
         with:
           directory: ~/.cache/hasherc/libapi-base3/out/RPMS
-          token: ${{ github.token }}
+          token: ${{ secrets.TOKEN }}
