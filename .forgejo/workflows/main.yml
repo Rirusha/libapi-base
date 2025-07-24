@@ -90,6 +90,7 @@ jobs:
         with:
           ref: 'altlinux'
           fetch-tags: true
+          fetch-depth: 0
 
       - uses: alt-gnome/build-rpm-action@main
         name: Build RPMs
