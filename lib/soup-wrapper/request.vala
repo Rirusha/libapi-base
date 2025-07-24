@@ -21,7 +21,7 @@
 /**
  * Request object. Can handle parameters, headers, post content.
  * {@link Session.exec} and {@link Session.exec_async}
- * form message via {@link form_message} and set {@link this} to readonly
+ * form message via {@link form_message} and set this to readonly
  *
  * @since 3.0
  */

@@ -136,9 +136,9 @@ public class ApiBase.Jsoner : Object {
     /////////////////
 
     /**
-     * Serialize {@link Object} into a correct json string
+     * Serialize {@link GLib.Object} into a correct json string
      *
-     * @param obj           {@link Object}
+     * @param obj           {@link GLib.Object}
      * @param names_case    Name case of element names in a json string
      * @param pretty        Pretty print of json or not
      *
@@ -417,7 +417,7 @@ public class ApiBase.Jsoner : Object {
     ///////////////////
 
     /**
-     * Method for deserializing the {@link Object}
+     * Method for deserializing the {@link GLib.Object}
      *
      * @param sub_creation_func Function for creating collection
      *                          objects with generics
@@ -433,7 +433,7 @@ public class ApiBase.Jsoner : Object {
     }
 
     /**
-     * Method for deserializing the {@link Object} with {@link GLib.Type}
+     * Method for deserializing the {@link GLib.Object} with {@link GLib.Type}
      *
      * @param sub_creation_func Function for creating collection
      *                          objects with generics

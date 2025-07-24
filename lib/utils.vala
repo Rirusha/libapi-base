@@ -353,7 +353,7 @@ namespace ApiBase {
     /**
      * Detect case from `str`
      *
-     * @param srt   String
+     * @param str   String
      *
      * @return Case
      *
@@ -381,7 +381,7 @@ namespace ApiBase {
     /**
      * Convert any case string to kebab-case
      *
-     * @param srt   String
+     * @param str   String
      *
      * @return Kebab string
      *
