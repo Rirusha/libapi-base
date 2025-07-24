@@ -72,7 +72,7 @@ jobs:
       - name: Deploy pages
         uses: actions/deploy-pages@v1
         with:
-          directory: ./_build/doc/valagram-1-vala
+          directory: ./_build/doc/libapi-base-3-vala
 
   build-altlinux:
     name: Build RPM for altlinux
