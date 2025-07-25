@@ -101,3 +101,4 @@ jobs:
         with:
           directory: ~/.cache/hasherc/libapi-base3/out/RPMS
           token: ${{ secrets.TOKEN }}
+          group: libapi-base
