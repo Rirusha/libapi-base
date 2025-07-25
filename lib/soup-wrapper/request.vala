@@ -294,6 +294,9 @@ public sealed class ApiBase.Request : Object {
     /**
      * Simple request execution.
      *
+     * @throws SoupError            Internal error from libsoup
+     * @throws BadStatusCodeError   Bad status code from request
+     *
      * @since 3.0
      */
     public GLib.Bytes simple_exec (
@@ -305,6 +308,9 @@ public sealed class ApiBase.Request : Object {
 
     /**
      * Asynchronious version of {@link simple_exec}
+     *
+     * @throws SoupError            Internal error from libsoup
+     * @throws BadStatusCodeError   Bad status code from request
      *
      * @since 3.0
      */

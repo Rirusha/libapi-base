@@ -26,6 +26,8 @@ public abstract class ApiBase.DataObject : Object {
     /**
      * Parse json and fill up this object via
      * {@link Jsoner.deserialize_object_into}
+     *
+     * @throws JsonError    Error with json or sub_members
      */
     public void fill_from_json (
         string json,
@@ -46,6 +48,8 @@ public abstract class ApiBase.DataObject : Object {
     /**
      * Object creation method from json 
      * via {@link Jsoner.deserialize_object}
+     *
+     * @throws JsonError    Error with json or sub_members
      */
     public static T from_json<T> (
         string json,

@@ -19,6 +19,8 @@
  */
 
 /**
+ * Error from libjson
+ *
  * @since 3.0
  */
 public errordomain ApiBase.JsonError {
@@ -44,6 +46,8 @@ public errordomain ApiBase.JsonError {
 }
 
 /**
+ * Error from libsoup
+ *
  * @since 3.0
  */
 public errordomain ApiBase.SoupError {

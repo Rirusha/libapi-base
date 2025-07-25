@@ -35,12 +35,14 @@ public class ApiBase.Jsoner : Object {
 
     /**
      * Performs initialization for deserialization. Accepts a json string. In case of
-     * a parsing error, it throws {@link JsonError}
+     * a parsing error
      *
      * @param json_string   Correct json string
      * @param sub_members   An array of names of json elements that need to be traversed
      *                      to the target node
      * @param names_case    Name case of element names in a json string
+     *
+     * @throws JsonError    Error with json or sub_members
      */
     public Jsoner (
         string json_string,
@@ -77,12 +79,13 @@ public class ApiBase.Jsoner : Object {
 
     /**
      * Performs initialization for deserialization. Accepts a json string in the
-     * form of bytes, the object {@link GLib.Bytes}. In case of a parsing error,
-     * it throws {@link JsonError}
+     * form of bytes, the object {@link GLib.Bytes}. In case of a parsing error
      *
      * @param bytes         Json string in the form of bytes, the object {@link GLib.Bytes}
      * @param sub_members   An array of names of json elements that need to be traversed to the target node
      * @param names_case    Name case of element names in a json string
+     *
+     * @throws JsonError    Error with json or sub_members
      */
     public Jsoner.from_bytes (
         Bytes bytes,
@@ -98,11 +101,13 @@ public class ApiBase.Jsoner : Object {
 
     /**
      * Performs initialization for deserialization. Accepts a json string in the form of bytes,
-     * an {@link uint8} array. In case of a parsing error, it throws {@link JsonError}
+     * an {@link uint8} array. In case of a parsing error
      *
-     * @param bytes         Json string in the form of bytes, {@link uint8} array
+     * @param data         Json string in the form of bytes, {@link uint8} array
      * @param sub_members   An array of names of json elements that need to be traversed to the target node
      * @param names_case    Name case of element names in a json string
+     *
+     * @throws JsonError    Error with json or sub_members
      */
     public Jsoner.from_data (
         uint8[] data,
@@ -424,6 +429,8 @@ public class ApiBase.Jsoner : Object {
      *
      * @return  Deserialized object
      *
+     * @throws JsonError    Error with json string
+     *
      * @since 3.0
      */
     public T deserialize_object<T> (
@@ -440,6 +447,8 @@ public class ApiBase.Jsoner : Object {
      * @param obj_type          Type of objects
      *
      * @return  Deserialized object
+     *
+     * @throws JsonError    Error with json string
      *
      * @since 3.0
      */
@@ -472,6 +481,8 @@ public class ApiBase.Jsoner : Object {
      * @param obj               Object
      * @param sub_creation_func Function for creating collection
      *                          objects with generics
+     *
+     * @throws JsonError    Error with json string
      *
      * @since 3.0
      */
@@ -629,6 +640,8 @@ public class ApiBase.Jsoner : Object {
      * Method for deserializing the {@link GLib.Value}
      *
      * @return deserialized value
+     *
+     * @throws JsonError    Error with json string
      */
     public Value deserialize_value () throws JsonError {
         return deserialize_value_real (null);
@@ -656,6 +669,8 @@ public class ApiBase.Jsoner : Object {
      *
      * @param array_list        Array
      * @param sub_creation_func A function for creating subsets in the case of arrays in an array
+     *
+     * @throws JsonError    Error with json string
      */
     public void deserialize_array_into (
         ArrayList array_list,
@@ -769,6 +784,8 @@ public class ApiBase.Jsoner : Object {
      *
      * @param dict          Dict
      * @param sub_creation_func A function for creating subsets in the case of arrays in an array
+     *
+     * @throws JsonError    Error with json string
      *
      * @since 3.0
      */
@@ -891,6 +908,15 @@ public class ApiBase.Jsoner : Object {
 
     /**
      * Asynchronous version of method {@link deserialize_object}
+     *
+     * @param sub_creation_func Function for creating collection
+     *                          objects with generics
+     *
+     * @return  Deserialized object
+     *
+     * @throws JsonError    Error with json string
+     *
+     * @since 3.0
      */
     public async T deserialize_object_async<T> (
         SubCollectionCreationFunc? sub_creation_func = null
@@ -921,6 +947,8 @@ public class ApiBase.Jsoner : Object {
 
     /**
      * Asynchronous version of method {@link deserialize_object_by_type}
+     *
+     * @throws JsonError    Error with json string
      */
     public async Object deserialize_object_by_type_async (
         GLib.Type obj_type,
@@ -952,6 +980,8 @@ public class ApiBase.Jsoner : Object {
 
     /**
      * Asynchronous version of method {@link deserialize_object_into}
+     *
+     * @throws JsonError    Error with json string
      */
     public async void deserialize_object_into_async (
         Object obj,
@@ -981,6 +1011,8 @@ public class ApiBase.Jsoner : Object {
 
     /**
      * Asynchronous version of method {@link deserialize_array_into}
+     *
+     * @throws JsonError    Error with json string
      */
     public async void deserialize_array_into_async (
         ArrayList array_list,
