@@ -13,17 +13,17 @@ permissions:
 
 jobs:
   lint-vala:
-    name: Lint vala files
+    name: Check vala files
     runs-on: alt-sisyphus
     container:
-      image: altlinux.space/alt-gnome/vala-linter-image:latest
+      image: altlinux.space/alt-gnome/coding-style-image:latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Lint files
-        uses: alt-gnome/linters-actions/vala@main
+      - name: Check files
+        uses: alt-gnome/coding-style-actions/vala@main
 
   checkers:
     name: Run checkers
