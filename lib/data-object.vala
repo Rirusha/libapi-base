@@ -47,10 +47,13 @@ public abstract class ApiBase.DataObject : Object {
 
     /**
      * Object creation method from json 
-     * via {@link Jsoner.deserialize_object}
+     * via {@link Jsoner.deserialize_object}.
+     *
+     * Use {@link Jsoner.simple_from_json} or {@link Jsoner.simple_from_json_async} instead
      *
      * @throws JsonError    Error with json or sub_members
      */
+    [Version (deprecated = true, deprecated_since = "3.1")]
     public static T from_json<T> (
         string json,
         string[]? sub_members = null,
