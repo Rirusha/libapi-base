@@ -450,6 +450,62 @@ public class ApiBase.Jsoner : Object {
     }
 
     /**
+     * Array creation method from json 
+     * via {@link Jsoner.deserialize_array}
+     * Simple version for fast deserialization without
+     * manual {@link Jsoner} instance creation
+     *
+     * @param json              Json string
+     * @param sub_members       Sub members to 'steps'
+     * @param names_case        Case of names in json
+     * @param sub_creation_func Function for creating collection
+     *                          objects with generics
+     *
+     * @return                  Deserialized array
+     *
+     * @throws JsonError        Error with json or sub_members
+     *
+     * @since 3.1
+     */
+    public static ArrayList<T> simple_array_from_json<T> (
+        string json,
+        string[]? sub_members = null,
+        Case names_case = Case.AUTO,
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws JsonError {
+        var jsoner = new Jsoner (json, sub_members, names_case);
+        return jsoner.deserialize_array<T> (sub_creation_func);
+    }
+
+    /**
+     * Dict creation method from json 
+     * via {@link Jsoner.deserialize_dict}
+     * Simple version for fast deserialization without
+     * manual {@link Jsoner} instance creation
+     *
+     * @param json              Json string
+     * @param sub_members       Sub members to 'steps'
+     * @param names_case        Case of names in json
+     * @param sub_creation_func Function for creating collection
+     *                          objects with generics
+     *
+     * @return                  Deserialized dict
+     *
+     * @throws JsonError        Error with json or sub_members
+     *
+     * @since 3.1
+     */
+    public static HashMap<string, T> simple_dict_from_json<T> (
+        string json,
+        string[]? sub_members = null,
+        Case names_case = Case.AUTO,
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws JsonError {
+        var jsoner = new Jsoner (json, sub_members, names_case);
+        return jsoner.deserialize_dict<T> (sub_creation_func);
+    }
+
+    /**
      * Method for deserializing the {@link GLib.Object}
      *
      * @param sub_creation_func Function for creating collection
@@ -1006,6 +1062,106 @@ public class ApiBase.Jsoner : Object {
             }
 
             Idle.add (simple_from_json_async.callback);
+            return result;
+        });
+
+        yield;
+
+        if (error != null) {
+            throw error;
+        }
+
+        return thread.join ();
+    }
+
+    /**
+     * Asynchronous version of method {@link simple_array_from_json_async}
+     *
+     * @param json              Json string
+     * @param sub_members       Sub members to 'steps'
+     * @param names_case        Case of names in json
+     * @param sub_creation_func Function for creating collection
+     *                          objects with generics
+     *
+     * @return                  Deserialized array
+     *
+     * @throws JsonError        Error with json or sub_members
+     *
+     * @since 3.1
+     */
+    public async static ArrayList<T> simple_array_from_json_async<T> (
+        string json,
+        string[]? sub_members = null,
+        Case names_case = Case.AUTO,
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws JsonError {
+        JsonError? error = null;
+
+        var thread = new Thread<ArrayList<T>?> (null, () => {
+            ArrayList<T>? result = null;
+
+            try {
+                result = simple_array_from_json<T> (
+                    json,
+                    sub_members,
+                    names_case,
+                    sub_creation_func
+                );
+            } catch (JsonError e) {
+                error = e;
+            }
+
+            Idle.add (simple_array_from_json_async.callback);
+            return result;
+        });
+
+        yield;
+
+        if (error != null) {
+            throw error;
+        }
+
+        return thread.join ();
+    }
+
+    /**
+     * Asynchronous version of method {@link simple_dict_from_json_async}
+     *
+     * @param json              Json string
+     * @param sub_members       Sub members to 'steps'
+     * @param names_case        Case of names in json
+     * @param sub_creation_func Function for creating collection
+     *                          objects with generics
+     *
+     * @return                  Deserialized dict
+     *
+     * @throws JsonError        Error with json or sub_members
+     *
+     * @since 3.1
+     */
+    public async static HashMap<string, T> simple_dict_from_json_async<T> (
+        string json,
+        string[]? sub_members = null,
+        Case names_case = Case.AUTO,
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws JsonError {
+        JsonError? error = null;
+
+        var thread = new Thread<HashMap<string, T>?> (null, () => {
+            HashMap<string, T>? result = null;
+
+            try {
+                result = simple_dict_from_json<T> (
+                    json,
+                    sub_members,
+                    names_case,
+                    sub_creation_func
+                );
+            } catch (JsonError e) {
+                error = e;
+            }
+
+            Idle.add (simple_dict_from_json_async.callback);
             return result;
         });
 
