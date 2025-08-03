@@ -519,8 +519,7 @@ public int main (string[] args) {
     Test.add_func ("/jsoner/deserialize/array/direct", () => {
         try {
             var jsoner = new Jsoner ("{\"value\":[\"kekw\",\"yes\",\"no\"]}", {"value"});
-            var array = new Gee.ArrayList<string> ();
-            jsoner.deserialize_array_into (array);
+            var array = jsoner.deserialize_array<string> ();
 
             if (array[0] != "kekw" || array[1] != "yes" || array[2] != "no") {
                 Test.fail_printf (string.joinv (", ", array.to_array ()) + " != kekw, yes, no");

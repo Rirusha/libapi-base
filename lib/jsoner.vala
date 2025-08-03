@@ -695,6 +695,23 @@ public class ApiBase.Jsoner : Object {
     /**
      * Method for deserializing the {@link Gee.ArrayList}
      *
+     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
+     *
+     * @throws JsonError    Error with json string
+     *
+     * @since 3.1
+     */
+    public ArrayList<T> deserialize_array<T> (
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws JsonError {
+        var array_list = new ArrayList<T> ();
+        deserialize_array_into (array_list, sub_creation_func);
+        return array_list;
+    }
+
+    /**
+     * Method for deserializing the {@link Gee.ArrayList}
+     *
      * @param array_list        Array
      * @param sub_creation_func A function for creating subsets in the case of arrays in an array
      *
@@ -805,6 +822,23 @@ public class ApiBase.Jsoner : Object {
                 }
             }
         }
+    }
+
+    /**
+     * Method for deserializing the {@link Gee.HashMap}
+     *
+     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
+     *
+     * @throws JsonError    Error with json string
+     *
+     * @since 3.1
+     */
+    public HashMap<string, T> deserialize_dict<T> (
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws JsonError {
+        var dict = new HashMap<string, T> ();
+        deserialize_dict_into (dict, sub_creation_func);
+        return dict;
     }
 
     /**
@@ -1088,9 +1122,50 @@ public class ApiBase.Jsoner : Object {
     }
 
     /**
-     * Asynchronous version of method {@link deserialize_array_into}
+     * Asynchronous version of method {@link deserialize_array}
+     *
+     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
      *
      * @throws JsonError    Error with json string
+     *
+     * @since 3.1
+     */
+    public async ArrayList<T> deserialize_array_async<T> (
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws JsonError {
+        JsonError? error = null;
+
+        var thread = new Thread<ArrayList<T>?> (null, () => {
+            ArrayList<T>? result = null;
+
+            try {
+                result = deserialize_array (sub_creation_func);
+            } catch (JsonError e) {
+                error = e;
+            }
+
+            Idle.add (deserialize_array_async.callback);
+            return result;
+        });
+
+        yield;
+
+        if (error != null) {
+            throw error;
+        }
+
+        return thread.join ();
+    }
+
+    /**
+     * Asynchronous version of method {@link deserialize_array_into}
+     *
+     * @param array_list        Array
+     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
+     *
+     * @throws JsonError    Error with json string
+     *
+     * @since 3.0
      */
     public async void deserialize_array_into_async (
         ArrayList array_list,
@@ -1106,6 +1181,78 @@ public class ApiBase.Jsoner : Object {
             }
 
             Idle.add (deserialize_array_into_async.callback);
+            return;
+        });
+
+        yield;
+
+        if (error != null) {
+            throw error;
+        }
+
+        thread.join ();
+    }
+
+    /**
+     * Asynchronous version of method {@link deserialize_dict}
+     *
+     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
+     *
+     * @throws JsonError    Error with json string
+     *
+     * @since 3.1
+     */
+    public async HashMap<string, T> deserialize_dict_async<T> (
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws JsonError {
+        JsonError? error = null;
+
+        var thread = new Thread<HashMap<string, T>?> (null, () => {
+            HashMap<string, T>? result = null;
+
+            try {
+                result = deserialize_dict (sub_creation_func);
+            } catch (JsonError e) {
+                error = e;
+            }
+
+            Idle.add (deserialize_dict_async.callback);
+            return result;
+        });
+
+        yield;
+
+        if (error != null) {
+            throw error;
+        }
+
+        return thread.join ();
+    }
+
+    /**
+     * Asynchronous version of method {@link deserialize_dict_into}
+     *
+     * @param dict              Dict
+     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
+     *
+     * @throws JsonError    Error with json string
+     *
+     * @since 3.1
+     */
+    public async void deserialize_dict_into_async (
+        HashMap dict,
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws JsonError {
+        JsonError? error = null;
+
+        var thread = new Thread<void> (null, () => {
+            try {
+                deserialize_dict_into (dict, sub_creation_func);
+            } catch (JsonError e) {
+                error = e;
+            }
+
+            Idle.add (deserialize_dict_into_async.callback);
             return;
         });
 
