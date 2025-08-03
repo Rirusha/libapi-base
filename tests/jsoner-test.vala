@@ -163,7 +163,7 @@ public int main (string[] args) {
             ValuesData result;
 
             try {
-                result = DataObject.from_json<ValuesData> (json, null, c);
+                result = Jsoner.simple_from_json<ValuesData> (json, null, c);
             } catch (Error e) {
                 Test.fail_printf (e.message);
                 return;
@@ -228,7 +228,7 @@ public int main (string[] args) {
 
         SimpleObject obj;
         try {
-            obj = DataObject.from_json<SimpleObject> (json);
+            obj = Jsoner.simple_from_json<SimpleObject> (json);
         } catch (JsonError e) {
             Test.skip (e.domain.to_string () + ": " + e.message);
             return;
@@ -466,7 +466,7 @@ public int main (string[] args) {
         try {
             var json = "{\"value\":6}";
 
-            var result = DataObject.from_json<TestObjectDouble> (json);
+            var result = Jsoner.simple_from_json<TestObjectDouble> (json);
 
             if (result.value != 6.0) {
                 Test.fail_printf (@"$(result.value) != 6.0");
@@ -493,7 +493,7 @@ public int main (string[] args) {
         try {
             var json = "{\"value\":{\"kekw\":\"yes\",\"kek\":\"no\"}}";
 
-            var result = DataObject.from_json<TestObjectDictString> (json);
+            var result = Jsoner.simple_from_json<TestObjectDictString> (json);
 
             if (result.value["kekw"] != "yes" || result.value["kek"] != "no") {
                 Test.fail_printf ("");
