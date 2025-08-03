@@ -808,9 +808,9 @@ public class ApiBase.Jsoner : Object {
     }
 
     /**
-     * Method for deserializing the {@link Gee.ArrayList}
+     * Method for deserializing the {@link Gee.HashMap}
      *
-     * @param dict          Dict
+     * @param dict              Dict
      * @param sub_creation_func A function for creating subsets in the case of arrays in an array
      *
      * @throws JsonError    Error with json string
