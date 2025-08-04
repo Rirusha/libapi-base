@@ -5,7 +5,7 @@
 
 %define bare_name libapi-base
 %define api_version 3
-%define minor_version 0
+%define minor_version 1
 %define gir_name ApiBase-%api_version
 %define good_name %bare_name-%api_version
 
@@ -111,5 +111,9 @@ Requires: %name-gir = %EVR
 %_girdir/%gir_name.gir
 
 %changelog
+* Mon Aug 04 2025 Vladimir Vaskov <rirusha@altlinux.org> 3.1-alt1
+- New version: 3.1
+- Changed VCS and URL.
+
 * Wed Jul 23 2025 Vladimir Vaskov <rirusha@altlinux.org> 3.0-alt1
 - Initial build.

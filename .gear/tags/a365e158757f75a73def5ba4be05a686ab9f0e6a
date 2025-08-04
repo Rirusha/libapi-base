@@ -1,0 +1,8 @@
+object 23a76865648453c97c297633998d35c35b333ec0
+type commit
+tag v3.1
+tagger Gitea <gitea@fake.local> 1754295184 +0300
+
+3.1
+
+- Added more methods for deserialization without `Jsoner` creation
