@@ -112,4 +112,4 @@ Requires: %name-gir = %EVR
 
 %changelog
 * Wed Jul 23 2025 Vladimir Vaskov <rirusha@altlinux.org> 3.0-alt1
-- Initial build
+- Initial build.
