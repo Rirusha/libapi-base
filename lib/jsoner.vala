@@ -35,12 +35,14 @@ public class ApiBase.Jsoner : Object {
 
     /**
      * Performs initialization for deserialization. Accepts a json string. In case of
-     * a parsing error, it throws {@link JsonError}
+     * a parsing error
      *
      * @param json_string   Correct json string
      * @param sub_members   An array of names of json elements that need to be traversed
      *                      to the target node
      * @param names_case    Name case of element names in a json string
+     *
+     * @throws JsonError    Error with json or sub_members
      */
     public Jsoner (
         string json_string,
@@ -77,12 +79,13 @@ public class ApiBase.Jsoner : Object {
 
     /**
      * Performs initialization for deserialization. Accepts a json string in the
-     * form of bytes, the object {@link GLib.Bytes}. In case of a parsing error,
-     * it throws {@link JsonError}
+     * form of bytes, the object {@link GLib.Bytes}. In case of a parsing error
      *
      * @param bytes         Json string in the form of bytes, the object {@link GLib.Bytes}
      * @param sub_members   An array of names of json elements that need to be traversed to the target node
      * @param names_case    Name case of element names in a json string
+     *
+     * @throws JsonError    Error with json or sub_members
      */
     public Jsoner.from_bytes (
         Bytes bytes,
@@ -98,11 +101,13 @@ public class ApiBase.Jsoner : Object {
 
     /**
      * Performs initialization for deserialization. Accepts a json string in the form of bytes,
-     * an {@link uint8} array. In case of a parsing error, it throws {@link JsonError}
+     * an {@link uint8} array. In case of a parsing error
      *
-     * @param bytes         Json string in the form of bytes, {@link uint8} array
+     * @param data         Json string in the form of bytes, {@link uint8} array
      * @param sub_members   An array of names of json elements that need to be traversed to the target node
      * @param names_case    Name case of element names in a json string
+     *
+     * @throws JsonError    Error with json or sub_members
      */
     public Jsoner.from_data (
         uint8[] data,
@@ -136,9 +141,9 @@ public class ApiBase.Jsoner : Object {
     /////////////////
 
     /**
-     * Serialize {@link Object} into a correct json string
+     * Serialize {@link GLib.Object} into a correct json string
      *
-     * @param obj           {@link Object}
+     * @param obj           {@link GLib.Object}
      * @param names_case    Name case of element names in a json string
      * @param pretty        Pretty print of json or not
      *
@@ -417,12 +422,98 @@ public class ApiBase.Jsoner : Object {
     ///////////////////
 
     /**
-     * Method for deserializing the {@link Object}
+     * Object creation method from json 
+     * via {@link Jsoner.deserialize_object}
+     * Simple version for fast deserialization without
+     * manual {@link Jsoner} instance creation
+     *
+     * @param json              Json string
+     * @param sub_members       Sub members to 'steps'
+     * @param names_case        Case of names in json
+     * @param sub_creation_func Function for creating collection
+     *                          objects with generics
+     *
+     * @return                  Deserialized object
+     *
+     * @throws JsonError        Error with json or sub_members
+     *
+     * @since 3.1
+     */
+    public static T simple_from_json<T> (
+        string json,
+        string[]? sub_members = null,
+        Case names_case = Case.AUTO,
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws JsonError {
+        var jsoner = new Jsoner (json, sub_members, names_case);
+        return jsoner.deserialize_object<T> (sub_creation_func);
+    }
+
+    /**
+     * Array creation method from json 
+     * via {@link Jsoner.deserialize_array}
+     * Simple version for fast deserialization without
+     * manual {@link Jsoner} instance creation
+     *
+     * @param json              Json string
+     * @param sub_members       Sub members to 'steps'
+     * @param names_case        Case of names in json
+     * @param sub_creation_func Function for creating collection
+     *                          objects with generics
+     *
+     * @return                  Deserialized array
+     *
+     * @throws JsonError        Error with json or sub_members
+     *
+     * @since 3.1
+     */
+    public static ArrayList<T> simple_array_from_json<T> (
+        string json,
+        string[]? sub_members = null,
+        Case names_case = Case.AUTO,
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws JsonError {
+        var jsoner = new Jsoner (json, sub_members, names_case);
+        return jsoner.deserialize_array<T> (sub_creation_func);
+    }
+
+    /**
+     * Dict creation method from json 
+     * via {@link Jsoner.deserialize_dict}
+     * Simple version for fast deserialization without
+     * manual {@link Jsoner} instance creation
+     *
+     * @param json              Json string
+     * @param sub_members       Sub members to 'steps'
+     * @param names_case        Case of names in json
+     * @param sub_creation_func Function for creating collection
+     *                          objects with generics
+     *
+     * @return                  Deserialized dict
+     *
+     * @throws JsonError        Error with json or sub_members
+     *
+     * @since 3.1
+     */
+    public static HashMap<string, T> simple_dict_from_json<T> (
+        string json,
+        string[]? sub_members = null,
+        Case names_case = Case.AUTO,
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws JsonError {
+        var jsoner = new Jsoner (json, sub_members, names_case);
+        return jsoner.deserialize_dict<T> (sub_creation_func);
+    }
+
+    /**
+     * Method for deserializing the {@link GLib.Object}
      *
      * @param sub_creation_func Function for creating collection
      *                          objects with generics
      *
      * @return  Deserialized object
+     *
+     * @throws JsonError    Error with json string
      *
      * @since 3.0
      */
@@ -433,13 +524,15 @@ public class ApiBase.Jsoner : Object {
     }
 
     /**
-     * Method for deserializing the {@link Object} with {@link GLib.Type}
+     * Method for deserializing the {@link GLib.Object} with {@link GLib.Type}
      *
      * @param sub_creation_func Function for creating collection
      *                          objects with generics
      * @param obj_type          Type of objects
      *
      * @return  Deserialized object
+     *
+     * @throws JsonError    Error with json string
      *
      * @since 3.0
      */
@@ -472,6 +565,8 @@ public class ApiBase.Jsoner : Object {
      * @param obj               Object
      * @param sub_creation_func Function for creating collection
      *                          objects with generics
+     *
+     * @throws JsonError    Error with json string
      *
      * @since 3.0
      */
@@ -629,6 +724,8 @@ public class ApiBase.Jsoner : Object {
      * Method for deserializing the {@link GLib.Value}
      *
      * @return deserialized value
+     *
+     * @throws JsonError    Error with json string
      */
     public Value deserialize_value () throws JsonError {
         return deserialize_value_real (null);
@@ -654,8 +751,27 @@ public class ApiBase.Jsoner : Object {
     /**
      * Method for deserializing the {@link Gee.ArrayList}
      *
+     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
+     *
+     * @throws JsonError    Error with json string
+     *
+     * @since 3.1
+     */
+    public ArrayList<T> deserialize_array<T> (
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws JsonError {
+        var array_list = new ArrayList<T> ();
+        deserialize_array_into (array_list, sub_creation_func);
+        return array_list;
+    }
+
+    /**
+     * Method for deserializing the {@link Gee.ArrayList}
+     *
      * @param array_list        Array
      * @param sub_creation_func A function for creating subsets in the case of arrays in an array
+     *
+     * @throws JsonError    Error with json string
      */
     public void deserialize_array_into (
         ArrayList array_list,
@@ -765,10 +881,29 @@ public class ApiBase.Jsoner : Object {
     }
 
     /**
-     * Method for deserializing the {@link Gee.ArrayList}
+     * Method for deserializing the {@link Gee.HashMap}
      *
-     * @param dict          Dict
      * @param sub_creation_func A function for creating subsets in the case of arrays in an array
+     *
+     * @throws JsonError    Error with json string
+     *
+     * @since 3.1
+     */
+    public HashMap<string, T> deserialize_dict<T> (
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws JsonError {
+        var dict = new HashMap<string, T> ();
+        deserialize_dict_into (dict, sub_creation_func);
+        return dict;
+    }
+
+    /**
+     * Method for deserializing the {@link Gee.HashMap}
+     *
+     * @param dict              Dict
+     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
+     *
+     * @throws JsonError    Error with json string
      *
      * @since 3.0
      */
@@ -890,7 +1025,166 @@ public class ApiBase.Jsoner : Object {
     }
 
     /**
+     * Asynchronous version of method {@link simple_from_json_async}
+     *
+     * @param json              Json string
+     * @param sub_members       Sub members to 'steps'
+     * @param names_case        Case of names in json
+     * @param sub_creation_func Function for creating collection
+     *                          objects with generics
+     *
+     * @return                  Deserialized object
+     *
+     * @throws JsonError        Error with json or sub_members
+     *
+     * @since 3.1
+     */
+    public async static T simple_from_json_async<T> (
+        string json,
+        string[]? sub_members = null,
+        Case names_case = Case.AUTO,
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws JsonError {
+        JsonError? error = null;
+
+        var thread = new Thread<T?> (null, () => {
+            T? result = null;
+
+            try {
+                result = simple_from_json<T> (
+                    json,
+                    sub_members,
+                    names_case,
+                    sub_creation_func
+                );
+            } catch (JsonError e) {
+                error = e;
+            }
+
+            Idle.add (simple_from_json_async.callback);
+            return result;
+        });
+
+        yield;
+
+        if (error != null) {
+            throw error;
+        }
+
+        return thread.join ();
+    }
+
+    /**
+     * Asynchronous version of method {@link simple_array_from_json_async}
+     *
+     * @param json              Json string
+     * @param sub_members       Sub members to 'steps'
+     * @param names_case        Case of names in json
+     * @param sub_creation_func Function for creating collection
+     *                          objects with generics
+     *
+     * @return                  Deserialized array
+     *
+     * @throws JsonError        Error with json or sub_members
+     *
+     * @since 3.1
+     */
+    public async static ArrayList<T> simple_array_from_json_async<T> (
+        string json,
+        string[]? sub_members = null,
+        Case names_case = Case.AUTO,
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws JsonError {
+        JsonError? error = null;
+
+        var thread = new Thread<ArrayList<T>?> (null, () => {
+            ArrayList<T>? result = null;
+
+            try {
+                result = simple_array_from_json<T> (
+                    json,
+                    sub_members,
+                    names_case,
+                    sub_creation_func
+                );
+            } catch (JsonError e) {
+                error = e;
+            }
+
+            Idle.add (simple_array_from_json_async.callback);
+            return result;
+        });
+
+        yield;
+
+        if (error != null) {
+            throw error;
+        }
+
+        return thread.join ();
+    }
+
+    /**
+     * Asynchronous version of method {@link simple_dict_from_json_async}
+     *
+     * @param json              Json string
+     * @param sub_members       Sub members to 'steps'
+     * @param names_case        Case of names in json
+     * @param sub_creation_func Function for creating collection
+     *                          objects with generics
+     *
+     * @return                  Deserialized dict
+     *
+     * @throws JsonError        Error with json or sub_members
+     *
+     * @since 3.1
+     */
+    public async static HashMap<string, T> simple_dict_from_json_async<T> (
+        string json,
+        string[]? sub_members = null,
+        Case names_case = Case.AUTO,
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws JsonError {
+        JsonError? error = null;
+
+        var thread = new Thread<HashMap<string, T>?> (null, () => {
+            HashMap<string, T>? result = null;
+
+            try {
+                result = simple_dict_from_json<T> (
+                    json,
+                    sub_members,
+                    names_case,
+                    sub_creation_func
+                );
+            } catch (JsonError e) {
+                error = e;
+            }
+
+            Idle.add (simple_dict_from_json_async.callback);
+            return result;
+        });
+
+        yield;
+
+        if (error != null) {
+            throw error;
+        }
+
+        return thread.join ();
+    }
+
+    /**
      * Asynchronous version of method {@link deserialize_object}
+     *
+     * @param sub_creation_func Function for creating collection
+     *                          objects with generics
+     *
+     * @return  Deserialized object
+     *
+     * @throws JsonError    Error with json string
+     *
+     * @since 3.0
      */
     public async T deserialize_object_async<T> (
         SubCollectionCreationFunc? sub_creation_func = null
@@ -921,6 +1215,8 @@ public class ApiBase.Jsoner : Object {
 
     /**
      * Asynchronous version of method {@link deserialize_object_by_type}
+     *
+     * @throws JsonError    Error with json string
      */
     public async Object deserialize_object_by_type_async (
         GLib.Type obj_type,
@@ -952,6 +1248,8 @@ public class ApiBase.Jsoner : Object {
 
     /**
      * Asynchronous version of method {@link deserialize_object_into}
+     *
+     * @throws JsonError    Error with json string
      */
     public async void deserialize_object_into_async (
         Object obj,
@@ -980,7 +1278,50 @@ public class ApiBase.Jsoner : Object {
     }
 
     /**
+     * Asynchronous version of method {@link deserialize_array}
+     *
+     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
+     *
+     * @throws JsonError    Error with json string
+     *
+     * @since 3.1
+     */
+    public async ArrayList<T> deserialize_array_async<T> (
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws JsonError {
+        JsonError? error = null;
+
+        var thread = new Thread<ArrayList<T>?> (null, () => {
+            ArrayList<T>? result = null;
+
+            try {
+                result = deserialize_array (sub_creation_func);
+            } catch (JsonError e) {
+                error = e;
+            }
+
+            Idle.add (deserialize_array_async.callback);
+            return result;
+        });
+
+        yield;
+
+        if (error != null) {
+            throw error;
+        }
+
+        return thread.join ();
+    }
+
+    /**
      * Asynchronous version of method {@link deserialize_array_into}
+     *
+     * @param array_list        Array
+     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
+     *
+     * @throws JsonError    Error with json string
+     *
+     * @since 3.0
      */
     public async void deserialize_array_into_async (
         ArrayList array_list,
@@ -996,6 +1337,78 @@ public class ApiBase.Jsoner : Object {
             }
 
             Idle.add (deserialize_array_into_async.callback);
+            return;
+        });
+
+        yield;
+
+        if (error != null) {
+            throw error;
+        }
+
+        thread.join ();
+    }
+
+    /**
+     * Asynchronous version of method {@link deserialize_dict}
+     *
+     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
+     *
+     * @throws JsonError    Error with json string
+     *
+     * @since 3.1
+     */
+    public async HashMap<string, T> deserialize_dict_async<T> (
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws JsonError {
+        JsonError? error = null;
+
+        var thread = new Thread<HashMap<string, T>?> (null, () => {
+            HashMap<string, T>? result = null;
+
+            try {
+                result = deserialize_dict (sub_creation_func);
+            } catch (JsonError e) {
+                error = e;
+            }
+
+            Idle.add (deserialize_dict_async.callback);
+            return result;
+        });
+
+        yield;
+
+        if (error != null) {
+            throw error;
+        }
+
+        return thread.join ();
+    }
+
+    /**
+     * Asynchronous version of method {@link deserialize_dict_into}
+     *
+     * @param dict              Dict
+     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
+     *
+     * @throws JsonError    Error with json string
+     *
+     * @since 3.1
+     */
+    public async void deserialize_dict_into_async (
+        HashMap dict,
+        SubCollectionCreationFunc? sub_creation_func = null
+    ) throws JsonError {
+        JsonError? error = null;
+
+        var thread = new Thread<void> (null, () => {
+            try {
+                deserialize_dict_into (dict, sub_creation_func);
+            } catch (JsonError e) {
+                error = e;
+            }
+
+            Idle.add (deserialize_dict_into_async.callback);
             return;
         });
 

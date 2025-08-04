@@ -172,6 +172,9 @@ public sealed class ApiBase.Session : Object {
     /**
      * Synchronously execute the {@link Request}
      *
+     * @throws SoupError            Internal error from libsoup
+     * @throws BadStatusCodeError   Bad status code from request
+     *
      * @since 3.0
      */
     public GLib.Bytes? exec (
@@ -198,6 +201,9 @@ public sealed class ApiBase.Session : Object {
 
     /**
      * Asynchronously execute the {@link Request}
+     *
+     * @throws SoupError            Internal error from libsoup
+     * @throws BadStatusCodeError   Bad status code from request
      *
      * @since 3.0
      */

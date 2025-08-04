@@ -163,7 +163,7 @@ public int main (string[] args) {
             ValuesData result;
 
             try {
-                result = DataObject.from_json<ValuesData> (json, null, c);
+                result = Jsoner.simple_from_json<ValuesData> (json, null, c);
             } catch (Error e) {
                 Test.fail_printf (e.message);
                 return;
@@ -228,7 +228,7 @@ public int main (string[] args) {
 
         SimpleObject obj;
         try {
-            obj = DataObject.from_json<SimpleObject> (json);
+            obj = Jsoner.simple_from_json<SimpleObject> (json);
         } catch (JsonError e) {
             Test.skip (e.domain.to_string () + ": " + e.message);
             return;
@@ -466,7 +466,7 @@ public int main (string[] args) {
         try {
             var json = "{\"value\":6}";
 
-            var result = DataObject.from_json<TestObjectDouble> (json);
+            var result = Jsoner.simple_from_json<TestObjectDouble> (json);
 
             if (result.value != 6.0) {
                 Test.fail_printf (@"$(result.value) != 6.0");
@@ -493,7 +493,7 @@ public int main (string[] args) {
         try {
             var json = "{\"value\":{\"kekw\":\"yes\",\"kek\":\"no\"}}";
 
-            var result = DataObject.from_json<TestObjectDictString> (json);
+            var result = Jsoner.simple_from_json<TestObjectDictString> (json);
 
             if (result.value["kekw"] != "yes" || result.value["kek"] != "no") {
                 Test.fail_printf ("");
@@ -519,8 +519,7 @@ public int main (string[] args) {
     Test.add_func ("/jsoner/deserialize/array/direct", () => {
         try {
             var jsoner = new Jsoner ("{\"value\":[\"kekw\",\"yes\",\"no\"]}", {"value"});
-            var array = new Gee.ArrayList<string> ();
-            jsoner.deserialize_array_into (array);
+            var array = jsoner.deserialize_array<string> ();
 
             if (array[0] != "kekw" || array[1] != "yes" || array[2] != "no") {
                 Test.fail_printf (string.joinv (", ", array.to_array ()) + " != kekw, yes, no");

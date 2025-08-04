@@ -21,7 +21,7 @@
 /**
  * Request object. Can handle parameters, headers, post content.
  * {@link Session.exec} and {@link Session.exec_async}
- * form message via {@link form_message} and set {@link this} to readonly
+ * form message via {@link form_message} and set this to readonly
  *
  * @since 3.0
  */
@@ -294,6 +294,9 @@ public sealed class ApiBase.Request : Object {
     /**
      * Simple request execution.
      *
+     * @throws SoupError            Internal error from libsoup
+     * @throws BadStatusCodeError   Bad status code from request
+     *
      * @since 3.0
      */
     public GLib.Bytes simple_exec (
@@ -305,6 +308,9 @@ public sealed class ApiBase.Request : Object {
 
     /**
      * Asynchronious version of {@link simple_exec}
+     *
+     * @throws SoupError            Internal error from libsoup
+     * @throws BadStatusCodeError   Bad status code from request
      *
      * @since 3.0
      */
