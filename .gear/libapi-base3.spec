@@ -49,14 +49,19 @@ Requires: %name = %EVR
 %description devel
 %summary.
 
-%package devel-vala
+%package vala-devel
 Summary: Development vapi files for %name
 Group: System/Libraries
 BuildArch: noarch
 
 Requires: %name-devel = %EVR
 
-%description devel-vala
+# Replace old name
+# Valid only for api-version 3
+Provides: %name-devel-vala = %EVR
+Obsoletes: %name-devel-vala <= 3.0-alt1
+
+%description vala-devel
 %summary.
 
 %package gir
@@ -100,7 +105,7 @@ Requires: %name-gir = %EVR
 %_includedir/%good_name.h
 %_pkgconfigdir/%good_name.pc
 
-%files devel-vala
+%files vala-devel
 %_vapidir/%good_name.vapi
 %_vapidir/%good_name.deps
 
