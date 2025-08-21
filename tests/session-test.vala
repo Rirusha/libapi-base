@@ -137,7 +137,7 @@ public int main (string[] args) {
             var request = new Request.GET ("https://httpbin.org/user-agent");
             var respone = (string) (soup_wrapper.exec (request).get_data ());
 
-            var obj = DataObject.from_json<UserAgentInfo> (respone);
+            var obj = Jsoner.simple_from_json<UserAgentInfo> (respone);
 
             if (obj.user_agent != USER_AGENT) {
                 Test.fail ();
