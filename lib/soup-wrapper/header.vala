@@ -18,7 +18,7 @@
 public sealed class ApiBase.Header : Object {
 
     public string name { get; construct; }
-    public string value {get; construct; }
+    public string value { get; construct; }
 
     public Header (string name, string value) {
         Object (
