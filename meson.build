@@ -34,8 +34,8 @@ deps_pkgs = [
 
 gee_dep = dependency('gee-0.8')
 gio_dep = dependency('gio-2.0')
-json_glib_dep = dependency('libsoup-3.0')
-libsoup_dep = dependency('json-glib-1.0')
+json_glib_dep = dependency('json-glib-1.0')
+libsoup_dep = dependency('libsoup-3.0')
 
 dependencies = [
   gee_dep,
