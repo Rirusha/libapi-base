@@ -632,7 +632,6 @@ public class ApiBase.Jsoner : Object {
                     assert_not_reached ();
             }
 
-            
             if (!props_data.has_key (kebabbed_member_name)) {
                 warning (
                     "The object '%s' does not have a property '%s' corresponding to the json field '%s'",
@@ -640,6 +639,7 @@ public class ApiBase.Jsoner : Object {
                     kebabbed_member_name,
                     member_name
                 );
+                continue;
             }
 
             var property = props_data[kebabbed_member_name];
