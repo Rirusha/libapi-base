@@ -632,9 +632,10 @@ public class ApiBase.Jsoner : Object {
                     assert_not_reached ();
             }
 
+            
             if (!props_data.has_key (kebabbed_member_name)) {
                 warning (
-                    "The object %s does not have a property %s corresponding to the json field %s",
+                    "The object '%s' does not have a property '%s' corresponding to the json field '%s'",
                     obj_type.name (),
                     kebabbed_member_name,
                     member_name
