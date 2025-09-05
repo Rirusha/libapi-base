@@ -3,8 +3,8 @@
 
 %define _unpackaged_files_terminate_build 1
 
-%define api_version 1
-%define minor_version 6
+%define api_version 4
+%define minor_version 1
 %define gir_name ApiBase
 
 Name: libapi-base
@@ -104,5 +104,9 @@ Requires: %name%api_version-gir = %EVR
 %_girdir/%gir_name-%api_version.gir
 
 %changelog
+* Fri Sep 05 2025 Vladimir Vaskov <rirusha@altlinux.org> 4.1-alt1
+- New version: 4.1.
+- Changed VCS and URL.
+
 * Sat Dec 14 2024 Alexey Volkov <qualimock@altlinux.org> 1.6-alt1
 - Initial build for ALT
