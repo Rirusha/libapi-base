@@ -25,7 +25,7 @@
  *
  * @since 3.0
  */
-public sealed class ApiBase.Request : Object {
+public class ApiBase.Request : Object {
 
     public HttpMethod method { get; construct; }
 
