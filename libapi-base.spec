@@ -9,7 +9,7 @@ Release: alt1
 
 Summary: Base objects for API libraries on Vala
 License: GPL-3.0-or-later
-Group: Development/Other
+Group: System/Libraries
 Url: https://gitlab.gnome.org/Rirusha/libapi-base
 VCS: https://gitlab.gnome.org/Rirusha/libapi-base
 
