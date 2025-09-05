@@ -3,12 +3,12 @@ vapi_sources = files(
 )
 
 vala_sources = files(
-  'soup-wrapper/header.vala',
-  'soup-wrapper/headers.vala',
-  'soup-wrapper/parameter.vala',
-  'soup-wrapper/post-content.vala',
-  'soup-wrapper/request.vala',
-  'soup-wrapper/session.vala',
+  'session/header.vala',
+  'session/headers.vala',
+  'session/parameter.vala',
+  'session/post-content.vala',
+  'session/request.vala',
+  'session/session.vala',
 
   'data-object.vala',
   'enums.vala',
