@@ -1,7 +1,6 @@
 %define _unpackaged_files_terminate_build 1
 
 %define api_version 1
-%define namever %name-%api_version
 
 Name: libapi-base
 Version: 1.6
@@ -10,8 +9,8 @@ Release: alt1
 Summary: Base objects for API libraries on Vala
 License: GPL-3.0-or-later
 Group: System/Libraries
-Url: https://gitlab.gnome.org/Rirusha/libapi-base
-VCS: https://gitlab.gnome.org/Rirusha/libapi-base
+Url: https://altlinux.space/rirusha/libapi-base
+Vcs: https://altlinux.space/rirusha/libapi-base.git
 
 Source: %name-%version.tar
 Patch: %name-%version-%release.patch
@@ -30,40 +29,40 @@ BuildRequires: pkgconfig(json-glib-1.0)
 %description
 %summary.
 
-%package -n %namever
+%package -n %%name-%api_version
 Summary: %{summary %name}
 Group: System/Libraries
 
-%description -n %namever
+%description -n %%name-%api_version
 %{description %name}.
 
-%package -n %namever-devel
+%package -n %%name-%api_version-devel
 Group: Development/Other
 Summary: Headers files and library symbolic links for %name
-Requires: %namever = %EVR
+Requires: %%name-%api_version = %EVR
 
-%description -n %namever-devel
+%description -n %%name-%api_version-devel
 %summary.
 This package contains headers and libs
 required for building programs with %name.
 
-%package -n %namever-gir
+%package -n %%name-%api_version-gir
 Summary: GObject introspection data for libapi-base
 Group: System/Libraries
-Requires: %namever = %EVR
+Requires: %%name-%api_version = %EVR
 
-%description -n %namever-gir
-%{summary %namever-gir}.
+%description -n %%name-%api_version-gir
+%{summary %%name-%api_version-gir}.
 
-%package -n %namever-gir-devel
+%package -n %%name-%api_version-gir-devel
 Summary: GObject introspection devel data for libapi-base
 Group: System/Libraries
 BuildArch: noarch
-Requires: %namever-gir = %EVR
-Requires: %namever-devel = %EVR
+Requires: %%name-%api_version-gir = %EVR
+Requires: %%name-%api_version-devel = %EVR
 
-%description -n %namever-gir-devel
-%{summary %namever-gir-devel}.
+%description -n %%name-%api_version-gir-devel
+%{summary %%name-%api_version-gir-devel}.
 
 %prep
 %setup
@@ -77,20 +76,20 @@ Requires: %namever-devel = %EVR
 %meson_install
 %find_lang %name
 
-%files -n %namever
+%files -n %%name-%api_version
 %_libdir/libapi-base-%api_version.so.*
 
-%files -n %namever-devel
+%files -n %%name-%api_version-devel
 %_includedir/libapi-base-%api_version.h
 %_libdir/libapi-base-%api_version.so
 %_pkgconfigdir/libapi-base-%api_version.pc
 %_datadir/vala/vapi/libapi-base-%api_version.deps
 %_datadir/vala/vapi/libapi-base-%api_version.vapi
 
-%files -n %namever-gir
+%files -n %%name-%api_version-gir
 %_typelibdir/ApiBase-%api_version.typelib
 
-%files -n %namever-gir-devel
+%files -n %%name-%api_version-gir-devel
 %_girdir/ApiBase-%api_version.gir
 
 %changelog
