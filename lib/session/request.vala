@@ -249,6 +249,7 @@ public class ApiBase.Request : Object {
      *
      * @since 3.0
      */
+    [Version (deprecated = true, deprecated_since = "3.1")]
     public Soup.Message form_message () {
         if (message != null) {
             return message;
