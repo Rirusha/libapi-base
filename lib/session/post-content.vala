@@ -15,14 +15,10 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-public sealed class ApiBase.PostContent : Object {
+public struct ApiBase.PostContent {
 
-    public PostContentType content_type { get; construct; }
-    public string content { get; set; }
-
-    public PostContent (PostContentType content_type) {
-        Object (content_type: content_type);
-    }
+    public PostContentType content_type;
+    string content;
 
     /**
      * @return content bytes

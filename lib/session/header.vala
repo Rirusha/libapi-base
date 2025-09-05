@@ -15,15 +15,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-public sealed class ApiBase.Header : Object {
+public struct ApiBase.Header {
 
-    public string name { get; construct; }
-    public string value { get; construct; }
-
-    public Header (string name, string value) {
-        Object (
-            name: name,
-            value: value
-        );
-    }
+    public string name;
+    public string value;
 }

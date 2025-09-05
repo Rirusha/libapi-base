@@ -152,7 +152,7 @@ public int main (string[] args) {
         try {
             var request = new Request.POST ("https://httpbin.org/post");
 
-            var post_content = new PostContent (X_WWW_FORM_URLENCODED);
+            PostContent post_content = { X_WWW_FORM_URLENCODED };
 
             var dict = new Gee.HashMap<string, string> ();
             dict["custname"] = "Rirusha";
@@ -179,7 +179,7 @@ public int main (string[] args) {
         try {
             var request = new Request.POST ("https://httpbin.org/post");
 
-            var post_content = new PostContent (X_WWW_FORM_URLENCODED);
+            PostContent post_content = { X_WWW_FORM_URLENCODED };
 
             var datalist = Datalist<string> ();
             datalist.set_data ("custname", "Rirusha");

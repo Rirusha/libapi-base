@@ -33,9 +33,7 @@ public class ApiBase.Request : Object {
 
     Soup.Message message;
 
-    bool readonly = false;
-
-    Gee.HashSet<Header> headers = new Gee.HashSet<Header> (
+    Gee.HashSet<Header?> headers = new Gee.HashSet<Header?> (
         (el) => {
             return str_hash (el.name);
         },
@@ -44,7 +42,7 @@ public class ApiBase.Request : Object {
         }
     );
 
-    Gee.HashSet<ApiBase.Parameter> parameters = new Gee.HashSet<ApiBase.Parameter> (
+    Gee.HashSet<Param?> parameters = new Gee.HashSet<Param?> (
         (el) => {
             return str_hash (el.name);
         },
@@ -53,7 +51,16 @@ public class ApiBase.Request : Object {
         }
     );
 
-    Gee.HashSet<string> presets = new Gee.HashSet<string> ();
+    Gee.HashSet<string> _presets = new Gee.HashSet<string> ();
+    public string[] presets {
+        owned get {
+            return _presets.to_array ();
+        }
+        set {
+            _presets.clear ();
+            _presets.add_all_array (value);
+        }
+    }
 
     PostContent? post_content = null;
 
@@ -101,7 +108,7 @@ public class ApiBase.Request : Object {
     }
 
     construct {
-        headers = new Gee.HashSet<Header> (
+        headers = new Gee.HashSet<Header?> (
             (el) => {
                 return str_hash (el.name);
             },
@@ -112,28 +119,19 @@ public class ApiBase.Request : Object {
     }
 
     /**
-     * Add header with header data
-     *
-     * @param name      Header name
-     * @param value     Header value
-     * @param replace   Replace existing header with equal name or not
-     *
-     * @since 3.0
-     */
-    public void add_header_simple (string name, string value, bool replace = true) {
-        add_header (new Header (name, value), replace);
-    }
-
-    /**
      * Add header with header object
      *
      * @param header    Header object
      * @param replace   Replace existing header with equal name or not
      *
-     * @since 3.0
+     * @since 4.0
      */
-    public void add_header (Header header, bool replace = true) {
-        assert (!readonly);
+    public void add_header (string name, string value, bool replace = true) {
+        add_header_struct ({ name, value }, replace);
+    }
+
+    void add_header_struct (Header header, bool replace = true) {
+        assert (message == null);
 
         if (header in headers && !replace) {
             return;
@@ -151,25 +149,8 @@ public class ApiBase.Request : Object {
      */
     public void add_headers (Header[] headers, bool replace = true) {
         foreach (var header in headers) {
-            add_header (header, replace);
+            add_header_struct (header, replace);
         }
-    }
-
-    /**
-     * Add header preset name. Presets can be set via {@link Session.add_headers_preset} and used only with {@link Session}
-     *
-     * @param preset_name   Name of preset
-     *
-     * @since 3.0
-     */
-    public void add_preset_name (string preset_name) {
-        assert (!readonly);
-
-        presets.add (preset_name);
-    }
-
-    internal string[] get_presets () {
-        return presets.to_array ();
     }
 
     /**
@@ -178,21 +159,14 @@ public class ApiBase.Request : Object {
      * @param name      Parameter name
      * @param value     Parameter value
      *
-     * @since 3.0
+     * @since 4.0
      */
-    public void add_parameter_simple (string name, string value) {
-        add_parameter (new ApiBase.Parameter (name, value));
+    public void add_param (string name, string value) {
+        add_param_struct ({ name, value });
     }
 
-    /**
-     * Add parameter with parameter object
-     *
-     * @param parameter Parameter objecct
-     *
-     * @since 3.0
-     */
-    public void add_parameter (ApiBase.Parameter parameter) {
-        assert (!readonly);
+    void add_param_struct (Param parameter) {
+        assert (message == null);
 
         parameters.add (parameter);
     }
@@ -204,9 +178,9 @@ public class ApiBase.Request : Object {
      *
      * @since 3.0
      */
-    public void add_parameters (ApiBase.Parameter[] parameters) {
+    public void add_parameters (Param[] parameters) {
         foreach (var parameter in parameters) {
-            add_parameter (parameter);
+            add_param_struct (parameter);
         }
     }
 
@@ -218,7 +192,7 @@ public class ApiBase.Request : Object {
      * @since 3.0
      */
     public void add_post_content (PostContent post_content) {
-        assert (!readonly);
+        assert (message == null);
         assert (method == HttpMethod.POST);
 
         this.post_content = post_content;
@@ -239,18 +213,7 @@ public class ApiBase.Request : Object {
         return message.get_status ();
     }
 
-    /**
-     * Form message with all data (headers, params, etc).
-     * Request become readonly.
-     *
-     * If run second time, returns formed message.
-     *
-     * @return  Message object
-     *
-     * @since 3.0
-     */
-    [Version (deprecated = true, deprecated_since = "3.1")]
-    public Soup.Message form_message () {
+    internal Soup.Message form_message () {
         if (message != null) {
             return message;
         }

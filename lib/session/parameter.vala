@@ -15,17 +15,10 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-public sealed class ApiBase.Parameter : Object {
+public struct ApiBase.Param {
 
-    public string name { get; construct; }
-    public string value { get; construct; }
-
-    public Parameter (string name, string? value) {
-        Object (
-            name: name,
-            value: value
-        );
-    }
+    public string name;
+    public string value;
 
     public string to_string () {
         return "%s=%s".printf (

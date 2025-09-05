@@ -44,25 +44,4 @@ public abstract class ApiBase.DataObject : Object {
     public string to_json (Case names_case = Case.AUTO) {
         return Jsoner.serialize (this, names_case);
     }
-
-    /**
-     * Object creation method from json 
-     * via {@link Jsoner.deserialize_object}.
-     *
-     * Use {@link Jsoner.simple_from_json} or {@link Jsoner.simple_from_json_async} instead
-     *
-     * @throws JsonError    Error with json or sub_members
-     */
-    [Version (deprecated = true, deprecated_since = "3.1")]
-    public static T from_json<T> (
-        string json,
-        string[]? sub_members = null,
-        Case names_case = Case.AUTO
-    ) throws JsonError {
-        var type_ = typeof (T);
-        assert (type_.is_a (typeof (DataObject)));
-
-        var jsoner = new Jsoner (json, sub_members, names_case);
-        return jsoner.deserialize_object<T> ();
-    }
 }
