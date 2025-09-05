@@ -1,3 +1,3 @@
-spec: .gear/libapi-base.spec
+spec: libapi-base.spec
 tar: v@version@:.
-diff: v@version@:. . name=@name@-@version@-alt.patch exclude=.gear/
+diff: v@version@:. . name=@name@-@version@-alt.patch exclude=.gear/ exclude=libapi-base.spec
