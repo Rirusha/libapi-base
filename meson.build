@@ -6,7 +6,7 @@ project(
   license: 'GPL-3.0-or-later',
 )
 
-api_version = '3'
+api_version = '4'
 glib_min_version = '2.76'
 
 name = 'api-base'
