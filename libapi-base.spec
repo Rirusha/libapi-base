@@ -5,7 +5,7 @@
 %define gir_name ApiBase
 
 Name: libapi-base
-Version: 1.6
+Version: %api_version.%minor_version
 Release: alt1
 
 Summary: Base objects for API libraries on Vala
