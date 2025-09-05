@@ -1,6 +1,8 @@
 %define _unpackaged_files_terminate_build 1
 
 %define api_version 1
+%define minor_version 6
+%define gir_name ApiBase
 
 Name: libapi-base
 Version: 1.6
