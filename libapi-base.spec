@@ -35,68 +35,70 @@ BuildRequires: gobject-introspection-devel
 %description
 %summary.
 
-%package -n %%name-%api_version
-Summary: %{summary %name}
-Group: System/Libraries
+%package -n %name%api_version
+Summary: Base objects for API libraries
+Group: Development/C
 
-%description -n %%name-%api_version
-%{description %name}.
-
-%package -n %%name-%api_version-devel
-Group: Development/Other
-Summary: Headers files and library symbolic links for %name
-Requires: %%name-%api_version = %EVR
-
-%description -n %%name-%api_version-devel
+%description -n %name%api_version
 %summary.
-This package contains headers and libs
-required for building programs with %name.
 
-%package -n %%name-%api_version-gir
-Summary: GObject introspection data for libapi-base
+%package devel
+Summary: Development files for %name
+Group: Development/C
+
+Requires: %name%api_version = %EVR
+
+%description devel
+%summary.
+
+%package -n %name%api_version-gir
+Summary: Typelib files for %name
 Group: System/Libraries
-Requires: %%name-%api_version = %EVR
 
-%description -n %%name-%api_version-gir
-%{summary %%name-%api_version-gir}.
+Requires: %name%api_version = %EVR
 
-%package -n %%name-%api_version-gir-devel
-Summary: GObject introspection devel data for libapi-base
-Group: System/Libraries
+%description -n %name%api_version-gir
+%summary.
+
+%package gir-devel
+Summary: Development gir files for %name for various bindings
+Group: Development/Other
 BuildArch: noarch
-Requires: %%name-%api_version-gir = %EVR
-Requires: %%name-%api_version-devel = %EVR
 
-%description -n %%name-%api_version-gir-devel
-%{summary %%name-%api_version-gir-devel}.
+Requires: %name%api_version-gir = %EVR
+
+%description gir-devel
+%summary.
 
 %prep
 %setup
-%autopatch -p1
 
 %build
-%meson
+%meson -Drun_net_tests=false
 %meson_build
 
 %install
 %meson_install
-%find_lang %name
 
-%files -n %%name-%api_version
-%_libdir/libapi-base-%api_version.so.*
+%check
+%meson_test
 
-%files -n %%name-%api_version-devel
-%_includedir/libapi-base-%api_version.h
-%_libdir/libapi-base-%api_version.so
-%_pkgconfigdir/libapi-base-%api_version.pc
-%_datadir/vala/vapi/libapi-base-%api_version.deps
-%_datadir/vala/vapi/libapi-base-%api_version.vapi
+%files -n %name%api_version
+%_libdir/%name-%api_version.so.*
 
-%files -n %%name-%api_version-gir
-%_typelibdir/ApiBase-%api_version.typelib
+%files devel
+%_libdir/%name-%api_version.so
+%_includedir/%name-%api_version.h
+%_pkgconfigdir/%name-%api_version.pc
+%_vapidir/%name-%api_version.vapi
+%_vapidir/%name-%api_version.deps
+%doc README.md
 
-%files -n %%name-%api_version-gir-devel
-%_girdir/ApiBase-%api_version.gir
+%files -n %name%api_version-gir
+%_typelibdir/%gir_name-%api_version.typelib
+
+%files gir-devel
+%_girdir/%gir_name-%api_version.gir
 
 %changelog
 * Sat Dec 14 2024 Alexey Volkov <qualimock@altlinux.org> 1.6-alt1
