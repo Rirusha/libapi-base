@@ -1,7 +1,7 @@
 %define _unpackaged_files_terminate_build 1
 
-%define apiver 1
-%define namever %name-%apiver
+%define api_version 1
+%define namever %name-%api_version
 
 Name: libapi-base
 Version: 1.6
@@ -78,20 +78,20 @@ Requires: %namever-devel = %EVR
 %find_lang %name
 
 %files -n %namever
-%_libdir/libapi-base-%apiver.so.*
+%_libdir/libapi-base-%api_version.so.*
 
 %files -n %namever-devel
-%_includedir/libapi-base-%apiver.h
-%_libdir/libapi-base-%apiver.so
-%_pkgconfigdir/libapi-base-%apiver.pc
-%_datadir/vala/vapi/libapi-base-%apiver.deps
-%_datadir/vala/vapi/libapi-base-%apiver.vapi
+%_includedir/libapi-base-%api_version.h
+%_libdir/libapi-base-%api_version.so
+%_pkgconfigdir/libapi-base-%api_version.pc
+%_datadir/vala/vapi/libapi-base-%api_version.deps
+%_datadir/vala/vapi/libapi-base-%api_version.vapi
 
 %files -n %namever-gir
-%_typelibdir/ApiBase-%apiver.typelib
+%_typelibdir/ApiBase-%api_version.typelib
 
 %files -n %namever-gir-devel
-%_girdir/ApiBase-%apiver.gir
+%_girdir/ApiBase-%api_version.gir
 
 %changelog
 * Sat Dec 14 2024 Alexey Volkov <qualimock@altlinux.org> 1.6-alt1
