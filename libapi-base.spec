@@ -13,8 +13,8 @@ Group: Development/Other
 Url: https://gitlab.gnome.org/Rirusha/libapi-base
 VCS: https://gitlab.gnome.org/Rirusha/libapi-base
 
-Source0: %name-%version.tar
-Patch0: %name-%version-%release.patch
+Source: %name-%version.tar
+Patch: %name-%version-%release.patch
 
 BuildRequires(pre): rpm-macros-meson
 BuildRequires: meson
