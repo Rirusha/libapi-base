@@ -1,3 +1,6 @@
+# If you want to suggest changes, please send PR on
+# https://altlinux.space/rirusha/libapi-base to altlinux branch 
+
 %define _unpackaged_files_terminate_build 1
 
 %define api_version 1
