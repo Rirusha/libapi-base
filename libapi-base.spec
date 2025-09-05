@@ -16,6 +16,8 @@ Source: %name-%version.tar
 Patch: %name-%version-%release.patch
 
 BuildRequires(pre): rpm-macros-meson
+BuildRequires: rpm-build-vala
+BuildRequires: rpm-build-gir
 BuildRequires: meson
 BuildRequires: vala
 BuildRequires: gobject-introspection-devel
