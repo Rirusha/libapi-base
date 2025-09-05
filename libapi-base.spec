@@ -20,13 +20,15 @@ BuildRequires: rpm-build-vala
 BuildRequires: rpm-build-gir
 BuildRequires: meson
 BuildRequires: vala
-BuildRequires: gobject-introspection-devel
-BuildRequires: libjson-glib-gir-devel
-BuildRequires: libgee0.8-gir-devel
+BuildRequires: pkgconfig(json-glib-1.0)
+BuildRequires: gir(Json) = 1.0
 BuildRequires: pkgconfig(gee-0.8)
+BuildRequires: gir(Gee) = 0.8
 BuildRequires: pkgconfig(gio-2.0)
 BuildRequires: pkgconfig(libsoup-3.0)
+BuildRequires: gir(Soup) = 3.0
 BuildRequires: pkgconfig(json-glib-1.0)
+BuildRequires: gobject-introspection-devel
 
 %description
 %summary.
