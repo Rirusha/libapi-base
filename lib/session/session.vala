@@ -34,7 +34,7 @@ public sealed class ApiBase.Session : Object {
      */
     public string? cookies_file_path { get; private set; }
 
-    Gee.HashMap<string, Gee.ArrayList<Header?>> presets_table = new Gee.HashMap<string, Gee.ArrayList<Header?>> ();
+    HashTable<string, Array<Header>> presets_table = new HashTable<string, Array<Header>> (str_hash, str_equal);
 
     Soup.Session session = new Soup.Session () {
         timeout = GLOBAL_TIMEOUT
@@ -145,14 +145,19 @@ public sealed class ApiBase.Session : Object {
      * Add preset to session. Headers presets can be used with {@link Request.add_preset_name}
      */
     public void add_headers_preset (string preset_name, Header[] headers) {
-        presets_table.set (preset_name, new Gee.ArrayList<Header?>.wrap ((Header?[]) headers));
+        if (!presets_table.contains (preset_name)) {
+            presets_table[preset_name] = new Array<Header> ();
+        }
+        foreach (var header in headers) {
+            presets_table[preset_name].append_val (header);
+        }
     }
 
     void fill_request_presets (Request request) {
         foreach (var preset_name in request.presets) {
-            Gee.ArrayList<Header?> headers = presets_table.get (preset_name);
+            Array<Header> headers = presets_table.get (preset_name);
             if (headers != null) {
-                request.add_headers ((Header[]) headers.to_array (), false);
+                request.add_headers ((Header[]) headers.data, false);
             }
         }
     }

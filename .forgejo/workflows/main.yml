@@ -74,7 +74,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: actions/deploy-pages@v1
         with:
-          directory: ./_build/doc/libapi-base-3-vala
+          directory: ./_build/doc/libapi-base-4-vala
 
   build-altlinux:
     name: Build RPM for altlinux
@@ -100,6 +100,6 @@ jobs:
         name: Upload RPMs
         if: github.event_name != 'pull_request'
         with:
-          directory: ~/.cache/hasherc/libapi-base3/out/RPMS
+          directory: ~/.cache/hasherc/libapi-base/out/RPMS
           token: ${{ secrets.TOKEN }}
           group: libapi-base

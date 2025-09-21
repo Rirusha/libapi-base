@@ -34,6 +34,9 @@ const string EXPECTED_JSON = """{
 }
 """;
 
+const string EXPECTED_ROBOTS = """User-agent: *
+Disallow: /deny""";
+
 const string EXPECTED_POST_START = """{
   "args": {}, 
   "data": "", 
@@ -194,6 +197,43 @@ public int main (string[] args) {
             var response = (string) (request.simple_exec ().get_data ());
 
             if (!(response.strip ().has_prefix (EXPECTED_POST_START))) {
+                Test.fail ();
+            }
+
+        } catch (Error e) {
+            Test.fail_printf ("Error: \n%s", e.message);
+        }
+    });
+
+    Test.add_func ("/soup-wrapper/header", () => {
+        try {
+            var request = new Request.GET ("https://httpbin.org/robots.txt");
+            request.add_header ("accept", "text/plain");
+
+            var response = (string) (request.simple_exec ().get_data ());
+
+            if (!(response.strip () == EXPECTED_ROBOTS)) {
+                Test.fail ();
+            }
+
+        } catch (Error e) {
+            Test.fail_printf ("Error: \n%s", e.message);
+        }
+    });
+
+    Test.add_func ("/soup-wrapper/headers-preset", () => {
+        try {
+            var session = new Session ();
+            session.add_headers_preset ("test", {
+                { "accept", "text/plain" }
+            });
+
+            var request = new Request.GET ("https://httpbin.org/robots.txt");
+            request.add_header ("accept", "text/plain");
+
+            var response = (string) (session.exec (request).get_data ());
+
+            if (!(response.strip () == EXPECTED_ROBOTS)) {
                 Test.fail ();
             }
 
