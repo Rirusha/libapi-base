@@ -26,28 +26,6 @@ jobs:
       - name: Check files
         uses: alt-gnome/coding-style-actions/vala@main
 
-  checkers:
-    name: Run checkers
-    runs-on: alt-sisyphus
-
-    steps:
-      - name: Update apt cache
-        run: apt-get -y update
-
-      - name: Install git and python
-        run: apt-get install -y git python3
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Run indentation checker
-        run: python3 vala-checkers/indentation_checker.py .
-
-      - name: Run empty lines checker
-        run: python3 vala-checkers/empty_lines_checker.py .
-
   test-build:
     name: Test Build
     runs-on: alt-sisyphus
