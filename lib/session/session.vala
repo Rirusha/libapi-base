@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2024 Vladimir Vaskov
- *
+ * Copyright (C) 2025 Vladimir Romanov <rirusha@altlinux.org>
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -194,7 +194,11 @@ public sealed class ApiBase.Session : Object {
             bytes = session.send_and_read (message, cancellable);
 
         } catch (Error e) {
-            throw new SoupError.INTERNAL ("%s %s: %s".printf (message.method, message.uri.to_string (), e.message));
+            if (e is IOError.CANCELLED) {
+                throw new SoupError.CANCELLED (e.message);
+            } else {
+                throw new SoupError.INTERNAL ("%s %s: %s".printf (message.method, message.uri.to_string (), e.message));
+            }
         }
 
         check_status_code (request.get_status_code (), bytes);
@@ -225,7 +229,11 @@ public sealed class ApiBase.Session : Object {
             bytes = yield session.send_and_read_async (message, priority, cancellable);
 
         } catch (Error e) {
-            throw new SoupError.INTERNAL ("%s %s: %s".printf (message.method, message.uri.to_string (), e.message));
+            if (e is IOError.CANCELLED) {
+                throw new SoupError.CANCELLED (e.message);
+            } else {
+                throw new SoupError.INTERNAL ("%s %s: %s".printf (message.method, message.uri.to_string (), e.message));
+            }
         }
 
         check_status_code (request.get_status_code (), bytes);

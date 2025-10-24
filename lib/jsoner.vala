@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2024 Vladimir Vaskov
- *
+ * Copyright (C) 2025 Vladimir Romanov <rirusha@altlinux.org>
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -633,12 +633,15 @@ public class ApiBase.Jsoner : Object {
             }
 
             if (!props_data.has_key (kebabbed_member_name)) {
-                warning (
-                    "The object '%s' does not have a property '%s' corresponding to the json field '%s'",
-                    obj_type.name (),
-                    kebabbed_member_name,
-                    member_name
-                );
+                var unknown_fields = Environment.get_variable ("API_BASE_UNKNOWN_FIELDS");
+                if (unknown_fields != null) {
+                    warning (
+                        "The object '%s' does not have a property '%s' corresponding to the json field '%s'",
+                        obj_type.name (),
+                        kebabbed_member_name,
+                        member_name
+                    );
+                }
                 continue;
             }
 
