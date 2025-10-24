@@ -51,7 +51,8 @@ public errordomain ApiBase.JsonError {
  * @since 3.0
  */
 public errordomain ApiBase.SoupError {
-    INTERNAL;
+    INTERNAL,
+    CANCELLED;
 }
 
 /**
