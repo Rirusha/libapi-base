@@ -633,12 +633,15 @@ public class ApiBase.Jsoner : Object {
             }
 
             if (!props_data.has_key (kebabbed_member_name)) {
-                warning (
-                    "The object '%s' does not have a property '%s' corresponding to the json field '%s'",
-                    obj_type.name (),
-                    kebabbed_member_name,
-                    member_name
-                );
+                var unknown_fields = Environment.get_variable ("API_BASE_UNKNOWN_FIELDS");
+                if (unknown_fields != null) {
+                    warning (
+                        "The object '%s' does not have a property '%s' corresponding to the json field '%s'",
+                        obj_type.name (),
+                        kebabbed_member_name,
+                        member_name
+                    );
+                }
                 continue;
             }
 
