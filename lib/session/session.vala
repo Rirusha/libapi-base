@@ -230,7 +230,7 @@ public sealed class ApiBase.Session : Object {
 
         } catch (Error e) {
             if (e is IOError.CANCELLED) {
-                throw new SoupError.CANCELLED (e.message);   
+                throw new SoupError.CANCELLED (e.message);
             } else {
                 throw new SoupError.INTERNAL ("%s %s: %s".printf (message.method, message.uri.to_string (), e.message));
             }
