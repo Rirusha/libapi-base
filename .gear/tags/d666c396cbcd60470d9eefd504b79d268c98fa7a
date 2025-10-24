@@ -1,0 +1,9 @@
+object 8115e6facd2291f631634bfaf372163f4ef07d5d
+type commit
+tag v4.3
+tagger Gitea <gitea@fake.local> 1761301466 +0300
+
+4.3
+
+- Less spam in stdout. To print warnings about missing propertys, you have to set env variable API_BASE_UNKNOWN_FIELDS with any value.
+- Add CANCELLED to SoupError domain
