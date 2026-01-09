@@ -110,10 +110,16 @@ public class ApiBase.Jsoner : Object {
      * @throws JsonError    Error with json or sub_members
      */
     public Jsoner.from_data (
-        uint8[] data,
+        owned uint8[] data,
         string[]? sub_members = null,
         Case names_case = Case.AUTO
     ) throws JsonError {
+        //  Fix not NUL-terminated
+        if (data[data.length - 1] != 0) {
+            data.resize (data.length + 1);
+            data[data.length - 1] = 0;
+        }
+
         this ((string) data, sub_members, names_case);
     }
 

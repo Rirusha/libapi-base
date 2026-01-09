@@ -50,7 +50,7 @@ const string EXPECTED_POST_START = """{
     "size": "large"
 """;
 
-const string USER_AGENT = "SOME SHIT\0";
+const string USER_AGENT = "TEST USER AGENT";
 
 public int main (string[] args) {
     Test.init (ref args);
