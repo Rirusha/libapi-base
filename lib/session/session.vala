@@ -60,7 +60,8 @@ public sealed class ApiBase.Session : Object {
 
     construct {
         session = new Soup.Session () {
-            timeout = timeout
+            timeout = timeout,
+            user_agent = user_agent
         };
 
         var logger = new Soup.Logger (BODY);
