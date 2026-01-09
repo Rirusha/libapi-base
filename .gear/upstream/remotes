@@ -1,3 +1,0 @@
-[remote "upstream"]
-	url = https://gitlab.gnome.org/Rirusha/libapi-base.git
-	fetch = +refs/heads/*:refs/remotes/origin/*
