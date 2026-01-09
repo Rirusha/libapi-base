@@ -36,9 +36,7 @@ public sealed class ApiBase.Session : Object {
 
     HashTable<string, Array<Header>> presets_table = new HashTable<string, Array<Header>> (str_hash, str_equal);
 
-    Soup.Session session = new Soup.Session () {
-        timeout = GLOBAL_TIMEOUT
-    };
+    Soup.Session session;
 
     /**
      * Session user agent
@@ -46,13 +44,25 @@ public sealed class ApiBase.Session : Object {
     public string? user_agent { get; construct; }
 
     /**
+     * Session timeout
+     */
+    public int timeout { get; construct; }
+
+    /**
      * @param user_agent    Session user agent
      */
-    public Session (string? user_agent = null) {
-        Object (user_agent: user_agent);
+    public Session (string? user_agent = null, int timeout = GLOBAL_TIMEOUT) {
+        Object (
+            user_agent: user_agent,
+            timeout: timeout
+        );
     }
 
     construct {
+        session = new Soup.Session () {
+            timeout = timeout
+        };
+
         var logger = new Soup.Logger (BODY);
 
         logger.set_printer ((logger, level, direction, data) => {
