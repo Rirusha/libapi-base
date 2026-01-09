@@ -50,7 +50,7 @@ const string EXPECTED_POST_START = """{
     "size": "large"
 """;
 
-const string USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 YaBrowser/24.10.0.0 Safari/537.36";
+const string USER_AGENT = "TEST USER AGENT";
 
 public int main (string[] args) {
     Test.init (ref args);
@@ -138,9 +138,12 @@ public int main (string[] args) {
         try {
             var soup_wrapper = new Session (USER_AGENT);
             var request = new Request.GET ("https://httpbin.org/user-agent");
-            var respone = (string) (soup_wrapper.exec (request).get_data ());
 
-            var obj = Jsoner.simple_from_json<UserAgentInfo> (respone);
+            var respone = soup_wrapper.exec (request);
+
+            var jsoner = new Jsoner.from_bytes (respone);
+
+            var obj = jsoner.deserialize_object<UserAgentInfo> ();
 
             if (obj.user_agent != USER_AGENT) {
                 Test.fail ();
