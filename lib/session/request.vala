@@ -213,7 +213,13 @@ public class ApiBase.Request : Object {
         return message.get_status ();
     }
 
-    internal Soup.Message form_message () {
+    /**
+     * Get formed message object
+     * @return  Response body
+     *
+     * @since 5.0
+     */
+    public Soup.Message form_message () {
         if (message != null) {
             return message;
         }
