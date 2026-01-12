@@ -20,9 +20,9 @@
 using Soup;
 
 /**
- * A wrapper class for libsoup
+ * A wrapper class for {@link Soup.Session}
  */
-public sealed class ApiBase.Session : Object {
+public sealed class ApiBase.Session : Soup.Session {
 
     /**
      * Cookies storage type
@@ -36,34 +36,15 @@ public sealed class ApiBase.Session : Object {
 
     HashTable<string, Array<Header>> presets_table = new HashTable<string, Array<Header>> (str_hash, str_equal);
 
-    Soup.Session session;
-
-    /**
-     * Session user agent
-     */
-    public string? user_agent { get; construct; }
-
-    /**
-     * Session timeout
-     */
-    public int timeout { get; construct; }
-
     /**
      * @param user_agent    Session user agent
+     * @param timeout       Session timeout
      */
-    public Session (string? user_agent = null, int timeout = GLOBAL_TIMEOUT) {
-        Object (
-            user_agent: user_agent,
-            timeout: timeout
-        );
+    public Session () {
+        Object ();
     }
 
     construct {
-        session = new Soup.Session () {
-            timeout = timeout,
-            user_agent = user_agent
-        };
-
         var logger = new Soup.Logger (BODY);
 
         logger.set_printer ((logger, level, direction, data) => {
@@ -79,9 +60,7 @@ public sealed class ApiBase.Session : Object {
             }
         });
 
-        bind_property ("user-agent", session, "user-agent", BindingFlags.SYNC_CREATE);
-
-        session.add_feature (logger);
+        add_feature (logger);
     }
 
     /**
@@ -126,8 +105,8 @@ public sealed class ApiBase.Session : Object {
         }
 
         if (feature_type != null) {
-            if (session.has_feature (feature_type)) {
-                session.remove_feature_by_type (feature_type);
+            if (has_feature (feature_type)) {
+                remove_feature_by_type (feature_type);
             }
         }
 
@@ -147,7 +126,7 @@ public sealed class ApiBase.Session : Object {
                     assert_not_reached ();
             }
 
-            session.add_feature (cookie_jar);
+            add_feature (cookie_jar);
             debug ("Cookies updated. New cookies file: \"%s\"", cookies_file_path);
         }
     }
@@ -202,7 +181,7 @@ public sealed class ApiBase.Session : Object {
         var message = request.form_message ();
 
         try {
-            bytes = session.send_and_read (message, cancellable);
+            bytes = send_and_read (message, cancellable);
 
         } catch (Error e) {
             if (e is IOError.CANCELLED) {
@@ -237,7 +216,7 @@ public sealed class ApiBase.Session : Object {
         var message = request.form_message ();
 
         try {
-            bytes = yield session.send_and_read_async (message, priority, cancellable);
+            bytes = yield send_and_read_async (message, priority, cancellable);
 
         } catch (Error e) {
             if (e is IOError.CANCELLED) {
@@ -250,5 +229,19 @@ public sealed class ApiBase.Session : Object {
         check_status_code (request.get_status_code (), bytes);
 
         return bytes;
+    }
+
+    public new async Soup.WebsocketConnection websocket_connect_async (
+        Request request,
+        string? origin,
+        string[]? protocols,
+        int priority = Priority.DEFAULT,
+        Cancellable? cancellable = null
+    ) throws SoupError {
+        try {
+            return yield base.websocket_connect_async (request.form_message (), origin, protocols, priority, cancellable);
+        } catch (Error e) {
+            throw new SoupError.INTERNAL (e.message);
+        }
     }
 }

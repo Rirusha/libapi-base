@@ -24,8 +24,6 @@ namespace ApiBase {
      */
     public delegate void SubCollectionCreationFunc (out Gee.Traversable collection, Type element_type);
 
-    public const int GLOBAL_TIMEOUT = 10;
-
     internal bool type_is_valid (Type type_) {
         Type[] supported_base_types = {
             Type.STRING,
