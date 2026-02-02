@@ -149,16 +149,18 @@ public class ApiBase.Jsoner : Object {
     /**
      * Serialize {@link GLib.Object} into a correct json string
      *
-     * @param obj           {@link GLib.Object}
-     * @param names_case    Name case of element names in a json string
-     * @param pretty        Pretty print of json or not
+     * @param obj               {@link GLib.Object}
+     * @param names_case        Name case of element names in a json string
+     * @param pretty            Pretty print of json or not
+     * @param ignore_default    Ignore fields with default values during object serialization. This option works only with primitive types
      *
      * @return              Json string
      */
     public static string serialize (
         Object obj,
         Case names_case = Case.AUTO,
-        bool pretty = false
+        bool pretty = false,
+        bool ignore_default = false
     ) {
         if (names_case == Case.AUTO) {
             names_case = Case.KEBAB;
@@ -168,9 +170,9 @@ public class ApiBase.Jsoner : Object {
 
         if (obj is HashMap) {
             var dict = (HashMap) obj;
-            serialize_hash_map (builder, dict, dict.value_type, names_case);
+            serialize_hash_map (builder, dict, dict.value_type, names_case, ignore_default);
         } else {
-            serialize_object (builder, obj, names_case);
+            serialize_object (builder, obj, names_case, ignore_default);
         }
 
         var res = Json.to_string (builder.get_root (), pretty);
@@ -187,7 +189,8 @@ public class ApiBase.Jsoner : Object {
         Json.Builder builder,
         ArrayList array_list,
         Type element_type,
-        Case names_case = Case.AUTO
+        Case names_case = Case.AUTO,
+        bool ignore_default = false
     ) {
         if (names_case == Case.AUTO) {
             names_case = Case.KEBAB;
@@ -202,13 +205,13 @@ public class ApiBase.Jsoner : Object {
                 Type sub_element_type = ((ArrayList<ArrayList?>) array_list)[0].element_type;
 
                 foreach (var sub_array_list in (ArrayList<ArrayList?>) array_list) {
-                    serialize_array (builder, sub_array_list, sub_element_type, names_case);
+                    serialize_array (builder, sub_array_list, sub_element_type, names_case, ignore_default);
                 }
             }
 
         } else if (element_type.is_object ()) {
             foreach (var obj in (ArrayList<Object>) array_list) {
-                serialize_object (builder, obj, names_case);
+                serialize_object (builder, obj, names_case, ignore_default);
             }
 
         } else {
@@ -255,7 +258,8 @@ public class ApiBase.Jsoner : Object {
         Json.Builder builder,
         HashMap dict,
         Type element_type,
-        Case names_case = Case.AUTO
+        Case names_case = Case.AUTO,
+        bool ignore_default = false
     ) {
         if (names_case == Case.AUTO) {
             names_case = Case.KEBAB;
@@ -266,7 +270,7 @@ public class ApiBase.Jsoner : Object {
         if (element_type.is_object ()) {
             foreach (var entry in (HashMap<string, Object>) dict) {
                 builder.set_member_name (entry.key);
-                serialize_object (builder, entry.value, names_case);
+                serialize_object (builder, entry.value, names_case, ignore_default);
             }
 
         } else {
@@ -317,7 +321,8 @@ public class ApiBase.Jsoner : Object {
     static void serialize_object (
         Json.Builder builder,
         Object? api_obj,
-        Case names_case = Case.AUTO
+        Case names_case = Case.AUTO,
+        bool ignore_default = false
     ) {
         if (names_case == Case.AUTO) {
             names_case = Case.KEBAB;
@@ -334,6 +339,13 @@ public class ApiBase.Jsoner : Object {
 
         foreach (ParamSpec property in cls.list_properties ()) {
             if (((property.flags & ParamFlags.READABLE) == 0) || ((property.flags & ParamFlags.WRITABLE) == 0)) {
+                continue;
+            }
+
+            var prop_val = Value (property.value_type);
+            api_obj.get_property (property.name, ref prop_val);
+
+            if (ignore_default && property.value_defaults (prop_val)) {
                 continue;
             }
 
@@ -354,23 +366,21 @@ public class ApiBase.Jsoner : Object {
                     error ("Unknown case - %s", names_case.to_string ());
             }
 
-            var prop_val = Value (property.value_type);
-            api_obj.get_property (property.name, ref prop_val);
 
             if (property.value_type == typeof (ArrayList)) {
                 var array_list = (ArrayList) prop_val.get_object ();
                 Type element_type = array_list.element_type;
 
-                serialize_array (builder, array_list, element_type, names_case);
+                serialize_array (builder, array_list, element_type, names_case, ignore_default);
 
             } else if (property.value_type == typeof (HashMap)) {
                 var hash_map = (HashMap) prop_val.get_object ();
                 Type element_type = hash_map.value_type;
 
-                serialize_hash_map (builder, hash_map, element_type, names_case);
+                serialize_hash_map (builder, hash_map, element_type, names_case, ignore_default);
 
             } else if (property.value_type.is_object ()) {
-                serialize_object (builder, (Object) prop_val.get_object (), names_case);
+                serialize_object (builder, (Object) prop_val.get_object (), names_case, ignore_default);
 
             } else if (property.value_type.is_enum ()) {
                 serialize_enum (builder, property.value_type, prop_val);
