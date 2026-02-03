@@ -103,6 +103,18 @@ public class TestObjectAlbum : Object {
     }
 }
 
+public class TestObjectFamilyParent: Object, Jsoner.TypeFamily {
+    public GLib.Type match_type (Json.Node node) {
+        switch (node.get_object().get_string_member("type")) {
+            case "child":
+                return typeof(TestObjectFamilyChild);
+            default:
+                return typeof(TestObjectFamilyParent);
+        }
+    }
+}
+public class TestObjectFamilyChild: TestObjectFamilyParent {}
+
 string get_name_with_c (string name, ApiBase.Case c) {
     switch (c) {
         case KEBAB:
@@ -592,6 +604,32 @@ public int main (string[] args) {
                     result.value[0][0].value.to_string () + " != 7\n" +
                     result.value[1][0].value.to_string () + " != 98\n"
                 );
+            }
+        } catch (JsonError e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
+    Test.add_func ("/jsoner/deserialize/object/runtime_type/child", () => {
+        try {
+            var jsoner = new Jsoner ("{\"type\":\"child\"}");
+            var result = jsoner.deserialize_object<TestObjectFamilyParent> ();
+
+            if (!(result is TestObjectFamilyChild)) {
+                Test.fail_printf ("%s != %s", result.get_type ().name (), typeof(TestObjectFamilyChild).name());
+            }
+        } catch (JsonError e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
+    Test.add_func ("/jsoner/deserialize/object/runtime_type/parent", () => {
+        try {
+            var jsoner = new Jsoner ("{\"type\":\"any-other-thing\"}");
+            var result = jsoner.deserialize_object<TestObjectFamilyParent> ();
+
+            if (!(result is TestObjectFamilyParent)) {
+                Test.fail_printf ("%s != %s", result.get_type ().name (), typeof(TestObjectFamilyParent).name());
             }
         } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
