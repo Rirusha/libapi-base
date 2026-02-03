@@ -358,6 +358,26 @@ public int main (string[] args) {
         }
     });
 
+    Test.add_func ("/jsoner/serialize/array/array/without-default", () => {
+        var test_object = new TestObjectArrayArray ();
+        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
+        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
+        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
+        test_object.value[0].add (new SimpleObject ());
+        test_object.value[0].add (new SimpleObject ());
+        test_object.value[1].add (new SimpleObject () { string_value = "why are we still here", int_value = 42 });
+        test_object.value[1].add (new SimpleObject () { bool_value = false });
+        test_object.value[1].add (new SimpleObject () { string_value = "kekw" });
+        test_object.value[2].add (new SimpleObject () { int_value = 56 });
+
+        string expectation = "{\"value\":[[{},{}],[{\"string-value\":\"why are we still here\",\"int-value\":42},{},{\"string-value\":\"kekw\"}],[{\"int-value\":56}]]}";
+        string result = Jsoner.serialize (test_object, ApiBase.Case.AUTO, false, true);
+
+        if (result != expectation) {
+            Test.fail_printf (result + " != " + expectation);
+        }
+    });
+
     Test.add_func ("/jsoner/deserialize/enum", () => {
         try {
             var jsoner = new Jsoner ("{\"value\":\"value_2\"}");
