@@ -81,3 +81,37 @@ jobs:
           directory: ~/.cache/hasherc/libapi-base/out/RPMS
           token: ${{ secrets.TOKEN }}
           group: libapi-base
+
+  build-altlinux-nightly:
+    name: Build Nightly RPM for altlinux
+
+    runs-on: alt-sisyphus
+    container:
+      image: altlinux.space/actions/runner/hasherc:sisyphus
+    needs:
+      - test-build
+
+    steps:
+      - name: Install utils
+        run: |
+          apt-get update
+          apt-get install -y meson jq /usr/bin/add_changelog
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare RPM build
+        run: |
+          ./build-aux/altlinux/prepare
+          git add .
+
+      - uses: alt-gnome/build-rpm-action@main
+        name: Build RPMs
+
+      - uses: alt-gnome/upload-rpm-action@main
+        name: Upload RPMs
+        if: github.event_name != 'pull_request'
+        with:
+          directory: ~/.cache/hasherc/libapi-base/out/RPMS
+          token: ${{ secrets.TOKEN }}
+          group: libapi-base-nightly/${{ matrix.branch }}
