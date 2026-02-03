@@ -5,7 +5,7 @@ vapi_sources = files(
 vala_sources = files(
   'session/header.vala',
   'session/parameter.vala',
-  'session/post-content.vala',
+  'session/content.vala',
   'session/request.vala',
   'session/session.vala',
 

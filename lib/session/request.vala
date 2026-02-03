@@ -19,7 +19,7 @@
  */
 
 /**
- * Request object. Can handle parameters, headers, post content.
+ * Request object. Can handle parameters, headers, content.
  * {@link Session.exec} and {@link Session.exec_async}
  * form message via {@link form_message} and set this to readonly
  *
@@ -62,6 +62,11 @@ public class ApiBase.Request : Object {
         }
     }
 
+    Content? content = null;
+
+    /*
+     * @deprecated 6.0
+     */
     PostContent? post_content = null;
 
     Request (HttpMethod method, string uri) {
@@ -185,11 +190,26 @@ public class ApiBase.Request : Object {
     }
 
     /**
+     * Add content to request
+     *
+     * @param content  Content object
+     *
+     * @since 6.0
+     */
+    public void add_content (Content content) {
+        assert (message == null);
+        assert (method == HttpMethod.POST || method == HttpMethod.PUT);
+
+        this.content = content;
+    }
+
+    /**
      * Add post content to request
      *
      * @param post_content  Post content object
      *
      * @since 3.0
+     * @deprecated 6.0
      */
     public void add_post_content (PostContent post_content) {
         assert (message == null);
@@ -234,6 +254,14 @@ public class ApiBase.Request : Object {
 
         message = new Soup.Message (method.to_string (), new_uri);
 
+        if (content != null) {
+            message.set_request_body_from_bytes (
+                content.content_type.to_string (),
+                content.get_bytes ()
+            );
+        }
+
+        // @deprecated 6.0
         if (post_content != null) {
             message.set_request_body_from_bytes (
                 post_content.content_type.to_string (),
