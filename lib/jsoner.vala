@@ -27,6 +27,18 @@ using Gee;
 public class ApiBase.Jsoner : Object {
 
     /**
+     * Helper interface for chosing class to deserialize
+     */
+    public interface TypeFamily : Object {
+        /**
+         * Return object type to deserialize
+         *
+         * @param node  Object node
+         */
+        public abstract Type match_type (Json.Node node);
+    }
+
+    /**
      * Names case used for deserialization
      */
     public Case names_case { get; construct; }
@@ -556,11 +568,7 @@ public class ApiBase.Jsoner : Object {
         GLib.Type obj_type,
         SubCollectionCreationFunc? sub_creation_func = null
     ) throws JsonError {
-        var obj = Object.new (obj_type);
-
-        deserialize_object_into (obj, sub_creation_func);
-
-        return obj;
+        return deserialize_object_by_type_real (obj_type, null, sub_creation_func);
     }
 
     internal Object deserialize_object_by_type_real (
@@ -569,6 +577,14 @@ public class ApiBase.Jsoner : Object {
         SubCollectionCreationFunc? sub_creation_func = null
     ) throws JsonError {
         var obj = Object.new (obj_type);
+        if (obj_type.is_a (typeof (TypeFamily))) {
+            var actual_type = ((TypeFamily)obj).match_type (node ?? root);
+            debug (
+                    "Type transition %s -> %s",
+                    obj_type.name (), actual_type.name ()
+                );
+            obj = Object.new (actual_type);
+        }
 
         deserialize_object_into_real (obj, node, sub_creation_func);
 
