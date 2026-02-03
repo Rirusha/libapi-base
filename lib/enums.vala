@@ -35,7 +35,28 @@ public enum ApiBase.HttpMethod {
 }
 
 /**
+ * Supported content types
+ */
+public enum ApiBase.ContentType {
+    X_WWW_FORM_URLENCODED,
+    JSON;
+
+    public string to_string () {
+        switch (this) {
+            case X_WWW_FORM_URLENCODED:
+                return "application/x-www-form-urlencoded";
+            case JSON:
+                return "application/json";
+            default:
+                assert_not_reached ();
+        }
+    }
+}
+
+/**
  * Supported post content types
+ *
+ * @deprecated 6.0
  */
 public enum ApiBase.PostContentType {
     X_WWW_FORM_URLENCODED,

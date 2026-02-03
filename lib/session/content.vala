@@ -16,6 +16,64 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
+/**
+ * @since 6.0
+ */
+public struct ApiBase.Content {
+
+    public ContentType content_type;
+    string content;
+
+    /**
+     * @since 6.0
+     *
+     * @return content bytes
+     */
+    public Bytes get_bytes () {
+        return new Bytes (content.data);
+    }
+
+    /**
+     * Set content dict
+     *
+     * @since 6.0
+     */
+    public void set_dict (Gee.HashMap<string, string> dict) {
+        switch (content_type) {
+            case X_WWW_FORM_URLENCODED:
+                content = Soup.Form.encode_datalist (hashmap_to_datalist<string> (dict));
+                break;
+            case JSON:
+                content = Jsoner.serialize (dict);
+                break;
+            default:
+                assert_not_reached ();
+            }
+    }
+
+    /**
+     * Set content datalist
+     *
+     * @since 6.0
+     */
+    public void set_datalist (Datalist<string> datalist) {
+        switch (content_type) {
+            case X_WWW_FORM_URLENCODED:
+                content = Soup.Form.encode_datalist (datalist);
+                break;
+            case JSON:
+                content = Jsoner.serialize (datalist_to_hashmap<string> (datalist));
+                break;
+            default:
+                assert_not_reached ();
+            }
+    }
+
+}
+
+/**
+ * @deprecated 6.0
+ */
 public struct ApiBase.PostContent {
 
     public PostContentType content_type;
