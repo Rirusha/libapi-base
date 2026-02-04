@@ -32,7 +32,7 @@ namespace ApiBase {
             return get_by_nick_gtype (typeof (EnumType), nick);
         }
 
-        [Version (since = "5.1")]
+        [Version (since = "5.1.0")]
         /**
          * @param enum_             Enum
          *

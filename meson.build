@@ -1,12 +1,14 @@
 project(
   'libapi-base',
   ['c', 'vala'],
-  version: '5.0',
+  version: '5.1.rc',
   meson_version: '>= 1.1',
   license: 'GPL-3.0-or-later',
 )
 
-api_version = '5'
+libversion = meson.project_version().replace('.rc', '')
+
+api_version = libversion.split('.')[0]
 glib_min_version = '2.76'
 
 name = 'api-base'

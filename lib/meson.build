@@ -28,7 +28,7 @@ lib = shared_library(
   vala_header: header_name,
   vala_vapi: vapi_name,
   vala_gir: gir_name,
-  version: meson.project_version(),
+  version: libversion,
   install: true,
   install_dir: [ true, true, true, true ],
 )
@@ -75,6 +75,6 @@ pkgconfig.generate(
   requires: pkgconfig_requires,
   subdirs: [ versioned_lib_name ],
   description: 'Base objects for API libraries',
-  version: meson.project_version(),
+  version: libversion,
   url: 'https://gitlab.gnome.org/Rirusha/libapi-base',
 )

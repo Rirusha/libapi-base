@@ -135,7 +135,7 @@ string get_exp_json (ApiBase.Case c) {
         @"\"$(get_name_with_c (INT_VAL_NAME, c))\":$INT_VAL",
         @"\"$(get_name_with_c (DOUBLE_VAL_NAME, c))\":$DOUBLE_VAL",
         @"\"$(get_name_with_c (BOOL_VAL_NAME, c))\":$BOOL_VAL",
-        @"\"$(get_name_with_c (ENUM_VAL_NAME, c))\":\"$(get_enum_nick (typeof (TestEnum), ENUM_VAL))\"",
+        @"\"$(get_name_with_c (ENUM_VAL_NAME, c))\":\"$(Enum.get_nick<TestEnum> (ENUM_VAL))\"",
         @"\"$(get_name_with_c (TYPE__NAME, c))\":\"$TYPE_\"",
         @"\"$(get_name_with_c (ERROR_CODE_NAME, c))\":$ERROR_CODE",
     }));
