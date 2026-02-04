@@ -64,11 +64,6 @@ public class ApiBase.Request : Object {
 
     Content? content = null;
 
-    /*
-     * @deprecated 6.0
-     */
-    PostContent? post_content = null;
-
     Request (HttpMethod method, string uri) {
         Object (
             method: method,
@@ -203,19 +198,20 @@ public class ApiBase.Request : Object {
         this.content = content;
     }
 
+    [Version (deprecated = true, deprecated_since = "6.0", replacement = "api_base_request_add_content", since = "3.0")]
     /**
      * Add post content to request
      *
      * @param post_content  Post content object
-     *
-     * @since 3.0
-     * @deprecated 6.0
      */
     public void add_post_content (PostContent post_content) {
         assert (message == null);
         assert (method == HttpMethod.POST);
 
-        this.post_content = post_content;
+        this.content = {
+            content_type: ContentType.from_string (post_content.content_type.to_string ()),
+            content: post_content.content
+        };
     }
 
     /**
@@ -258,14 +254,6 @@ public class ApiBase.Request : Object {
             message.set_request_body_from_bytes (
                 content.content_type.to_string (),
                 content.get_bytes ()
-            );
-        }
-
-        // @deprecated 6.0
-        if (post_content != null) {
-            message.set_request_body_from_bytes (
-                post_content.content_type.to_string (),
-                post_content.get_bytes ()
             );
         }
 

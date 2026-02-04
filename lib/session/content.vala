@@ -71,9 +71,7 @@ public struct ApiBase.Content {
 
 }
 
-/**
- * @deprecated 6.0
- */
+[Version (deprecated = true, deprecated_since = "6.0", replacement = "api_base_content")]
 public struct ApiBase.PostContent {
 
     public PostContentType content_type;

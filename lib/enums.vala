@@ -51,12 +51,22 @@ public enum ApiBase.ContentType {
                 assert_not_reached ();
         }
     }
+
+    public static ContentType from_string (string str) {
+        switch (str) {
+            case "application/x-www-form-urlencoded":
+                return X_WWW_FORM_URLENCODED;
+            case "application/json":
+                return JSON;
+            default:
+                assert_not_reached ();
+        }
+    }
 }
 
+[Version (deprecated = true, deprecated_since = "6.0", replacement = "api_base_content_type")]
 /**
  * Supported post content types
- *
- * @deprecated 6.0
  */
 public enum ApiBase.PostContentType {
     X_WWW_FORM_URLENCODED,
