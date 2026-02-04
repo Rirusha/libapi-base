@@ -19,6 +19,52 @@
 
 namespace ApiBase {
 
+    namespace Enum {
+
+        [Version (since = "5.1")]
+        /**
+         * @param nick              String enum in snake case
+         *
+         * @return                  Enum
+         */
+        public EnumType get_by_nick<EnumType> (string nick) {
+            assert (typeof (EnumType).is_enum ());
+            return get_by_nick_gtype (typeof (EnumType), nick);
+        }
+
+        [Version (since = "5.1")]
+        /**
+         * @param enum_             Enum
+         *
+         * @return                  Nick
+         */
+        public string get_nick<EnumType> (EnumType enum_) {
+            assert (typeof (EnumType).is_enum ());
+            return get_nick_gtype (typeof (EnumType), (int) enum_);
+        }
+
+        internal EnumClass get_class<EnumType> () {
+            assert (typeof (EnumType).is_enum ());
+            return get_class_gtype (typeof (EnumType));
+        }
+
+        internal EnumClass get_class_gtype (Type enum_type) {
+            return (EnumClass) enum_type.class_ref ();
+        }
+
+        public int get_by_nick_gtype (Type enum_type, string nick) {
+            var enum_class = get_class_gtype (enum_type);
+            return enum_class.get_value_by_nick (snake2kebab (nick)).value;
+        }
+
+        public string get_nick_gtype (Type enum_type, int enum_) {
+            var enum_class = get_class_gtype (enum_type);
+            var enum_value = enum_class.get_value (enum_);
+
+            return kebab2snake (enum_value.value_nick.down ());
+        }
+    }
+
     /**
      * A function for creating subcollections in the case of arrays in an array
      */
@@ -185,20 +231,14 @@ namespace ApiBase {
         }
     }
 
-    internal EnumClass get_enum_class (Type enum_type) {
-        return (EnumClass) enum_type.class_ref ();
-    }
-
+    [Version (deprecated = true, deprecated_since = "6.0", replacement = "api_base_enum_get_by_nick")]
     public int get_enum_by_nick (Type enum_type, string nick) {
-        var enum_class = get_enum_class (enum_type);
-        return enum_class.get_value_by_nick (snake2kebab (nick)).value;
+        return Enum.get_by_nick_gtype (enum_type, nick);
     }
 
+    [Version (deprecated = true, deprecated_since = "6.0", replacement = "api_base_enum_get_nick")]
     public string get_enum_nick (Type enum_type, int enum_) {
-        var enum_class = get_enum_class (enum_type);
-        var enum_value = enum_class.get_value (enum_);
-
-        return kebab2snake (enum_value.value_nick.down ());
+        return Enum.get_nick_gtype (enum_type, enum_);
     }
 
     public Datalist<T> hashmap_to_datalist<T> (Gee.HashMap<string, T> hash_map) {

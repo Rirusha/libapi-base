@@ -30,7 +30,7 @@ public enum ApiBase.HttpMethod {
     CONNECT;
 
     public string to_string () {
-        return get_enum_class (typeof (HttpMethod)).get_value (this).value_nick.up ();
+        return Enum.get_class<HttpMethod> ().get_value (this).value_nick.up ();
     }
 }
 
