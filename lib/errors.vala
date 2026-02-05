@@ -18,10 +18,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+[Version (since = "3.0")]
 /**
  * Error from libjson
- *
- * @since 3.0
  */
 public errordomain ApiBase.JsonError {
     /**
@@ -45,10 +44,9 @@ public errordomain ApiBase.JsonError {
     NO_MEMBER;
 }
 
+[Version (since = "3.0")]
 /**
  * Error from libsoup
- *
- * @since 3.0
  */
 public errordomain ApiBase.SoupError {
     INTERNAL,

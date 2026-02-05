@@ -63,13 +63,12 @@ public sealed class ApiBase.Session : Soup.Session {
         add_feature (logger);
     }
 
+    [Version (since = "3.0")]
     /**
      * Init cookiew with type and path
      *
      * @param cookie_jar_type   Cookies storage type
      * @param cookies_file_path Path to cookies
-     *
-     * @since 3.0
      */
     public void init_cookies (
         CookieJarType cookie_jar_type,
@@ -162,13 +161,12 @@ public sealed class ApiBase.Session : Soup.Session {
         throw get_error (status_code, error_message);
     }
 
+    [Version (since = "3.0")]
     /**
      * Synchronously execute the {@link Request}
      *
      * @throws SoupError            Internal error from libsoup
      * @throws BadStatusCodeError   Bad status code from request
-     *
-     * @since 3.0
      */
     public GLib.Bytes? exec (
         Request request,
@@ -196,13 +194,12 @@ public sealed class ApiBase.Session : Soup.Session {
         return bytes;
     }
 
+    [Version (since = "3.0")]
     /**
      * Asynchronously execute the {@link Request}
      *
      * @throws SoupError            Internal error from libsoup
      * @throws BadStatusCodeError   Bad status code from request
-     *
-     * @since 3.0
      */
     public async GLib.Bytes? exec_async (
         Request request,

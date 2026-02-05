@@ -54,14 +54,13 @@ namespace ApiBase.Convert {
         return str[start:end];
     }
 
+    [Version (since = "0.1.0")]
     /**
      * Convert `сamelCase` to `kebab-case` string
      *
      * @param camel_string correct `сamelCase` string
      *
      * @return `kebab-case` string
-     *
-     * @since 0.1.0
      */
     public string camel2kebab (string camel_string) {
         var builder = new StringBuilder ();
@@ -80,14 +79,13 @@ namespace ApiBase.Convert {
         return builder.free_and_steal ();
     }
 
+    [Version (since = "6.0")]
     /**
      * Convert `сamelCase` to `snake_case` string
      *
      * @param camel_string correct `сamelCase` string
      *
      * @return `snake_case` string
-     *
-     * @since 6.0
      */
     public string camel2snake (string camel_string) {
         var builder = new StringBuilder ();
@@ -106,14 +104,13 @@ namespace ApiBase.Convert {
         return builder.free_and_steal ();
     }
 
+    [Version (since = "0.1.0")]
     /**
      * Convert `kebab-case` to `сamelCase` string
      *
      * @param kebab_string correct `kebab-case` string
      *
      * @return `сamelCase` string
-     *
-     * @since 0.1.0
      */
     public string kebab2camel (string kebab_string) {
         var builder = new StringBuilder ();
@@ -132,14 +129,13 @@ namespace ApiBase.Convert {
         return builder.free_and_steal ();
     }
 
+    [Version (since = "0.1.0")]
     /**
      * Convert `kebab-case` to `snake_case` string
      *
      * @param kebab_string correct `kebab-case` string
      *
      * @return `snake_case` string
-     *
-     * @since 0.1.0
      */
     public string kebab2snake (string kebab_string) {
         var builder = new StringBuilder ();
@@ -157,14 +153,13 @@ namespace ApiBase.Convert {
         return builder.free_and_steal ();
     }
 
+    [Version (since = "0.1.0")]
     /**
      * Convert `snake_case` to `kebab-case` string
      *
      * @param snake_string correct `snake_case` string
      *
      * @return `kebab-case` string
-     *
-     * @since 0.1.0
      */
     public string snake2kebab (string snake_string) {
         var builder = new StringBuilder ();
@@ -182,14 +177,13 @@ namespace ApiBase.Convert {
         return builder.free_and_steal ();
     }
 
+    [Version (since = "6.0")]
     /**
      * Convert `snake_case` to `сamelCase` string
      *
      * @param snake_string correct `snake_case` string
      *
      * @return `сamelCase` string
-     *
-     * @since 6.0
      */
     public string snake2camel (string snake_string) {
         var builder = new StringBuilder ();
@@ -208,14 +202,13 @@ namespace ApiBase.Convert {
         return builder.free_and_steal ();
     }
 
+    [Version (since = "3.0")]
     /**
      * Convert any case string to kebab-case
      *
      * @param str   String
      *
      * @return Kebab string
-     *
-     * @since 3.0
      */
     public string any2kebab (string str) {
         var str_case = detect_case (str);
@@ -232,14 +225,13 @@ namespace ApiBase.Convert {
         }
     }
 
+    [Version (since = "6.0")]
     /**
      * Convert any case string to snake_case
      *
      * @param str   String
      *
      * @return Snake string
-     *
-     * @since 6.0
      */
     public string any2snake (string str) {
         var str_case = detect_case (str);
@@ -256,14 +248,13 @@ namespace ApiBase.Convert {
         }
     }
 
+    [Version (since = "6.0")]
     /**
      * Convert any case string to camelCase
      *
      * @param str   String
      *
      * @return Camel string
-     *
-     * @since 6.0
      */
     public string any2camel (string str) {
         var str_case = detect_case (str);
@@ -280,6 +271,7 @@ namespace ApiBase.Convert {
         }
     }
 
+    [Version (since = "6.0")]
     /**
      * Convert kebab-case to specified case
      *
@@ -287,8 +279,6 @@ namespace ApiBase.Convert {
      * @param case_ Case
      *
      * @return Specified case string
-     *
-     * @since 6.0
      */
     public string kebab2any (string str, Case case_) {
         switch (case_) {
@@ -303,6 +293,7 @@ namespace ApiBase.Convert {
         }
     }
 
+    [Version (since = "6.0")]
     /**
      * Convert snake_case to specified case
      *
@@ -310,8 +301,6 @@ namespace ApiBase.Convert {
      * @param case_ Case
      *
      * @return Specified case string
-     *
-     * @since 6.0
      */
     public string snake2any (string str, Case case_) {
         switch (case_) {
@@ -326,6 +315,7 @@ namespace ApiBase.Convert {
         }
     }
 
+    [Version (since = "6.0")]
     /**
      * Convert camelCase to specified case
      *
@@ -333,8 +323,6 @@ namespace ApiBase.Convert {
      * @param case_ Case
      *
      * @return Specified case string
-     *
-     * @since 6.0
      */
     public string camel2any (string str, Case case_) {
         switch (case_) {

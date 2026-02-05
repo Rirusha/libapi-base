@@ -19,10 +19,9 @@
 
 using Gee;
 
+[Version (since = "0.1.0")]
 /**
- * Json helper for de/serialization 
- *
- * @since 0.1.0
+ * Json helper for de/serialization
  */
 public class ApiBase.Jsoner : Object {
 
@@ -475,6 +474,7 @@ public class ApiBase.Jsoner : Object {
     // Deserialize  //
     ///////////////////
 
+    [Version (since = "3.1")]
     /**
      * Object creation method from json 
      * via {@link Jsoner.deserialize_object}
@@ -490,8 +490,6 @@ public class ApiBase.Jsoner : Object {
      * @return                  Deserialized object
      *
      * @throws JsonError        Error with json or sub_members
-     *
-     * @since 3.1
      */
     public static T simple_from_json<T> (
         string json,
@@ -502,6 +500,7 @@ public class ApiBase.Jsoner : Object {
         return jsoner.deserialize_object<T> ();
     }
 
+    [Version (since = "3.1")]
     /**
      * Array creation method from json 
      * via {@link Jsoner.deserialize_array}
@@ -517,8 +516,6 @@ public class ApiBase.Jsoner : Object {
      * @return                  Deserialized array
      *
      * @throws JsonError        Error with json or sub_members
-     *
-     * @since 3.1
      */
     public static ArrayList<T> simple_array_from_json<T> (
         string json,
@@ -530,6 +527,7 @@ public class ApiBase.Jsoner : Object {
         return jsoner.deserialize_array<T> (collection_hierarchy);
     }
 
+    [Version (since = "3.1")]
     /**
      * Dict creation method from json 
      * via {@link Jsoner.deserialize_dict}
@@ -545,8 +543,6 @@ public class ApiBase.Jsoner : Object {
      * @return                  Deserialized dict
      *
      * @throws JsonError        Error with json or sub_members
-     *
-     * @since 3.1
      */
     public static HashMap<string, T> simple_dict_from_json<T> (
         string json,
@@ -558,6 +554,7 @@ public class ApiBase.Jsoner : Object {
         return jsoner.deserialize_dict<T> (collection_hierarchy);
     }
 
+    [Version (since = "3.0")]
     /**
      * Method for deserializing the {@link GLib.Object}
      *
@@ -567,13 +564,12 @@ public class ApiBase.Jsoner : Object {
      * @return  Deserialized object
      *
      * @throws JsonError    Error with json string
-     *
-     * @since 3.0
      */
     public T deserialize_object<T> () throws JsonError {
         return deserialize_object_by_type (typeof (T));
     }
 
+    [Version (since = "3.0")]
     /**
      * Method for deserializing the {@link GLib.Object} with {@link GLib.Type}
      *
@@ -584,8 +580,6 @@ public class ApiBase.Jsoner : Object {
      * @return  Deserialized object
      *
      * @throws JsonError    Error with json string
-     *
-     * @since 3.0
      */
     public Object deserialize_object_by_type (
         GLib.Type obj_type
@@ -612,6 +606,7 @@ public class ApiBase.Jsoner : Object {
         return obj;
     }
 
+    [Version (since = "3.0")]
     /**
      * Method for deserializing into existing object
      *
@@ -620,8 +615,6 @@ public class ApiBase.Jsoner : Object {
      *                          objects with generics
      *
      * @throws JsonError    Error with json string
-     *
-     * @since 3.0
      */
     public void deserialize_object_into (
         Object obj
@@ -833,14 +826,13 @@ public class ApiBase.Jsoner : Object {
         return node.get_value ();
     }
 
+    [Version (since = "3.1")]
     /**
      * Method for deserializing the {@link Gee.ArrayList}
      *
      * @param collection_hierarchy A function for creating subsets in the case of arrays in an array
      *
      * @throws JsonError    Error with json string
-     *
-     * @since 3.1
      */
     public ArrayList<T> deserialize_array<T> (
         CollectionFactory[] collection_hierarchy = {}
@@ -961,12 +953,11 @@ public class ApiBase.Jsoner : Object {
         }
     }
 
+    [Version (since = "3.1")]
     /**
      * Method for deserializing the {@link Gee.HashMap}
      *
      * @throws JsonError    Error with json string
-     *
-     * @since 3.1
      */
     public HashMap<string, T> deserialize_dict<T> (
         CollectionFactory[] collection_hierarchy = {}
@@ -976,14 +967,13 @@ public class ApiBase.Jsoner : Object {
         return dict;
     }
 
+    [Version (since = "3.0")]
     /**
      * Method for deserializing the {@link Gee.HashMap}
      *
      * @param dict              Dict
      *
      * @throws JsonError    Error with json string
-     *
-     * @since 3.0
      */
     public void deserialize_dict_into (
         HashMap dict,
@@ -1124,6 +1114,7 @@ public class ApiBase.Jsoner : Object {
         return thread.join ();
     }
 
+    [Version (since = "3.1")]
     /**
      * Asynchronous version of method {@link simple_from_json_async}
      *
@@ -1134,8 +1125,6 @@ public class ApiBase.Jsoner : Object {
      * @return                  Deserialized object
      *
      * @throws JsonError        Error with json or sub_members
-     *
-     * @since 3.1
      */
     public async static T simple_from_json_async<T> (
         string json,
@@ -1170,6 +1159,7 @@ public class ApiBase.Jsoner : Object {
         return thread.join ();
     }
 
+    [Version (since = "3.1")]
     /**
      * Asynchronous version of method {@link simple_array_from_json_async}
      *
@@ -1180,8 +1170,6 @@ public class ApiBase.Jsoner : Object {
      * @return                  Deserialized array
      *
      * @throws JsonError        Error with json or sub_members
-     *
-     * @since 3.1
      */
     public async static ArrayList<T> simple_array_from_json_async<T> (
         string json,
@@ -1216,6 +1204,7 @@ public class ApiBase.Jsoner : Object {
         return thread.join ();
     }
 
+    [Version (since = "3.1")]
     /**
      * Asynchronous version of method {@link simple_dict_from_json_async}
      *
@@ -1226,8 +1215,6 @@ public class ApiBase.Jsoner : Object {
      * @return                  Deserialized dict
      *
      * @throws JsonError        Error with json or sub_members
-     *
-     * @since 3.1
      */
     public async static HashMap<string, T> simple_dict_from_json_async<T> (
         string json,
@@ -1262,14 +1249,13 @@ public class ApiBase.Jsoner : Object {
         return thread.join ();
     }
 
+    [Version (since = "3.0")]
     /**
      * Asynchronous version of method {@link deserialize_object}
      *
      * @return  Deserialized object
      *
      * @throws JsonError    Error with json string
-     *
-     * @since 3.0
      */
     public async T deserialize_object_async<T> () throws JsonError {
         JsonError? error = null;
@@ -1358,12 +1344,11 @@ public class ApiBase.Jsoner : Object {
         thread.join ();
     }
 
+    [Version (since = "3.1")]
     /**
      * Asynchronous version of method {@link deserialize_array}
      *
      * @throws JsonError    Error with json string
-     *
-     * @since 3.1
      */
     public async ArrayList<T> deserialize_array_async<T> () throws JsonError {
         JsonError? error = null;
@@ -1390,14 +1375,13 @@ public class ApiBase.Jsoner : Object {
         return thread.join ();
     }
 
+    [Version (since = "3.0")]
     /**
      * Asynchronous version of method {@link deserialize_array_into}
      *
      * @param array_list        Array
      *
      * @throws JsonError    Error with json string
-     *
-     * @since 3.0
      */
     public async void deserialize_array_into_async (
         ArrayList array_list
@@ -1424,12 +1408,11 @@ public class ApiBase.Jsoner : Object {
         thread.join ();
     }
 
+    [Version (since = "3.1")]
     /**
      * Asynchronous version of method {@link deserialize_dict}
      *
      * @throws JsonError    Error with json string
-     *
-     * @since 3.1
      */
     public async HashMap<string, T> deserialize_dict_async<T> () throws JsonError {
         JsonError? error = null;
@@ -1456,14 +1439,13 @@ public class ApiBase.Jsoner : Object {
         return thread.join ();
     }
 
+    [Version (since = "3.1")]
     /**
      * Asynchronous version of method {@link deserialize_dict_into}
      *
      * @param dict              Dict
      *
      * @throws JsonError    Error with json string
-     *
-     * @since 3.1
      */
     public async void deserialize_dict_into_async (
         HashMap dict

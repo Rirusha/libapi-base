@@ -18,12 +18,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+[Version (since = "3.0")]
 /**
  * Request object. Can handle parameters, headers, content.
  * {@link Session.exec} and {@link Session.exec_async}
  * form message via {@link form_message} and set this to readonly
- *
- * @since 3.0
  */
 public class ApiBase.Request : Object {
 
@@ -118,13 +117,12 @@ public class ApiBase.Request : Object {
         );
     }
 
+    [Version (since = "4.0")]
     /**
      * Add header with header object
      *
      * @param header    Header object
      * @param replace   Replace existing header with equal name or not
-     *
-     * @since 4.0
      */
     public void add_header (string name, string value, bool replace = true) {
         add_header_struct ({ name, value }, replace);
@@ -139,13 +137,12 @@ public class ApiBase.Request : Object {
         headers.add (header);
     }
 
+    [Version (since = "3.0")]
     /**
      * Add header with header objects array
      *
      * @param headers   Header objects array
      * @param replace   Replace existing header with equal name or not
-     *
-     * @since 3.0
      */
     public void add_headers (Header[] headers, bool replace = true) {
         foreach (var header in headers) {
@@ -153,13 +150,12 @@ public class ApiBase.Request : Object {
         }
     }
 
+    [Version (since = "4.0")]
     /**
      * Add parameter with parameter data
      *
      * @param name      Parameter name
      * @param value     Parameter value
-     *
-     * @since 4.0
      */
     public void add_param (string name, string value) {
         add_param_struct ({ name, value });
@@ -171,12 +167,11 @@ public class ApiBase.Request : Object {
         parameters.add (parameter);
     }
 
+    [Version (since = "3.0")]
     /**
      * Add parameters with an array
      *
      * @param parameters Parameter objeccts array
-     *
-     * @since 3.0
      */
     public void add_parameters (Param[] parameters) {
         foreach (var parameter in parameters) {
@@ -184,12 +179,11 @@ public class ApiBase.Request : Object {
         }
     }
 
+    [Version (since = "6.0")]
     /**
      * Add content to request
      *
      * @param content  Content object
-     *
-     * @since 6.0
      */
     public void add_content (Content content) {
         assert (message == null);
@@ -198,14 +192,13 @@ public class ApiBase.Request : Object {
         this.content = content;
     }
 
+    [Version (since = "3.0")]
     /**
      * Get status code from internal {@link Soup.Message}.
      * Must be run after {@link form_message} or
      * {@link Session.exec}/{@link Session.exec_async}
      *
      * @return  Status
-     *
-     * @since 3.0
      */
     public Soup.Status get_status_code () {
         assert (message != null);
@@ -213,11 +206,10 @@ public class ApiBase.Request : Object {
         return message.get_status ();
     }
 
+    [Version (since = "5.0")]
     /**
      * Get formed message object
      * @return  Response body
-     *
-     * @since 5.0
      */
     public Soup.Message form_message () {
         if (message != null) {
@@ -261,13 +253,12 @@ public class ApiBase.Request : Object {
         return new_uri;
     }
 
+    [Version (since = "3.0")]
     /**
      * Simple request execution.
      *
      * @throws SoupError            Internal error from libsoup
      * @throws BadStatusCodeError   Bad status code from request
-     *
-     * @since 3.0
      */
     public GLib.Bytes simple_exec (
         Cancellable? cancellable = null
@@ -276,13 +267,12 @@ public class ApiBase.Request : Object {
         return soup_wrapper.exec (this, cancellable);
     }
 
+    [Version (since = "3.0")]
     /**
      * Asynchronious version of {@link simple_exec}
      *
      * @throws SoupError            Internal error from libsoup
      * @throws BadStatusCodeError   Bad status code from request
-     *
-     * @since 3.0
      */
     public async GLib.Bytes simple_exec_async (
         int priority = Priority.DEFAULT,

@@ -16,27 +16,20 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-/**
- * @since 6.0
- */
+[Version (since = "6.0")]
 public struct ApiBase.Content {
 
     public ContentType content_type;
     string content;
 
-    /**
-     * @since 6.0
-     *
-     * @return content bytes
-     */
+    [Version (since = "6.0")]
     public Bytes get_bytes () {
         return new Bytes (content.data);
     }
 
+    [Version (since = "6.0")]
     /**
      * Set content dict
-     *
-     * @since 6.0
      */
     public void set_dict (Gee.HashMap<string, string> dict) {
         switch (content_type) {
@@ -51,10 +44,9 @@ public struct ApiBase.Content {
             }
     }
 
+    [Version (since = "6.0")]
     /**
      * Set content datalist
-     *
-     * @since 6.0
      */
     public void set_datalist (Datalist<string> datalist) {
         switch (content_type) {
