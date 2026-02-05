@@ -18,6 +18,52 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+namespace ApiBase.Enum {
+
+    [Version (since = "5.1")]
+    /**
+     * @param nick              String enum in snake case
+     *
+     * @return                  Enum
+     */
+    public EnumType get_by_nick<EnumType> (string nick) {
+        assert (typeof (EnumType).is_enum ());
+        return get_by_nick_gtype (typeof (EnumType), nick);
+    }
+
+    [Version (since = "5.1")]
+    /**
+     * @param enum_             Enum
+     *
+     * @return                  Nick
+     */
+    public string get_nick<EnumType> (EnumType enum_) {
+        assert (typeof (EnumType).is_enum ());
+        return get_nick_gtype (typeof (EnumType), (int) enum_);
+    }
+
+    internal EnumClass get_class<EnumType> () {
+        assert (typeof (EnumType).is_enum ());
+        return get_class_gtype (typeof (EnumType));
+    }
+
+    internal EnumClass get_class_gtype (Type enum_type) {
+        return (EnumClass) enum_type.class_ref ();
+    }
+
+    public int get_by_nick_gtype (Type enum_type, string nick) {
+        var enum_class = get_class_gtype (enum_type);
+        return enum_class.get_value_by_nick (Convert.snake2kebab (nick)).value;
+    }
+
+    public string get_nick_gtype (Type enum_type, int enum_) {
+        var enum_class = get_class_gtype (enum_type);
+        var enum_value = enum_class.get_value (enum_);
+
+        return Convert.kebab2snake (enum_value.value_nick.down ());
+    }
+}
+
 public enum ApiBase.HttpMethod {
     GET,
     HEAD,

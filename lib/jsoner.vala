@@ -389,15 +389,15 @@ public class ApiBase.Jsoner : Object {
 
             switch (names_case) {
                 case Case.CAMEL:
-                    builder.set_member_name (kebab2camel (strip (property.name, '-')));
+                    builder.set_member_name (Convert.kebab2camel (Convert.strip (property.name, '-')));
                     break;
 
                 case Case.SNAKE:
-                    builder.set_member_name (kebab2snake (strip (property.name, '-')));
+                    builder.set_member_name (Convert.kebab2snake (Convert.strip (property.name, '-')));
                     break;
 
                 case Case.KEBAB:
-                    builder.set_member_name (strip (property.name, '-'));
+                    builder.set_member_name (Convert.strip (property.name, '-'));
                     break;
 
                 default:
@@ -657,27 +657,27 @@ public class ApiBase.Jsoner : Object {
                 continue;
             }
 
-            var stripped_name = strip (property.name, '-');
+            var stripped_name = Convert.strip (property.name, '-');
             if (props_data.has_key (stripped_name)) {
                 warning ("Detected property collision");
             }
-            props_data[strip (property.name, '-')] = property;
+            props_data[Convert.strip (property.name, '-')] = property;
         }
 
         foreach (var member_name in node.get_object ().get_members ()) {
             string kebabbed_member_name;
             switch (names_case) {
                 case Case.CAMEL:
-                    kebabbed_member_name = camel2kebab (member_name);
+                    kebabbed_member_name = Convert.camel2kebab (member_name);
                     break;
                 case Case.SNAKE:
-                    kebabbed_member_name = snake2kebab (member_name);
+                    kebabbed_member_name = Convert.snake2kebab (member_name);
                     break;
                 case Case.KEBAB:
                     kebabbed_member_name = member_name;
                     break;
                 case Case.AUTO:
-                    kebabbed_member_name = any2kebab (member_name);
+                    kebabbed_member_name = Convert.any2kebab (member_name);
                     break;
                 default:
                     assert_not_reached ();

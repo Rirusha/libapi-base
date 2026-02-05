@@ -141,9 +141,9 @@ string get_name_with_c (string name, ApiBase.Case c) {
         case KEBAB:
             return name;
         case SNAKE:
-            return kebab2snake (name);
+            return Convert.kebab2snake (name);
         case CAMEL:
-            return kebab2camel (name);
+            return Convert.kebab2camel (name);
         default:
             assert_not_reached ();
     }
