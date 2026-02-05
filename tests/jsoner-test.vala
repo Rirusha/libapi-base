@@ -110,13 +110,14 @@ public class TestObjectAlbum : ApiBase.DataObject {
 }
 
 public class TestObjectAlbum2 : ApiBase.DataObject {
-    public Gee.ArrayList<Gee.ArrayList<TestObjectInt>> value { get; set; }
+    public Gee.ArrayList<Gee.ArrayList<Gee.HashMap<string, int>>> value { get; set; }
 
     public override ApiBase.CollectionFactory[] collection_factories (string property_name) {
         if (property_name == "value") {
             return {
                 new ApiBase.ArrayFactory<Gee.ArrayList> (),
-                new ApiBase.ArrayFactory<TestObjectInt> ()
+                new ApiBase.ArrayFactory<Gee.HashMap> (),
+                new ApiBase.DictFactory<int> ()
             };
         }
         return {};
@@ -635,10 +636,10 @@ public int main (string[] args) {
             var jsoner = new Jsoner ("{\"value\":[[{\"value\":7}],[{\"value\":98}]]}");
             var result = jsoner.deserialize_object<TestObjectAlbum2> ();
 
-            if (result.value[0][0].value != 7 || result.value[1][0].value != 98) {
+            if (result.value[0][0]["value"] != 7 || result.value[1][0]["value"] != 98) {
                 Test.fail_printf (
-                    result.value[0][0].value.to_string () + " != 7\n" +
-                    result.value[1][0].value.to_string () + " != 98\n"
+                    result.value[0][0]["value"].to_string () + " != 7\n" +
+                    result.value[1][0]["value"].to_string () + " != 98\n"
                 );
             }
         } catch (JsonError e) {
