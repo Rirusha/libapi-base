@@ -279,4 +279,73 @@ namespace ApiBase.Convert {
                 assert_not_reached ();
         }
     }
+
+    /**
+     * Convert kebab-case to specified case
+     *
+     * @param str   String
+     * @param case_ Case
+     *
+     * @return Specified case string
+     *
+     * @since 6.0
+     */
+    public string kebab2any (string str, Case case_) {
+        switch (case_) {
+            case Case.CAMEL:
+                return kebab2camel (str);
+            case Case.SNAKE:
+                return kebab2snake (str);
+            case Case.KEBAB:
+                return str;
+            default:
+                assert_not_reached ();
+        }
+    }
+
+    /**
+     * Convert snake_case to specified case
+     *
+     * @param str   String
+     * @param case_ Case
+     *
+     * @return Specified case string
+     *
+     * @since 6.0
+     */
+    public string snake2any (string str, Case case_) {
+        switch (case_) {
+            case Case.CAMEL:
+                return snake2camel (str);
+            case Case.SNAKE:
+                return str;
+            case Case.KEBAB:
+                return snake2kebab (str);
+            default:
+                assert_not_reached ();
+        }
+    }
+
+    /**
+     * Convert camelCase to specified case
+     *
+     * @param str   String
+     * @param case_ Case
+     *
+     * @return Specified case string
+     *
+     * @since 6.0
+     */
+    public string camel2any (string str, Case case_) {
+        switch (case_) {
+            case Case.CAMEL:
+                return str;
+            case Case.SNAKE:
+                return camel2snake (str);
+            case Case.KEBAB:
+                return camel2kebab (str);
+            default:
+                assert_not_reached ();
+        }
+    }
 }
