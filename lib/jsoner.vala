@@ -182,7 +182,10 @@ public class ApiBase.Jsoner : Object {
 
         if (obj is HashMap) {
             var dict = (HashMap) obj;
-            serialize_hash_map (builder, dict, dict.value_type, names_case, ignore_default);
+            serialize_dict (builder, dict, dict.value_type, names_case, ignore_default);
+        } else if (obj is ArrayList) {
+            var arr = (ArrayList) obj;
+            serialize_array (builder, arr, arr.element_type, names_case, ignore_default);
         } else {
             serialize_object (builder, obj, names_case, ignore_default);
         }
@@ -211,14 +214,17 @@ public class ApiBase.Jsoner : Object {
         builder.begin_array ();
 
         if (element_type == typeof (ArrayList)) {
-            var array_of_arrays = (ArrayList<ArrayList?>) array_list;
+            var array_of_arrays = (ArrayList<ArrayList>) array_list;
 
-            if (array_of_arrays.size > 0) {
-                Type sub_element_type = ((ArrayList<ArrayList?>) array_list)[0].element_type;
+            foreach (var sub_array_list in array_of_arrays) {
+                serialize_array (builder, sub_array_list, sub_array_list.element_type, names_case, ignore_default);
+            }
 
-                foreach (var sub_array_list in (ArrayList<ArrayList?>) array_list) {
-                    serialize_array (builder, sub_array_list, sub_element_type, names_case, ignore_default);
-                }
+        } else if (element_type == typeof (HashMap)) {
+            var array_of_maps = (ArrayList<HashMap>) array_list;
+
+            foreach (var sub_hash_map in array_of_maps) {
+                serialize_dict (builder, sub_hash_map, sub_hash_map.element_type, names_case, ignore_default);
             }
 
         } else if (element_type.is_object ()) {
@@ -266,7 +272,7 @@ public class ApiBase.Jsoner : Object {
         builder.end_array ();
     }
 
-    static void serialize_hash_map (
+    static void serialize_dict (
         Json.Builder builder,
         HashMap dict,
         Type element_type,
@@ -277,9 +283,29 @@ public class ApiBase.Jsoner : Object {
             names_case = Case.KEBAB;
         }
 
+        if (dict.key_type != Type.STRING) {
+            error ("HashMap can only have string as key type");
+        }
+
         builder.begin_object ();
 
-        if (element_type.is_object ()) {
+        if (element_type == typeof (ArrayList)) {
+            var dict_of_arrays = (HashMap<string, ArrayList>) dict;
+
+            foreach (var sub_array_list in dict_of_arrays) {
+                builder.set_member_name (sub_array_list.key);
+                serialize_array (builder, sub_array_list.value, sub_array_list.value.element_type, names_case, ignore_default);
+            }
+
+        } else if (element_type == typeof (HashMap)) {
+            var dict_of_dicts = (HashMap<string, HashMap>) dict;
+
+            foreach (var sub_dict in dict_of_dicts) {
+                builder.set_member_name (sub_dict.key);
+                serialize_dict (builder, sub_dict.value, sub_dict.value.element_type, names_case, ignore_default);
+            }
+
+        } else if (element_type.is_object ()) {
             foreach (var entry in (HashMap<string, Object>) dict) {
                 builder.set_member_name (entry.key);
                 serialize_object (builder, entry.value, names_case, ignore_default);
@@ -389,7 +415,7 @@ public class ApiBase.Jsoner : Object {
                 var hash_map = (HashMap) prop_val.get_object ();
                 Type element_type = hash_map.value_type;
 
-                serialize_hash_map (builder, hash_map, element_type, names_case, ignore_default);
+                serialize_dict (builder, hash_map, element_type, names_case, ignore_default);
 
             } else if (property.value_type.is_object ()) {
                 serialize_object (builder, (Object) prop_val.get_object (), names_case, ignore_default);
@@ -470,11 +496,10 @@ public class ApiBase.Jsoner : Object {
     public static T simple_from_json<T> (
         string json,
         string[]? sub_members = null,
-        Case names_case = Case.AUTO,
-        SubCollectionCreationFunc? sub_creation_func = null
+        Case names_case = Case.AUTO
     ) throws JsonError {
         var jsoner = new Jsoner (json, sub_members, names_case);
-        return jsoner.deserialize_object<T> (sub_creation_func);
+        return jsoner.deserialize_object<T> ();
     }
 
     /**
@@ -499,10 +524,10 @@ public class ApiBase.Jsoner : Object {
         string json,
         string[]? sub_members = null,
         Case names_case = Case.AUTO,
-        SubCollectionCreationFunc? sub_creation_func = null
+        CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
         var jsoner = new Jsoner (json, sub_members, names_case);
-        return jsoner.deserialize_array<T> (sub_creation_func);
+        return jsoner.deserialize_array<T> (collection_hierarchy);
     }
 
     /**
@@ -527,10 +552,10 @@ public class ApiBase.Jsoner : Object {
         string json,
         string[]? sub_members = null,
         Case names_case = Case.AUTO,
-        SubCollectionCreationFunc? sub_creation_func = null
+        CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
         var jsoner = new Jsoner (json, sub_members, names_case);
-        return jsoner.deserialize_dict<T> (sub_creation_func);
+        return jsoner.deserialize_dict<T> (collection_hierarchy);
     }
 
     /**
@@ -545,10 +570,8 @@ public class ApiBase.Jsoner : Object {
      *
      * @since 3.0
      */
-    public T deserialize_object<T> (
-        SubCollectionCreationFunc? sub_creation_func = null
-    ) throws JsonError {
-        return deserialize_object_by_type (typeof (T), sub_creation_func);
+    public T deserialize_object<T> () throws JsonError {
+        return deserialize_object_by_type (typeof (T));
     }
 
     /**
@@ -565,16 +588,14 @@ public class ApiBase.Jsoner : Object {
      * @since 3.0
      */
     public Object deserialize_object_by_type (
-        GLib.Type obj_type,
-        SubCollectionCreationFunc? sub_creation_func = null
+        GLib.Type obj_type
     ) throws JsonError {
-        return deserialize_object_by_type_real (obj_type, null, sub_creation_func);
+        return deserialize_object_by_type_real (obj_type, null);
     }
 
     internal Object deserialize_object_by_type_real (
         GLib.Type obj_type,
-        Json.Node? node = null,
-        SubCollectionCreationFunc? sub_creation_func = null
+        Json.Node? node = null
     ) throws JsonError {
         var obj = Object.new (obj_type);
         if (obj_type.is_a (typeof (TypeFamily))) {
@@ -586,7 +607,7 @@ public class ApiBase.Jsoner : Object {
             obj = Object.new (actual_type);
         }
 
-        deserialize_object_into_real (obj, node, sub_creation_func);
+        deserialize_object_into_real (obj, node);
 
         return obj;
     }
@@ -603,16 +624,14 @@ public class ApiBase.Jsoner : Object {
      * @since 3.0
      */
     public void deserialize_object_into (
-        Object obj,
-        SubCollectionCreationFunc? sub_creation_func = null
+        Object obj
     ) throws JsonError {
-        deserialize_object_into_real (obj, null, sub_creation_func);
+        deserialize_object_into_real (obj, null);
     }
 
     internal void deserialize_object_into_real (
         Object obj,
-        Json.Node? node = null,
-        SubCollectionCreationFunc? sub_creation_func = null
+        Json.Node? node = null
     ) throws JsonError {
         if (node == null) {
             node = root;
@@ -689,7 +708,22 @@ public class ApiBase.Jsoner : Object {
                     obj.get_property (property.name, ref arrayval);
                     ArrayList array_list = (Gee.ArrayList) arrayval.get_object ();
 
-                    deserialize_array_into_real (array_list, sub_node, sub_creation_func);
+                    CollectionFactory[] carr = {};
+                    var data_obj = obj as DataObject;
+                    if (data_obj != null) {
+                        carr = data_obj.collection_factories (property.name);
+                    }
+
+                    assert (array_list != null || carr.length != 0);
+
+                    if (carr.length != 0) {
+                        assert (carr[0] is ArrayFactory);
+                        array_list = (ArrayList) carr[0].build ();
+                    }
+
+                    carr = carr[1:carr.length];
+
+                    deserialize_array_into_real (array_list, sub_node, carr);
                     obj.set_property (
                         property.name,
                         array_list
@@ -702,7 +736,22 @@ public class ApiBase.Jsoner : Object {
                         obj.get_property (property.name, ref dictval);
                         HashMap hash_map = (HashMap) dictval.get_object ();
 
-                        deserialize_dict_into_real (hash_map, sub_node, sub_creation_func);
+                        CollectionFactory[] carr = {};
+                        var data_obj = obj as DataObject;
+                        if (data_obj != null) {
+                            carr = data_obj.collection_factories (property.name);
+                        }
+
+                        assert (hash_map != null || carr.length != 0);
+
+                        if (carr.length != 0) {
+                            assert (carr[0] is DictFactory);
+                            hash_map = (HashMap) carr[0].build ();
+                        }
+
+                        carr = carr[1:carr.length];
+
+                        deserialize_dict_into_real (hash_map, sub_node, carr);
                         obj.set_property (
                             property.name,
                             hash_map
@@ -712,7 +761,7 @@ public class ApiBase.Jsoner : Object {
                     } else {
                         obj.set_property (
                             property.name,
-                            deserialize_object_by_type_real (prop_type, sub_node, sub_creation_func)
+                            deserialize_object_by_type_real (prop_type, sub_node)
                         );
                     }
 
@@ -787,17 +836,17 @@ public class ApiBase.Jsoner : Object {
     /**
      * Method for deserializing the {@link Gee.ArrayList}
      *
-     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
+     * @param collection_hierarchy A function for creating subsets in the case of arrays in an array
      *
      * @throws JsonError    Error with json string
      *
      * @since 3.1
      */
     public ArrayList<T> deserialize_array<T> (
-        SubCollectionCreationFunc? sub_creation_func = null
+        CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
         var array_list = new ArrayList<T> ();
-        deserialize_array_into (array_list, sub_creation_func);
+        deserialize_array_into (array_list, collection_hierarchy);
         return array_list;
     }
 
@@ -805,21 +854,21 @@ public class ApiBase.Jsoner : Object {
      * Method for deserializing the {@link Gee.ArrayList}
      *
      * @param array_list        Array
-     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
+     * @param collection_hierarchy A function for creating subsets in the case of arrays in an array
      *
      * @throws JsonError    Error with json string
      */
     public void deserialize_array_into (
         ArrayList array_list,
-        SubCollectionCreationFunc? sub_creation_func = null
+        CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
-        deserialize_array_into_real (array_list, null, sub_creation_func);
+        deserialize_array_into_real (array_list, null, collection_hierarchy);
     }
 
     internal void deserialize_array_into_real (
         ArrayList array_list,
         Json.Node? node = null,
-        SubCollectionCreationFunc? sub_creation_func = null
+        CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
         if (node == null) {
             node = root;
@@ -836,32 +885,33 @@ public class ApiBase.Jsoner : Object {
         var jarray = node.get_array ();
 
         if (array_list.element_type == typeof (ArrayList)) {
-            var narray_list = array_list as ArrayList<ArrayList>;
+            var collection_factory = collection_hierarchy[0];
 
-            assert (narray_list.size != 0);
-
-            Type sub_element_type = narray_list[0].element_type;
+            assert (collection_factory is ArrayFactory);
 
             foreach (var sub_node in jarray.get_elements ()) {
-                Traversable new_col;
-
-                if (sub_creation_func != null) {
-                    sub_creation_func (out new_col, sub_element_type);
-
-                } else {
-                    error ("Creation func is null");
-                }
-
-                assert (new_col is ArrayList);
-                var new_array_list = (ArrayList) new_col;
-
+                var arr_obj = (ArrayList) collection_factory.build ();
                 try {
-                    deserialize_array_into_real (new_array_list, sub_node, sub_creation_func);
-                    narray_list.add (new_array_list);
+                    deserialize_array_into_real (arr_obj, sub_node, collection_hierarchy[1:collection_hierarchy.length]);
+
+                    ((ArrayList<ArrayList>) array_list).add (arr_obj);
                 } catch (JsonError e) {}
             }
 
-            narray_list.remove (narray_list[0]);
+        } else if (array_list.element_type == typeof (HashMap)) {
+            var collection_factory = collection_hierarchy[0];
+
+            assert (collection_factory is DictFactory);
+
+            foreach (var sub_node in jarray.get_elements ()) {
+                var dict_obj = (HashMap) collection_factory.build ();
+                try {
+                    deserialize_dict_into_real (dict_obj, sub_node, collection_hierarchy[1:collection_hierarchy.length]);
+
+                    ((ArrayList<HashMap>) array_list).add (dict_obj);
+                } catch (JsonError e) {}
+            }
+
         } else if (array_list.element_type.is_object ()) {
             array_list.clear ();
             var narray_list = array_list as ArrayList<Object>;
@@ -882,28 +932,23 @@ public class ApiBase.Jsoner : Object {
 
                 switch (array_list.element_type) {
                     case Type.STRING:
-                        var narray_list = array_list as ArrayList<string>;
-                        narray_list.add (new_val.get_string ());
+                        ((ArrayList<string>) array_list).add (new_val.get_string ());
                         break;
 
                     case Type.INT:
-                        var narray_list = array_list as ArrayList<int>;
-                        narray_list.add (new_val.get_int ());
+                        ((ArrayList<int>) array_list).add (new_val.get_int ());
                         break;
 
                     case Type.INT64:
-                        var narray_list = array_list as ArrayList<int64?>;
-                        narray_list.add (new_val.get_int64 ());
+                        ((ArrayList<int64?>) array_list).add (new_val.get_int64 ());
                         break;
 
                     case Type.DOUBLE:
-                        var narray_list = array_list as ArrayList<double?>;
-                        narray_list.add (new_val.get_double ());
+                        ((ArrayList<double?>) array_list).add (new_val.get_double ());
                         break;
 
                     case Type.BOOLEAN:
-                        var narray_list = array_list as ArrayList<bool>;
-                        narray_list.add (new_val.get_boolean ());
+                        ((ArrayList<bool>) array_list).add (new_val.get_boolean ());
                         break;
 
                     default:
@@ -919,17 +964,15 @@ public class ApiBase.Jsoner : Object {
     /**
      * Method for deserializing the {@link Gee.HashMap}
      *
-     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
-     *
      * @throws JsonError    Error with json string
      *
      * @since 3.1
      */
     public HashMap<string, T> deserialize_dict<T> (
-        SubCollectionCreationFunc? sub_creation_func = null
+        CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
         var dict = new HashMap<string, T> ();
-        deserialize_dict_into (dict, sub_creation_func);
+        deserialize_dict_into (dict, collection_hierarchy);
         return dict;
     }
 
@@ -937,7 +980,6 @@ public class ApiBase.Jsoner : Object {
      * Method for deserializing the {@link Gee.HashMap}
      *
      * @param dict              Dict
-     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
      *
      * @throws JsonError    Error with json string
      *
@@ -945,15 +987,15 @@ public class ApiBase.Jsoner : Object {
      */
     public void deserialize_dict_into (
         HashMap dict,
-        SubCollectionCreationFunc? sub_creation_func = null
+        CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
-        deserialize_dict_into_real (dict, null, sub_creation_func);
+        deserialize_dict_into_real (dict, null, collection_hierarchy);
     }
 
     internal void deserialize_dict_into_real (
         HashMap dict,
         Json.Node? node = null,
-        SubCollectionCreationFunc? sub_creation_func = null
+        CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
         if (node == null) {
             node = root;
@@ -971,27 +1013,54 @@ public class ApiBase.Jsoner : Object {
             error ("HashMap can only have string as key type");
         }
 
+        dict.clear ();
         var jobject = node.get_object ();
 
-        if (dict.value_type.is_object ()) {
-            dict.clear ();
-            var narray_list = dict as HashMap<string, Object>;
+        if (dict.value_type == typeof (ArrayList)) {
+            var collection_factory = collection_hierarchy[0];
 
+            assert (collection_factory is ArrayFactory);
+
+            foreach (var member_name in jobject.get_members ()) {
+                var arr_obj = (ArrayList) collection_factory.build ();
+                var sub_node = jobject.get_member (member_name);
+
+                try {
+                    deserialize_array_into_real (arr_obj, sub_node, collection_hierarchy[1:collection_hierarchy.length]);
+
+                    ((HashMap<string, ArrayList>) dict)[member_name] = arr_obj;
+                } catch (JsonError e) {}
+            }
+
+        } else if (dict.value_type == typeof (HashMap)) {
+            var collection_factory = collection_hierarchy[0];
+
+            assert (collection_factory is DictFactory);
+
+            foreach (var member_name in jobject.get_members ()) {
+                var dict_obj = (HashMap) collection_factory.build ();
+                var sub_node = jobject.get_member (member_name);
+
+                try {
+                    deserialize_dict_into_real (dict_obj, sub_node, collection_hierarchy[1:collection_hierarchy.length]);
+
+                    ((HashMap<string, HashMap>) dict)[member_name] = dict_obj;
+                } catch (JsonError e) {}
+            }
+
+        } else if (dict.value_type.is_object ()) {
             foreach (var member_name in jobject.get_members ()) {
                 var sub_node = jobject.get_member (member_name);
 
                 try {
-                    narray_list[member_name] = deserialize_object_by_type_real (
-                        narray_list.value_type,
-                        sub_node,
-                        sub_creation_func
+                    ((HashMap<string, Object>) dict)[member_name] = deserialize_object_by_type_real (
+                        dict.value_type,
+                        sub_node
                     );
                 } catch (JsonError e) {}
             }
 
         } else {
-            dict.clear ();
-
             foreach (var member_name in jobject.get_members ()) {
                 var sub_node = jobject.get_member (member_name);
                 var dval = deserialize_value_real (sub_node);
@@ -1000,28 +1069,23 @@ public class ApiBase.Jsoner : Object {
 
                 switch (dict.value_type) {
                     case Type.STRING:
-                        var narray_list = dict as HashMap<string, string>;
-                        narray_list[member_name] = new_val.get_string ();
+                        ((HashMap<string, string>) dict)[member_name] = new_val.get_string ();
                         break;
 
                     case Type.INT:
-                        var narray_list = dict as HashMap<string, int>;
-                        narray_list[member_name] = new_val.get_int ();
+                        ((HashMap<string, int>) dict)[member_name] = new_val.get_int ();
                         break;
 
                     case Type.INT64:
-                        var narray_list = dict as HashMap<string, int64?>;
-                        narray_list[member_name] = new_val.get_int64 ();
+                        ((HashMap<string, int64?>) dict)[member_name] = new_val.get_int64 ();
                         break;
 
                     case Type.DOUBLE:
-                        var narray_list = dict as HashMap<string, double?>;
-                        narray_list[member_name] = new_val.get_double ();
+                        ((HashMap<string, double?>) dict)[member_name] = new_val.get_double ();
                         break;
 
                     case Type.BOOLEAN:
-                        var narray_list = dict as HashMap<string, bool>;
-                        narray_list[member_name] = new_val.get_boolean ();
+                        ((HashMap<string, bool>) dict)[member_name] = new_val.get_boolean ();
                         break;
 
                     default:
@@ -1066,8 +1130,6 @@ public class ApiBase.Jsoner : Object {
      * @param json              Json string
      * @param sub_members       Sub members to 'steps'
      * @param names_case        Case of names in json
-     * @param sub_creation_func Function for creating collection
-     *                          objects with generics
      *
      * @return                  Deserialized object
      *
@@ -1078,8 +1140,7 @@ public class ApiBase.Jsoner : Object {
     public async static T simple_from_json_async<T> (
         string json,
         string[]? sub_members = null,
-        Case names_case = Case.AUTO,
-        SubCollectionCreationFunc? sub_creation_func = null
+        Case names_case = Case.AUTO
     ) throws JsonError {
         JsonError? error = null;
 
@@ -1090,8 +1151,7 @@ public class ApiBase.Jsoner : Object {
                 result = simple_from_json<T> (
                     json,
                     sub_members,
-                    names_case,
-                    sub_creation_func
+                    names_case
                 );
             } catch (JsonError e) {
                 error = e;
@@ -1116,8 +1176,6 @@ public class ApiBase.Jsoner : Object {
      * @param json              Json string
      * @param sub_members       Sub members to 'steps'
      * @param names_case        Case of names in json
-     * @param sub_creation_func Function for creating collection
-     *                          objects with generics
      *
      * @return                  Deserialized array
      *
@@ -1128,8 +1186,7 @@ public class ApiBase.Jsoner : Object {
     public async static ArrayList<T> simple_array_from_json_async<T> (
         string json,
         string[]? sub_members = null,
-        Case names_case = Case.AUTO,
-        SubCollectionCreationFunc? sub_creation_func = null
+        Case names_case = Case.AUTO
     ) throws JsonError {
         JsonError? error = null;
 
@@ -1140,8 +1197,7 @@ public class ApiBase.Jsoner : Object {
                 result = simple_array_from_json<T> (
                     json,
                     sub_members,
-                    names_case,
-                    sub_creation_func
+                    names_case
                 );
             } catch (JsonError e) {
                 error = e;
@@ -1166,8 +1222,6 @@ public class ApiBase.Jsoner : Object {
      * @param json              Json string
      * @param sub_members       Sub members to 'steps'
      * @param names_case        Case of names in json
-     * @param sub_creation_func Function for creating collection
-     *                          objects with generics
      *
      * @return                  Deserialized dict
      *
@@ -1178,8 +1232,7 @@ public class ApiBase.Jsoner : Object {
     public async static HashMap<string, T> simple_dict_from_json_async<T> (
         string json,
         string[]? sub_members = null,
-        Case names_case = Case.AUTO,
-        SubCollectionCreationFunc? sub_creation_func = null
+        Case names_case = Case.AUTO
     ) throws JsonError {
         JsonError? error = null;
 
@@ -1190,8 +1243,7 @@ public class ApiBase.Jsoner : Object {
                 result = simple_dict_from_json<T> (
                     json,
                     sub_members,
-                    names_case,
-                    sub_creation_func
+                    names_case
                 );
             } catch (JsonError e) {
                 error = e;
@@ -1213,25 +1265,20 @@ public class ApiBase.Jsoner : Object {
     /**
      * Asynchronous version of method {@link deserialize_object}
      *
-     * @param sub_creation_func Function for creating collection
-     *                          objects with generics
-     *
      * @return  Deserialized object
      *
      * @throws JsonError    Error with json string
      *
      * @since 3.0
      */
-    public async T deserialize_object_async<T> (
-        SubCollectionCreationFunc? sub_creation_func = null
-    ) throws JsonError {
+    public async T deserialize_object_async<T> () throws JsonError {
         JsonError? error = null;
 
         var thread = new Thread<T?> (null, () => {
             T? result = null;
 
             try {
-                result = deserialize_object<T> (sub_creation_func);
+                result = deserialize_object<T> ();
             } catch (JsonError e) {
                 error = e;
             }
@@ -1255,8 +1302,7 @@ public class ApiBase.Jsoner : Object {
      * @throws JsonError    Error with json string
      */
     public async Object deserialize_object_by_type_async (
-        GLib.Type obj_type,
-        SubCollectionCreationFunc? sub_creation_func = null
+        GLib.Type obj_type
     ) throws JsonError {
         JsonError? error = null;
 
@@ -1264,7 +1310,7 @@ public class ApiBase.Jsoner : Object {
             Object? result = null;
 
             try {
-                result = deserialize_object_by_type (obj_type, sub_creation_func);
+                result = deserialize_object_by_type (obj_type);
             } catch (JsonError e) {
                 error = e;
             }
@@ -1288,14 +1334,13 @@ public class ApiBase.Jsoner : Object {
      * @throws JsonError    Error with json string
      */
     public async void deserialize_object_into_async (
-        Object obj,
-        SubCollectionCreationFunc? sub_creation_func = null
+        Object obj
     ) throws JsonError {
         JsonError? error = null;
 
         var thread = new Thread<void> (null, () => {
             try {
-                deserialize_object_into (obj, sub_creation_func);
+                deserialize_object_into (obj);
             } catch (JsonError e) {
                 error = e;
             }
@@ -1316,22 +1361,18 @@ public class ApiBase.Jsoner : Object {
     /**
      * Asynchronous version of method {@link deserialize_array}
      *
-     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
-     *
      * @throws JsonError    Error with json string
      *
      * @since 3.1
      */
-    public async ArrayList<T> deserialize_array_async<T> (
-        SubCollectionCreationFunc? sub_creation_func = null
-    ) throws JsonError {
+    public async ArrayList<T> deserialize_array_async<T> () throws JsonError {
         JsonError? error = null;
 
         var thread = new Thread<ArrayList<T>?> (null, () => {
             ArrayList<T>? result = null;
 
             try {
-                result = deserialize_array (sub_creation_func);
+                result = deserialize_array ();
             } catch (JsonError e) {
                 error = e;
             }
@@ -1353,21 +1394,19 @@ public class ApiBase.Jsoner : Object {
      * Asynchronous version of method {@link deserialize_array_into}
      *
      * @param array_list        Array
-     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
      *
      * @throws JsonError    Error with json string
      *
      * @since 3.0
      */
     public async void deserialize_array_into_async (
-        ArrayList array_list,
-        SubCollectionCreationFunc? sub_creation_func = null
+        ArrayList array_list
     ) throws JsonError {
         JsonError? error = null;
 
         var thread = new Thread<void> (null, () => {
             try {
-                deserialize_array_into (array_list, sub_creation_func);
+                deserialize_array_into (array_list);
             } catch (JsonError e) {
                 error = e;
             }
@@ -1388,22 +1427,18 @@ public class ApiBase.Jsoner : Object {
     /**
      * Asynchronous version of method {@link deserialize_dict}
      *
-     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
-     *
      * @throws JsonError    Error with json string
      *
      * @since 3.1
      */
-    public async HashMap<string, T> deserialize_dict_async<T> (
-        SubCollectionCreationFunc? sub_creation_func = null
-    ) throws JsonError {
+    public async HashMap<string, T> deserialize_dict_async<T> () throws JsonError {
         JsonError? error = null;
 
         var thread = new Thread<HashMap<string, T>?> (null, () => {
             HashMap<string, T>? result = null;
 
             try {
-                result = deserialize_dict (sub_creation_func);
+                result = deserialize_dict<T> ();
             } catch (JsonError e) {
                 error = e;
             }
@@ -1425,21 +1460,19 @@ public class ApiBase.Jsoner : Object {
      * Asynchronous version of method {@link deserialize_dict_into}
      *
      * @param dict              Dict
-     * @param sub_creation_func A function for creating subsets in the case of arrays in an array
      *
      * @throws JsonError    Error with json string
      *
      * @since 3.1
      */
     public async void deserialize_dict_into_async (
-        HashMap dict,
-        SubCollectionCreationFunc? sub_creation_func = null
+        HashMap dict
     ) throws JsonError {
         JsonError? error = null;
 
         var thread = new Thread<void> (null, () => {
             try {
-                deserialize_dict_into (dict, sub_creation_func);
+                deserialize_dict_into (dict);
             } catch (JsonError e) {
                 error = e;
             }

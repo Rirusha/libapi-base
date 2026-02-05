@@ -9,6 +9,7 @@ vala_sources = files(
   'session/request.vala',
   'session/session.vala',
 
+  'collection-factory.vala',
   'data-object.vala',
   'enums.vala',
   'errors.vala',
