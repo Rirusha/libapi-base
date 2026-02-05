@@ -64,26 +64,6 @@ public enum ApiBase.ContentType {
     }
 }
 
-[Version (deprecated = true, deprecated_since = "6.0", replacement = "api_base_content_type")]
-/**
- * Supported post content types
- */
-public enum ApiBase.PostContentType {
-    X_WWW_FORM_URLENCODED,
-    JSON;
-
-    public string to_string () {
-        switch (this) {
-            case X_WWW_FORM_URLENCODED:
-                return "application/x-www-form-urlencoded";
-            case JSON:
-                return "application/json";
-            default:
-                assert_not_reached ();
-        }
-    }
-}
-
 /**
  * Name cases. With AUTO {@link Jsoner} will try detect name case for every member of
  * json object. Useful for working with bad API developers

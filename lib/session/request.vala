@@ -198,22 +198,6 @@ public class ApiBase.Request : Object {
         this.content = content;
     }
 
-    [Version (deprecated = true, deprecated_since = "6.0", replacement = "api_base_request_add_content", since = "3.0")]
-    /**
-     * Add post content to request
-     *
-     * @param post_content  Post content object
-     */
-    public void add_post_content (PostContent post_content) {
-        assert (message == null);
-        assert (method == HttpMethod.POST);
-
-        this.content = {
-            content_type: ContentType.from_string (post_content.content_type.to_string ()),
-            content: post_content.content
-        };
-    }
-
     /**
      * Get status code from internal {@link Soup.Message}.
      * Must be run after {@link form_message} or

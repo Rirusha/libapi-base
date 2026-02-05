@@ -231,16 +231,6 @@ namespace ApiBase {
         }
     }
 
-    [Version (deprecated = true, deprecated_since = "6.0", replacement = "api_base_enum_get_by_nick")]
-    public int get_enum_by_nick (Type enum_type, string nick) {
-        return Enum.get_by_nick_gtype (enum_type, nick);
-    }
-
-    [Version (deprecated = true, deprecated_since = "6.0", replacement = "api_base_enum_get_nick")]
-    public string get_enum_nick (Type enum_type, int enum_) {
-        return Enum.get_nick_gtype (enum_type, enum_);
-    }
-
     public Datalist<T> hashmap_to_datalist<T> (Gee.HashMap<string, T> hash_map) {
         var dl = Datalist<T> ();
 
