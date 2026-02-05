@@ -95,11 +95,31 @@ public class TestObjectArrayArray : Object {
     public Gee.ArrayList<Gee.ArrayList<SimpleObject>> value { get; set; default = new Gee.ArrayList<Gee.ArrayList<SimpleObject>> (); }
 }
 
-public class TestObjectAlbum : Object {
+public class TestObjectAlbum : ApiBase.DataObject {
     public Gee.ArrayList<Gee.ArrayList<TestObjectInt>> value { get; set; default = new Gee.ArrayList<Gee.ArrayList<TestObjectInt>> (); }
 
-    construct {
-        value.add (new Gee.ArrayList<TestObjectInt> ());
+    public override ApiBase.CollectionFactory[] collection_factories (string property_name) {
+        if (property_name == "value") {
+            return {
+                new ApiBase.ArrayFactory<Gee.ArrayList> (),
+                new ApiBase.ArrayFactory<TestObjectInt> ()
+            };
+        }
+        return {};
+    }
+}
+
+public class TestObjectAlbum2 : ApiBase.DataObject {
+    public Gee.ArrayList<Gee.ArrayList<TestObjectInt>> value { get; set; }
+
+    public override ApiBase.CollectionFactory[] collection_factories (string property_name) {
+        if (property_name == "value") {
+            return {
+                new ApiBase.ArrayFactory<Gee.ArrayList> (),
+                new ApiBase.ArrayFactory<TestObjectInt> ()
+            };
+        }
+        return {};
     }
 }
 
@@ -585,7 +605,7 @@ public int main (string[] args) {
             if (result.value[0].string_value != "Baby one more time" || result.value[1].int_value != 17 || result.value[2].bool_value != true) {
                 Test.fail_printf (
                     result.value[0].string_value + " != Baby one more time\n" +
-                    result.value[1].int_value.to_string () + " != 17\n" +
+                    result.value[1].int_value.to_string () + " != 17 || " +
                     result.value[2].bool_value.to_string () + " != true"
                 );
             }
@@ -597,7 +617,23 @@ public int main (string[] args) {
     Test.add_func ("/jsoner/deserialize/array/array", () => {
         try {
             var jsoner = new Jsoner ("{\"value\":[[{\"value\":7}],[{\"value\":98}]]}");
-            var result = jsoner.deserialize_object<TestObjectAlbum> (sub_creation);
+            var result = jsoner.deserialize_object<TestObjectAlbum> ();
+
+            if (result.value[0][0].value != 7 || result.value[1][0].value != 98) {
+                Test.fail_printf (
+                    result.value[0][0].value.to_string () + " != 7 || " +
+                    result.value[1][0].value.to_string () + " != 98\n"
+                );
+            }
+        } catch (JsonError e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
+    Test.add_func ("/jsoner/deserialize/array/array2", () => {
+        try {
+            var jsoner = new Jsoner ("{\"value\":[[{\"value\":7}],[{\"value\":98}]]}");
+            var result = jsoner.deserialize_object<TestObjectAlbum2> ();
 
             if (result.value[0][0].value != 7 || result.value[1][0].value != 98) {
                 Test.fail_printf (
@@ -637,13 +673,4 @@ public int main (string[] args) {
     });
 
     return Test.run ();
-}
-
-void sub_creation (out Gee.Traversable collection, Type element_type) {
-    if (element_type == typeof (TestObjectInt)) {
-        collection = new Gee.ArrayList<TestObjectInt> ();
-        return;
-    }
-
-    assert_not_reached ();
 }

@@ -44,4 +44,17 @@ public abstract class ApiBase.DataObject : Object {
     public string to_json (Case names_case = Case.AUTO) {
         return Jsoner.serialize (this, names_case);
     }
+
+    /**
+     * Function for creating collection objects with generics. Used only
+     * for Collection<Collection<...>> types. Collection<Collection<Collection<...>>>
+     * doesn't supports.
+     *
+     * @param property_name Property name
+     *
+     * @return              Collection object
+     */
+    public virtual CollectionFactory[] collection_factories (string property_name) {
+        return {};
+    }
 }
