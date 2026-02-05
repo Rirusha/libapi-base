@@ -3,7 +3,7 @@
 
 %define _unpackaged_files_terminate_build 1
 
-%define api_version 5
+%define api_version 6
 %define minor_version 0
 %define gir_name ApiBase
 
