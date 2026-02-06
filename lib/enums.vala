@@ -37,9 +37,9 @@ namespace ApiBase.Enum {
      *
      * @return                  Nick
      */
-    public string get_nick<EnumType> (EnumType enum_, Case case_ = Case.KEBAB) {
+    public string get_nick<EnumType> (EnumType enum_) {
         assert (typeof (EnumType).is_enum ());
-        return get_nick_gtype (typeof (EnumType), (int) enum_, case_);
+        return get_nick_gtype (typeof (EnumType), (int) enum_);
     }
 
     internal EnumClass get_class<EnumType> () {
@@ -53,14 +53,14 @@ namespace ApiBase.Enum {
 
     public int get_by_nick_gtype (Type enum_type, string nick) {
         var enum_class = get_class_gtype (enum_type);
-        return enum_class.get_value_by_nick (Convert.any2kebab (nick)).value;
+        return enum_class.get_value_by_nick (Convert.snake2kebab (nick)).value;
     }
 
-    public string get_nick_gtype (Type enum_type, int enum_, Case case_ = Case.KEBAB) {
+    public string get_nick_gtype (Type enum_type, int enum_) {
         var enum_class = get_class_gtype (enum_type);
         var enum_value = enum_class.get_value (enum_);
 
-        return Convert.kebab2any (enum_value.value_nick.down (), case_);
+        return Convert.kebab2snake (enum_value.value_nick.down ());
     }
 }
 

@@ -420,7 +420,7 @@ public class ApiBase.Jsoner : Object {
                 serialize_object (builder, (Object) prop_val.get_object (), names_case, ignore_default);
 
             } else if (property.value_type.is_enum ()) {
-                serialize_enum_gtype (builder, property.value_type, prop_val, names_case);
+                serialize_enum_gtype (builder, property.value_type, prop_val);
 
             } else {
                 serialize_value (builder, prop_val);
@@ -430,8 +430,8 @@ public class ApiBase.Jsoner : Object {
         builder.end_object ();
     }
 
-    static void serialize_enum_gtype (Json.Builder builder, Type enum_type, Value prop_val, Case names_case) {
-        builder.add_string_value (Enum.get_nick_gtype (enum_type, prop_val.get_enum (), names_case));
+    static void serialize_enum_gtype (Json.Builder builder, Type enum_type, Value prop_val) {
+        builder.add_string_value (Enum.get_nick_gtype (enum_type, prop_val.get_enum ()));
     }
 
     static void serialize_value (Json.Builder builder, Value prop_val) {
