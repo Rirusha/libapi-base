@@ -65,7 +65,7 @@ public class TestObjectDouble : DataObject {
 }
 
 public enum TestEnum {
-    VALUE_1,
+    VALUE1,
     VALUE_2,
 }
 
@@ -183,7 +183,7 @@ public int main (string[] args) {
             var result = Jsoner.serialize (test_object, c);
 
             if (result != expectation) {
-                Test.fail_printf (result + " != " + expectation);
+                Test.fail_printf (result + "\n!=\n" + expectation);
             }
         }
     });

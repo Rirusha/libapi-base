@@ -60,7 +60,7 @@ namespace ApiBase.Enum {
         var enum_class = get_class_gtype (enum_type);
         var enum_value = enum_class.get_value (enum_);
 
-        return Convert.kebab2snake (enum_value.value_nick.down ());
+        return Convert.kebab2snake (enum_value.value_nick);
     }
 }
 
