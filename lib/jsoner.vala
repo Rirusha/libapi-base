@@ -431,7 +431,7 @@ public class ApiBase.Jsoner : Object {
     }
 
     static void serialize_enum_gtype (Json.Builder builder, Type enum_type, Value prop_val) {
-        builder.add_string_value (Enum.get_nick_gtype (enum_type, prop_val.get_enum ()));
+        builder.add_int_value (prop_val.get_enum ());
     }
 
     static void serialize_value (Json.Builder builder, Value prop_val) {
@@ -763,10 +763,21 @@ public class ApiBase.Jsoner : Object {
                 case Json.NodeType.VALUE:
                     var val = deserialize_value_real (sub_node);
                     if (prop_type.is_enum ()) {
-                        obj.set_property (
-                            property.name,
-                            Enum.get_by_nick_gtype (prop_type, val.get_string ())
-                        );
+                        if (val.type () == Type.INT64) {
+                            obj.set_property (
+                                property.name,
+                                val.get_int64 ()
+                            );
+
+                        } else if (val.type () == Type.STRING) {
+                            obj.set_property (
+                                property.name,
+                                Enum.get_by_nick_gtype (prop_type, val.get_string ())
+                            );
+
+                        } else {
+                            assert_not_reached ();
+                        }
 
                     } else {
                         var new_val = Value (prop_type);
