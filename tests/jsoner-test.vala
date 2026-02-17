@@ -232,7 +232,7 @@ public int main (string[] args) {
                 Test.fail_printf (@"$(result.type_) != $(TYPE_)");
             }
             if (result.error_code != ERROR_CODE) {
-                Test.fail_printf (@"$(result.type_) != $(ERROR_CODE)");
+                Test.fail_printf (@"$(result.error_code) != $(ERROR_CODE)");
             }
             if (result.custom_nick_val != CUSTOM_NICK_VAL) {
                 Test.fail_printf (@"$(result.custom_nick_val) != $(CUSTOM_NICK_VAL)");
