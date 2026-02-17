@@ -20,6 +20,15 @@
 
 /**
  * A class with convenient methods for fast de/serialization
+ *
+ * To change json property name, change property nick via Description attribure
+ * Example: `custom_nick` will be `renamed` in json data
+ * {{{
+ *   public class ValuesData : DataObject {
+ *      [Description (nick="renamed")]
+ *      public string custom_nick { get; set; }
+ *   }
+ * }}}
  */
 public abstract class ApiBase.DataObject : Object {
 
