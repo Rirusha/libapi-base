@@ -380,6 +380,7 @@ public class ApiBase.Jsoner : Object {
             }
 
             var prop_val = Value (property.value_type);
+            var prop_name = property.get_nick ();
             api_obj.get_property (property.name, ref prop_val);
 
             if (ignore_default && property.value_defaults (prop_val)) {
@@ -388,15 +389,15 @@ public class ApiBase.Jsoner : Object {
 
             switch (names_case) {
                 case Case.CAMEL:
-                    builder.set_member_name (Convert.kebab2camel (Convert.strip (property.name, '-')));
+                    builder.set_member_name (Convert.kebab2camel (Convert.strip (prop_name, '-')));
                     break;
 
                 case Case.SNAKE:
-                    builder.set_member_name (Convert.kebab2snake (Convert.strip (property.name, '-')));
+                    builder.set_member_name (Convert.kebab2snake (Convert.strip (prop_name, '-')));
                     break;
 
                 case Case.KEBAB:
-                    builder.set_member_name (Convert.strip (property.name, '-'));
+                    builder.set_member_name (Convert.strip (prop_name, '-'));
                     break;
 
                 default:
@@ -650,11 +651,11 @@ public class ApiBase.Jsoner : Object {
                 continue;
             }
 
-            var stripped_name = Convert.strip (property.name, '-');
+            var stripped_name = Convert.strip (property.get_nick (), '-');
             if (props_data.has_key (stripped_name)) {
                 warning ("Detected property collision");
             }
-            props_data[Convert.strip (property.name, '-')] = property;
+            props_data[stripped_name] = property;
         }
 
         foreach (var member_name in node.get_object ().get_members ()) {
