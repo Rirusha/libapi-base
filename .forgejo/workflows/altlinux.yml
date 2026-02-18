@@ -1,0 +1,35 @@
+name: Main
+
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'altlinux'
+
+jobs:
+  build-altlinux:
+    name: Build RPM for altlinux
+
+    runs-on: als-tiny
+    container:
+      image: altlinux.space/actions/runner/hasherc:sisyphus
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: 'altlinux'
+          fetch-tags: true
+          fetch-depth: 0
+
+      - uses: alt-gnome/build-rpm-action@main
+        name: Build RPMs
+
+      - uses: alt-gnome/upload-rpm-action@main
+        name: Upload RPMs
+        if: github.event_name != 'pull_request'
+        with:
+          directory: ~/.cache/hasherc/libapi-base/out/RPMS
+          token: ${{ secrets.TOKEN }}
+          group: libapi-base
