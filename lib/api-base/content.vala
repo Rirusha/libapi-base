@@ -34,10 +34,10 @@ public struct ApiBase.Content {
     public void set_dict (Gee.HashMap<string, string> dict) {
         switch (content_type) {
             case X_WWW_FORM_URLENCODED:
-                content = Soup.Form.encode_datalist (hashmap_to_datalist<string> (dict));
+                content = Soup.Form.encode_datalist (Serialize.hashmap_to_datalist<string> (dict));
                 break;
             case JSON:
-                content = Jsoner.serialize (dict);
+                content = Serialize.Jsoner.serialize (dict);
                 break;
             default:
                 assert_not_reached ();
@@ -54,7 +54,7 @@ public struct ApiBase.Content {
                 content = Soup.Form.encode_datalist (datalist);
                 break;
             case JSON:
-                content = Jsoner.serialize (datalist_to_hashmap<string> (datalist));
+                content = Serialize.Jsoner.serialize (Serialize.datalist_to_hashmap<string> (datalist));
                 break;
             default:
                 assert_not_reached ();

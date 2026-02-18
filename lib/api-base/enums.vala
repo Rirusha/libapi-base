@@ -18,52 +18,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-namespace ApiBase.Enum {
-
-    [Version (since = "5.1")]
-    /**
-     * @param nick              String enum in snake case
-     *
-     * @return                  Enum
-     */
-    public EnumType get_by_nick<EnumType> (string nick) {
-        assert (typeof (EnumType).is_enum ());
-        return get_by_nick_gtype (typeof (EnumType), nick);
-    }
-
-    [Version (since = "5.1")]
-    /**
-     * @param enum_             Enum
-     *
-     * @return                  Nick
-     */
-    public string get_nick<EnumType> (EnumType enum_, Case case_) {
-        assert (typeof (EnumType).is_enum ());
-        return get_nick_gtype (typeof (EnumType), (int) enum_, case_);
-    }
-
-    internal EnumClass get_class<EnumType> () {
-        assert (typeof (EnumType).is_enum ());
-        return get_class_gtype (typeof (EnumType));
-    }
-
-    internal EnumClass get_class_gtype (Type enum_type) {
-        return (EnumClass) enum_type.class_ref ();
-    }
-
-    public int get_by_nick_gtype (Type enum_type, string nick) {
-        var enum_class = get_class_gtype (enum_type);
-        return enum_class.get_value_by_nick (Convert.any2kebab (nick)).value;
-    }
-
-    public string get_nick_gtype (Type enum_type, int enum_, Case case_) {
-        var enum_class = get_class_gtype (enum_type);
-        var enum_value = enum_class.get_value (enum_);
-
-        return Convert.kebab2any (enum_value.value_nick, case_);
-    }
-}
-
 public enum ApiBase.HttpMethod {
     GET,
     HEAD,
@@ -76,7 +30,7 @@ public enum ApiBase.HttpMethod {
     CONNECT;
 
     public string to_string () {
-        return Enum.get_class<HttpMethod> ().get_value (this).value_nick.up ();
+        return Serialize.Enum.get_class<HttpMethod> ().get_value (this).value_nick.up ();
     }
 }
 
@@ -108,17 +62,6 @@ public enum ApiBase.ContentType {
                 assert_not_reached ();
         }
     }
-}
-
-/**
- * Name cases. With AUTO {@link Jsoner} will try detect name case for every member of
- * json object. Useful for working with bad API developers
- */
-public enum ApiBase.Case {
-    AUTO,
-    SNAKE,
-    KEBAB,
-    CAMEL;
 }
 
 /**

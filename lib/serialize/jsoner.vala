@@ -19,12 +19,13 @@
 
 using Gee;
 
-[Version (since = "0.1.0")]
+[Version (since = "6.0")]
 /**
  * Json helper for de/serialization
  */
-public class ApiBase.Jsoner : Object {
+public class Serialize.Jsoner : Object {
 
+    [Version (since = "6.0")]
     /**
      * Helper interface for chosing class to deserialize
      */
@@ -44,6 +45,7 @@ public class ApiBase.Jsoner : Object {
 
     public Json.Node root { private get; construct; }
 
+    [Version (since = "6.0")]
     /**
      * Performs initialization for deserialization. Accepts a json string. In case of
      * a parsing error
@@ -88,6 +90,7 @@ public class ApiBase.Jsoner : Object {
         Object (root: node, names_case: names_case);
     }
 
+    [Version (since = "6.0")]
     /**
      * Performs initialization for deserialization. Accepts a json string in the
      * form of bytes, the object {@link GLib.Bytes}. In case of a parsing error
@@ -110,6 +113,7 @@ public class ApiBase.Jsoner : Object {
         this.from_data (bytes.get_data (), sub_members, names_case);
     }
 
+    [Version (since = "6.0")]
     /**
      * Performs initialization for deserialization. Accepts a json string in the form of bytes,
      * an {@link uint8} array. In case of a parsing error
@@ -157,6 +161,7 @@ public class ApiBase.Jsoner : Object {
     // Serialize  //
     /////////////////
 
+    [Version (since = "6.0")]
     /**
      * Serialize {@link GLib.Object} into a correct json string
      *
@@ -474,7 +479,7 @@ public class ApiBase.Jsoner : Object {
     // Deserialize  //
     ///////////////////
 
-    [Version (since = "3.1")]
+    [Version (since = "6.0")]
     /**
      * Object creation method from json 
      * via {@link Jsoner.deserialize_object}
@@ -500,7 +505,7 @@ public class ApiBase.Jsoner : Object {
         return jsoner.deserialize_object<T> ();
     }
 
-    [Version (since = "3.1")]
+    [Version (since = "6.0")]
     /**
      * Array creation method from json 
      * via {@link Jsoner.deserialize_array}
@@ -527,7 +532,7 @@ public class ApiBase.Jsoner : Object {
         return jsoner.deserialize_array<T> (collection_hierarchy);
     }
 
-    [Version (since = "3.1")]
+    [Version (since = "6.0")]
     /**
      * Dict creation method from json 
      * via {@link Jsoner.deserialize_dict}
@@ -554,7 +559,7 @@ public class ApiBase.Jsoner : Object {
         return jsoner.deserialize_dict<T> (collection_hierarchy);
     }
 
-    [Version (since = "3.0")]
+    [Version (since = "6.0")]
     /**
      * Method for deserializing the {@link GLib.Object}
      *
@@ -569,7 +574,7 @@ public class ApiBase.Jsoner : Object {
         return deserialize_object_by_type (typeof (T));
     }
 
-    [Version (since = "3.0")]
+    [Version (since = "6.0")]
     /**
      * Method for deserializing the {@link GLib.Object} with {@link GLib.Type}
      *
@@ -606,7 +611,7 @@ public class ApiBase.Jsoner : Object {
         return obj;
     }
 
-    [Version (since = "3.0")]
+    [Version (since = "6.0")]
     /**
      * Method for deserializing into existing object
      *
@@ -809,6 +814,7 @@ public class ApiBase.Jsoner : Object {
         obj.thaw_notify ();
     }
 
+    [Version (since = "6.0")]
     /**
      * Method for deserializing the {@link GLib.Value}
      *
@@ -837,7 +843,7 @@ public class ApiBase.Jsoner : Object {
         return node.get_value ();
     }
 
-    [Version (since = "3.1")]
+    [Version (since = "6.0")]
     /**
      * Method for deserializing the {@link Gee.ArrayList}
      *
@@ -853,6 +859,7 @@ public class ApiBase.Jsoner : Object {
         return array_list;
     }
 
+    [Version (since = "6.0")]
     /**
      * Method for deserializing the {@link Gee.ArrayList}
      *
@@ -964,7 +971,7 @@ public class ApiBase.Jsoner : Object {
         }
     }
 
-    [Version (since = "3.1")]
+    [Version (since = "6.0")]
     /**
      * Method for deserializing the {@link Gee.HashMap}
      *
@@ -978,7 +985,7 @@ public class ApiBase.Jsoner : Object {
         return dict;
     }
 
-    [Version (since = "3.0")]
+    [Version (since = "6.0")]
     /**
      * Method for deserializing the {@link Gee.HashMap}
      *
@@ -1101,6 +1108,7 @@ public class ApiBase.Jsoner : Object {
 
     // ASYNC
 
+    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link serialize}
      */
@@ -1125,7 +1133,7 @@ public class ApiBase.Jsoner : Object {
         return thread.join ();
     }
 
-    [Version (since = "3.1")]
+    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link simple_from_json_async}
      *
@@ -1170,7 +1178,7 @@ public class ApiBase.Jsoner : Object {
         return thread.join ();
     }
 
-    [Version (since = "3.1")]
+    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link simple_array_from_json_async}
      *
@@ -1215,7 +1223,7 @@ public class ApiBase.Jsoner : Object {
         return thread.join ();
     }
 
-    [Version (since = "3.1")]
+    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link simple_dict_from_json_async}
      *
@@ -1260,7 +1268,7 @@ public class ApiBase.Jsoner : Object {
         return thread.join ();
     }
 
-    [Version (since = "3.0")]
+    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link deserialize_object}
      *
@@ -1293,6 +1301,7 @@ public class ApiBase.Jsoner : Object {
         return thread.join ();
     }
 
+    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link deserialize_object_by_type}
      *
@@ -1325,6 +1334,7 @@ public class ApiBase.Jsoner : Object {
         return thread.join ();
     }
 
+    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link deserialize_object_into}
      *
@@ -1355,7 +1365,7 @@ public class ApiBase.Jsoner : Object {
         thread.join ();
     }
 
-    [Version (since = "3.1")]
+    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link deserialize_array}
      *
@@ -1386,7 +1396,7 @@ public class ApiBase.Jsoner : Object {
         return thread.join ();
     }
 
-    [Version (since = "3.0")]
+    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link deserialize_array_into}
      *
@@ -1419,7 +1429,7 @@ public class ApiBase.Jsoner : Object {
         thread.join ();
     }
 
-    [Version (since = "3.1")]
+    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link deserialize_dict}
      *
@@ -1450,7 +1460,7 @@ public class ApiBase.Jsoner : Object {
         return thread.join ();
     }
 
-    [Version (since = "3.1")]
+    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link deserialize_dict_into}
      *

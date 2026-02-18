@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-namespace ApiBase {
+namespace Serialize {
 
     internal bool type_is_valid (Type type_) {
         Type[] supported_base_types = {
@@ -41,6 +41,7 @@ namespace ApiBase {
                 !find_generic (type_));
     }
 
+    [Version (since = "6.0")]
     /**
      * Check GType on valid for using as Jsoner dataclass for
      * de/serialization. On fail will used {@link GLib.error}
@@ -141,45 +142,7 @@ namespace ApiBase {
         return false;
     }
 
-    internal BadStatusCodeError get_error (Soup.Status status_code, string error_response) {
-        switch (status_code) {
-            case Soup.Status.BAD_REQUEST:
-                return new BadStatusCodeError.BAD_REQUEST (error_response);
-            case Soup.Status.UNAUTHORIZED:
-                return new BadStatusCodeError.UNAUTHORIZED (error_response);
-            case Soup.Status.FORBIDDEN:
-                return new BadStatusCodeError.FORBIDDEN (error_response);
-            case Soup.Status.NOT_FOUND:
-                return new BadStatusCodeError.NOT_FOUND (error_response);
-            case Soup.Status.METHOD_NOT_ALLOWED:
-                return new BadStatusCodeError.METHOD_NOT_ALLOWED (error_response);
-            case Soup.Status.REQUEST_TIMEOUT:
-                return new BadStatusCodeError.REQUEST_TIMEOUT (error_response);
-            case Soup.Status.CONFLICT:
-                return new BadStatusCodeError.CONFLICT (error_response);
-            case Soup.Status.GONE:
-                return new BadStatusCodeError.GONE (error_response);
-            case Soup.Status.REQUEST_ENTITY_TOO_LARGE:
-                return new BadStatusCodeError.PAYLOAD_TOO_LARGE (error_response);
-            case Soup.Status.UNSUPPORTED_MEDIA_TYPE:
-                return new BadStatusCodeError.UNSUPPORTED_MEDIA_TYPE (error_response);
-            case 429:
-                return new BadStatusCodeError.TOO_MANY_REQUESTS (error_response);
-            case Soup.Status.INTERNAL_SERVER_ERROR:
-                return new BadStatusCodeError.INTERNAL_SERVER_ERROR (error_response);
-            case Soup.Status.NOT_IMPLEMENTED:
-                return new BadStatusCodeError.NOT_IMPLEMENTED (error_response);
-            case Soup.Status.BAD_GATEWAY:
-                return new BadStatusCodeError.BAD_GATEWAY (error_response);
-            case Soup.Status.SERVICE_UNAVAILABLE:
-                return new BadStatusCodeError.SERVICE_UNAVAILABLE (error_response);
-            case Soup.Status.GATEWAY_TIMEOUT:
-                return new BadStatusCodeError.GATEWAY_TIMEOUT (error_response);
-            default:
-                return new BadStatusCodeError.UNKNOWN (status_code.to_string () + ": " + error_response);
-        }
-    }
-
+    [Version (since = "6.0")]
     public Datalist<T> hashmap_to_datalist<T> (Gee.HashMap<string, T> hash_map) {
         var dl = Datalist<T> ();
 
@@ -190,6 +153,7 @@ namespace ApiBase {
         return dl;
     }
 
+    [Version (since = "6.0")]
     public Gee.HashMap<string, T> datalist_to_hashmap<T> (Datalist<T> datalist) {
         var hash_map = new Gee.HashMap<string, T> ();
 

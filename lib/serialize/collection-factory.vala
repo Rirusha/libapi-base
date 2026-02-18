@@ -18,7 +18,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-public abstract class ApiBase.CollectionFactory<T> : Object {
+[Version (since = "6.0")]
+public abstract class Serialize.CollectionFactory<T> : Object {
 
     public Type element_type {
         get {
@@ -29,7 +30,8 @@ public abstract class ApiBase.CollectionFactory<T> : Object {
     public abstract Gee.Traversable<T> build ();
 }
 
-public sealed class ApiBase.ArrayFactory<T> : ApiBase.CollectionFactory<T> {
+[Version (since = "6.0")]
+public sealed class Serialize.ArrayFactory<T> : Serialize.CollectionFactory<T> {
 
     unowned Gee.EqualDataFunc? equal_func;
 
@@ -42,7 +44,8 @@ public sealed class ApiBase.ArrayFactory<T> : ApiBase.CollectionFactory<T> {
     }
 }
 
-public sealed class ApiBase.DictFactory<T> : ApiBase.CollectionFactory<T> {
+[Version (since = "6.0")]
+public sealed class Serialize.DictFactory<T> : Serialize.CollectionFactory<T> {
 
     unowned Gee.EqualDataFunc? equal_data_func;
 

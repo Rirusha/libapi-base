@@ -2,6 +2,7 @@
 // vala-lint=skip-file
 
 using ApiBase;
+using Serialize;
 
 class UserAgentInfo : DataObject {
     public string user_agent { get; set; }

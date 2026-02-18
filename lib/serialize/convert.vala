@@ -18,7 +18,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-namespace ApiBase.Convert {
+namespace Serialize.Convert {
 
     internal Case detect_case (string str) {
         for (uint i = 0; i < str.char_count (); i++) {
@@ -54,7 +54,7 @@ namespace ApiBase.Convert {
         return str[start:end];
     }
 
-    [Version (since = "0.1.0")]
+    [Version (since = "6.0")]
     /**
      * Convert `сamelCase` to `kebab-case` string
      *
@@ -104,7 +104,7 @@ namespace ApiBase.Convert {
         return builder.free_and_steal ();
     }
 
-    [Version (since = "0.1.0")]
+    [Version (since = "6.0")]
     /**
      * Convert `kebab-case` to `сamelCase` string
      *
@@ -129,7 +129,7 @@ namespace ApiBase.Convert {
         return builder.free_and_steal ();
     }
 
-    [Version (since = "0.1.0")]
+    [Version (since = "6.0")]
     /**
      * Convert `kebab-case` to `snake_case` string
      *
@@ -153,7 +153,7 @@ namespace ApiBase.Convert {
         return builder.free_and_steal ();
     }
 
-    [Version (since = "0.1.0")]
+    [Version (since = "6.0")]
     /**
      * Convert `snake_case` to `kebab-case` string
      *
@@ -202,7 +202,7 @@ namespace ApiBase.Convert {
         return builder.free_and_steal ();
     }
 
-    [Version (since = "3.0")]
+    [Version (since = "6.0")]
     /**
      * Convert any case string to kebab-case
      *

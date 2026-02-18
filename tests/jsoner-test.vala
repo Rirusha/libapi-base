@@ -1,7 +1,7 @@
 // ind-check=skip-file
 // vala-lint=skip-file
 
-using ApiBase;
+using Serialize;
 
 const string STRING_VAL_NAME = "string-val";
 const string STRING_VAL = "test";
@@ -95,29 +95,29 @@ public class TestObjectArrayArray : Object {
     public Gee.ArrayList<Gee.ArrayList<SimpleObject>> value { get; set; default = new Gee.ArrayList<Gee.ArrayList<SimpleObject>> (); }
 }
 
-public class TestObjectAlbum : ApiBase.DataObject {
+public class TestObjectAlbum : DataObject {
     public Gee.ArrayList<Gee.ArrayList<TestObjectInt>> value { get; set; default = new Gee.ArrayList<Gee.ArrayList<TestObjectInt>> (); }
 
-    public override ApiBase.CollectionFactory[] collection_factories (string property_name) {
+    public override CollectionFactory[] collection_factories (string property_name) {
         if (property_name == "value") {
             return {
-                new ApiBase.ArrayFactory<Gee.ArrayList> (),
-                new ApiBase.ArrayFactory<TestObjectInt> ()
+                new ArrayFactory<Gee.ArrayList> (),
+                new ArrayFactory<TestObjectInt> ()
             };
         }
         return {};
     }
 }
 
-public class TestObjectAlbum2 : ApiBase.DataObject {
+public class TestObjectAlbum2 : DataObject {
     public Gee.ArrayList<Gee.ArrayList<Gee.HashMap<string, int>>> value { get; set; }
 
-    public override ApiBase.CollectionFactory[] collection_factories (string property_name) {
+    public override CollectionFactory[] collection_factories (string property_name) {
         if (property_name == "value") {
             return {
-                new ApiBase.ArrayFactory<Gee.ArrayList> (),
-                new ApiBase.ArrayFactory<Gee.HashMap> (),
-                new ApiBase.DictFactory<int> ()
+                new ArrayFactory<Gee.ArrayList> (),
+                new ArrayFactory<Gee.HashMap> (),
+                new DictFactory<int> ()
             };
         }
         return {};
@@ -136,7 +136,7 @@ public class TestObjectFamilyParent: Object, Jsoner.TypeFamily {
 }
 public class TestObjectFamilyChild: TestObjectFamilyParent {}
 
-string get_name_with_c (string name, ApiBase.Case c) {
+string get_name_with_c (string name, Case c) {
     switch (c) {
         case KEBAB:
             return name;
@@ -149,7 +149,7 @@ string get_name_with_c (string name, ApiBase.Case c) {
     }
 }
 
-string get_exp_json (ApiBase.Case c) {
+string get_exp_json (Case c) {
     return "{%s}".printf (string.joinv (",", {
         @"\"$(get_name_with_c (STRING_VAL_NAME, c))\":\"$STRING_VAL\"",
         @"\"$(get_name_with_c (INT64_VAL_NAME, c))\":$INT64_VAL",
@@ -404,7 +404,7 @@ public int main (string[] args) {
         test_object.value[2].add (new SimpleObject () { int_value = 56 });
 
         string expectation = "{\"value\":[[{},{}],[{\"string-value\":\"why are we still here\",\"int-value\":42},{},{\"string-value\":\"kekw\"}],[{\"int-value\":56}]]}";
-        string result = Jsoner.serialize (test_object, ApiBase.Case.AUTO, false, true);
+        string result = Jsoner.serialize (test_object, Case.AUTO, false, true);
 
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
