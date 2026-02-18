@@ -19,6 +19,19 @@
 
 namespace Serialize {
 
+    [Version (since = "6.0")]
+    /**
+     * Helper interface for chosing class to deserialize
+     */
+    public interface TypeFamily : Object {
+        /**
+         * Return object type to deserialize
+         *
+         * @param node  Object node
+         */
+        public abstract Type match_type (Json.Node node);
+    }
+
     internal bool type_is_valid (Type type_) {
         Type[] supported_base_types = {
             Type.STRING,

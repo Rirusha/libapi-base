@@ -25,19 +25,6 @@ using Gee;
  */
 public class Serialize.Jsoner : Object {
 
-    [Version (since = "6.0")]
-    /**
-     * Helper interface for chosing class to deserialize
-     */
-    public interface TypeFamily : Object {
-        /**
-         * Return object type to deserialize
-         *
-         * @param node  Object node
-         */
-        public abstract Type match_type (Json.Node node);
-    }
-
     /**
      * Names case used for deserialization
      */

@@ -132,7 +132,7 @@ public class TestObjectAlbum2 : DataObject {
     }
 }
 
-public class TestObjectFamilyParent: Object, Jsoner.TypeFamily {
+public class TestObjectFamilyParent: Object, TypeFamily {
     public GLib.Type match_type (Json.Node node) {
         switch (node.get_object().get_string_member("type")) {
             case "child":
