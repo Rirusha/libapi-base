@@ -33,6 +33,7 @@ public class ValuesData : DataObject {
     // Strange names
 
     // Property with 'type' name cannot exists
+    [Description (nick="type")]
     public string type_ { get; set; }
     // The issue is lost, but there was an error about incorrect deserialization of "error_code"
     public int error_code { get; set; }
@@ -51,6 +52,7 @@ public class TestObjectStringCamel : Object {
 }
 
 public class TestObjectStringCamelW : Object {
+    [Description (nick="string-value")]
     public string string_value_ { get; set; }
 }
 

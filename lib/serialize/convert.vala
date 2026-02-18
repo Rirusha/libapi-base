@@ -210,16 +210,16 @@ namespace Serialize.Convert {
      *
      * @return Kebab string
      */
-    public string any2kebab (string str) {
-        var str_case = detect_case (str);
-
-        switch (str_case) {
+    public string cany2kebab (string str, Case case_) {
+        switch (case_) {
             case Case.CAMEL:
                 return camel2kebab (str);
             case Case.SNAKE:
                 return snake2kebab (str);
             case Case.KEBAB:
                 return str;
+            case Case.AUTO:
+                return any2kebab (str);
             default:
                 assert_not_reached ();
         }
@@ -233,16 +233,16 @@ namespace Serialize.Convert {
      *
      * @return Snake string
      */
-    public string any2snake (string str) {
-        var str_case = detect_case (str);
-
-        switch (str_case) {
+    public string cany2snake (string str, Case case_) {
+        switch (case_) {
             case Case.CAMEL:
                 return camel2snake (str);
             case Case.SNAKE:
                 return str;
             case Case.KEBAB:
                 return kebab2snake (str);
+            case Case.AUTO:
+                return any2snake (str);
             default:
                 assert_not_reached ();
         }
@@ -256,19 +256,59 @@ namespace Serialize.Convert {
      *
      * @return Camel string
      */
-    public string any2camel (string str) {
-        var str_case = detect_case (str);
-
-        switch (str_case) {
+    public string cany2camel (string str, Case case_) {
+        switch (case_) {
             case Case.CAMEL:
                 return str;
             case Case.SNAKE:
                 return snake2camel (str);
             case Case.KEBAB:
                 return kebab2camel (str);
+            case Case.AUTO:
+                return any2camel (str);
             default:
                 assert_not_reached ();
         }
+    }
+
+
+    [Version (since = "6.0")]
+    /**
+     * Convert any case string to kebab-case
+     *
+     * @param str   String
+     *
+     * @return Kebab string
+     */
+    public string any2kebab (string str) {
+        var str_case = detect_case (str);
+        return cany2kebab (str, str_case);
+    }
+
+    [Version (since = "6.0")]
+    /**
+     * Convert any case string to snake_case
+     *
+     * @param str   String
+     *
+     * @return Snake string
+     */
+    public string any2snake (string str) {
+        var str_case = detect_case (str);
+        return cany2snake (str, str_case);
+    }
+
+    [Version (since = "6.0")]
+    /**
+     * Convert any case string to camelCase
+     *
+     * @param str   String
+     *
+     * @return Camel string
+     */
+    public string any2camel (string str) {
+        var str_case = detect_case (str);
+        return cany2camel (str, str_case);
     }
 
     [Version (since = "6.0")]

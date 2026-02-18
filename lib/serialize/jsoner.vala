@@ -650,23 +650,7 @@ public class Serialize.Jsoner : Object {
         }
 
         foreach (var member_name in node.get_object ().get_members ()) {
-            string kebabbed_member_name;
-            switch (names_case) {
-                case Case.CAMEL:
-                    kebabbed_member_name = Convert.camel2kebab (member_name);
-                    break;
-                case Case.SNAKE:
-                    kebabbed_member_name = Convert.snake2kebab (member_name);
-                    break;
-                case Case.KEBAB:
-                    kebabbed_member_name = member_name;
-                    break;
-                case Case.AUTO:
-                    kebabbed_member_name = Convert.any2kebab (member_name);
-                    break;
-                default:
-                    assert_not_reached ();
-            }
+            var kebabbed_member_name = Convert.cany2kebab (member_name, names_case);
 
             if (!props_data.has_key (kebabbed_member_name)) {
                 var unknown_fields = Environment.get_variable ("API_BASE_UNKNOWN_FIELDS");
