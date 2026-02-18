@@ -2,10 +2,10 @@
 
 version=$1
 
-cp -a doc/serialize/serialize-$version doc/api-base/serialize-$version 
+cp -a doc/serialize/libserialize-$version doc/api-base/libserialize-$version 
 
-RPL="<li class=\"package\">serialize-$version</li>"
-TRG="<li class=\"package\"><a href=\"serialize-$version/index.htm\">serialize-$version</a></li>"
+RPL="<li class=\"package\">libserialize-$version</li>"
+TRG="<li class=\"package\"><a href=\"libserialize-$version/index.htm\">libserialize-$version</a></li>"
 
 FILE=doc/api-base/index.html
 TMP_FILE=$(mktemp)
