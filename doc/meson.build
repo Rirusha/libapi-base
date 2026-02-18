@@ -38,8 +38,7 @@ api_base_trg = custom_target(
     '--target-glib=' + glib_min_version,
     '--package-name=' + api_base_versioned_lib_name,
     '--package-version=' + libversion,
-    '--importdir=lib/serialize',
-    '--import=' + 'Serialize-6',
+    '--vapidir=' + 'lib/serialize',
     '--verbose',
     '--force',
     '-o', '@OUTPUT@',
@@ -56,6 +55,6 @@ custom_target(
   command: [ valadoc, api_version ],
   build_by_default: true,
   input : api_base_sources,
-  output: 'fix',
+  output: 'nothing',
   depends: [serialize_trg, api_base_trg]
 )
