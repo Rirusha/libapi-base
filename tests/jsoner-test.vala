@@ -19,6 +19,8 @@ const string TYPE__NAME = "type";
 const string TYPE_ = "some text";
 const string ERROR_CODE_NAME = "error-code";
 const int ERROR_CODE = 6;
+const string CUSTOM_NICK_VAL_NAME = "renamed-val";
+const string CUSTOM_NICK_VAL = "renamed";
 
 public class ValuesData : DataObject {
     public string string_val { get; set; }
@@ -34,6 +36,10 @@ public class ValuesData : DataObject {
     public string type_ { get; set; }
     // The issue is lost, but there was an error about incorrect deserialization of "error_code"
     public int error_code { get; set; }
+
+    // Property with custom nick
+    [Description (nick="renamed-val")]
+    public string custom_nick_val { get; set; }
 }
 
 public class TestObjectString : DataObject {
@@ -159,6 +165,7 @@ string get_exp_json (Case c) {
         @"\"$(get_name_with_c (ENUM_VAL_NAME, c))\":1",
         @"\"$(get_name_with_c (TYPE__NAME, c))\":\"$TYPE_\"",
         @"\"$(get_name_with_c (ERROR_CODE_NAME, c))\":$ERROR_CODE",
+        @"\"$(get_name_with_c (CUSTOM_NICK_VAL_NAME, c))\":\"$CUSTOM_NICK_VAL\"",
     }));
 }
 
@@ -178,6 +185,7 @@ public int main (string[] args) {
             test_object.enum_val = ENUM_VAL;
             test_object.type_ = TYPE_;
             test_object.error_code = ERROR_CODE;
+            test_object.custom_nick_val = CUSTOM_NICK_VAL;
 
             string expectation = get_exp_json (c);
             var result = Jsoner.serialize (test_object, c);
@@ -224,7 +232,10 @@ public int main (string[] args) {
                 Test.fail_printf (@"$(result.type_) != $(TYPE_)");
             }
             if (result.error_code != ERROR_CODE) {
-                Test.fail_printf (@"$(result.type_) != $(ERROR_CODE)");
+                Test.fail_printf (@"$(result.error_code) != $(ERROR_CODE)");
+            }
+            if (result.custom_nick_val != CUSTOM_NICK_VAL) {
+                Test.fail_printf (@"$(result.custom_nick_val) != $(CUSTOM_NICK_VAL)");
             }
         }
     });
