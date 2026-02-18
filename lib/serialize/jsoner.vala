@@ -392,23 +392,7 @@ public class Serialize.Jsoner : Object {
                 continue;
             }
 
-            switch (names_case) {
-                case Case.CAMEL:
-                    builder.set_member_name (Convert.kebab2camel (Convert.strip (prop_name, '-')));
-                    break;
-
-                case Case.SNAKE:
-                    builder.set_member_name (Convert.kebab2snake (Convert.strip (prop_name, '-')));
-                    break;
-
-                case Case.KEBAB:
-                    builder.set_member_name (Convert.strip (prop_name, '-'));
-                    break;
-
-                default:
-                    error ("Unknown case - %s", names_case.to_string ());
-            }
-
+            builder.set_member_name (Convert.kebab2any (prop_name, names_case));
 
             if (property.value_type == typeof (ArrayList)) {
                 var array_list = (ArrayList) prop_val.get_object ();
