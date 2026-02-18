@@ -52,7 +52,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: actions/deploy-pages@v1
         with:
-          directory: ./_build/doc/libapi-base-6-vala
+          directory: ./_build/doc/api-base
 
   build-altlinux:
     name: Build RPM for altlinux
