@@ -142,15 +142,16 @@ public class Serialize.Jsoner : Object {
         Json.Node node,
         string[] sub_members
     ) throws JsonError {
-        string has_members = "";
+        var members_trace = new Array<string> ();
 
         foreach (string member_name in sub_members) {
+            members_trace.append_val (member_name);
+
             if (node.get_object ().has_member (member_name)) {
                 node = node.get_object ().get_member (member_name);
-                has_members += member_name + "-";
 
             } else {
-                throw new JsonError.NO_MEMBER ("Json has no %s%s".printf (has_members, member_name));
+                throw new JsonError.NO_MEMBER ("Json has no %s".printf (string.joinv ("-", members_trace.data)));
             }
         }
 
