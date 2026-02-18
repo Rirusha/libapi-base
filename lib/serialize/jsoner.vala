@@ -641,11 +641,12 @@ public class Serialize.Jsoner : Object {
                 continue;
             }
 
-            var stripped_name = Convert.strip (property.get_nick (), '-');
-            if (props_data.has_key (stripped_name)) {
-                warning ("Detected property collision");
+            var prop_name = property.get_nick ();
+
+            if (props_data.has_key (prop_name)) {
+                warning ("Detected property collision: %s", prop_name);
             }
-            props_data[stripped_name] = property;
+            props_data[prop_name] = property;
         }
 
         foreach (var member_name in node.get_object ().get_members ()) {
