@@ -2,7 +2,7 @@ api_base_name = 'api-base'
 api_base_gir_name = 'ApiBase'
 
 api_base_versioned_name = api_base_name + '-' + api_version
-api_base_versioned_lib_name = api_base_name + '-' + api_version
+api_base_versioned_lib_name = 'lib' + api_base_name + '-' + api_version
 api_base_versioned_gir_name = api_base_gir_name + '-' + api_version
 
 api_base_deps_name = api_base_versioned_lib_name + '.deps'

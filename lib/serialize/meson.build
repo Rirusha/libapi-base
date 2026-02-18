@@ -2,7 +2,7 @@ serialize_name = 'serialize'
 serialize_gir_name = 'Serialize'
 
 serialize_versioned_name = serialize_name + '-' + api_version
-serialize_versioned_lib_name = serialize_name + '-' + api_version
+serialize_versioned_lib_name = 'lib' + serialize_name + '-' + api_version
 serialize_versioned_gir_name = serialize_gir_name + '-' + api_version
 
 serialize_deps_name = serialize_versioned_lib_name + '.deps'
