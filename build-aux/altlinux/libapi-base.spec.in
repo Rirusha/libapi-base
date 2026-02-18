@@ -154,5 +154,5 @@ Requires: %sname%api_version-gir = %EVR
 %files -n %sname%api_version-gir
 %_typelibdir/%gir_sname-%api_version.typelib
 
-%files -n $sname-gir-devel
+%files -n %sname-gir-devel
 %_girdir/%gir_sname-%api_version.gir
