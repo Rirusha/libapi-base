@@ -15,7 +15,7 @@ permissions:
 jobs:
   lint-vala:
     name: Check vala files
-    runs-on: alt-sisyphus
+    runs-on: als-tiny
     container:
       image: altlinux.space/alt-gnome/coding-style-image:latest
 
@@ -28,7 +28,7 @@ jobs:
 
   test-build:
     name: Test Build
-    runs-on: alt-sisyphus
+    runs-on: als-tiny
     needs:
       - lint-vala
       - checkers
@@ -57,7 +57,7 @@ jobs:
   build-altlinux:
     name: Build RPM for altlinux
 
-    runs-on: alt-sisyphus
+    runs-on: als-tiny
     container:
       image: altlinux.space/actions/runner/hasherc:sisyphus
     needs:
@@ -85,7 +85,7 @@ jobs:
   build-altlinux-nightly:
     name: Build Nightly RPM for altlinux
 
-    runs-on: alt-sisyphus
+    runs-on: als-tiny
     container:
       image: altlinux.space/actions/runner/hasherc:sisyphus
     needs:
