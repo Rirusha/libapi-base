@@ -28,6 +28,11 @@ serialize_vapi_sources = files(
 )
 
 serialize_vala_sources = files(
+  'jsoner/deserialize-async.vala',
+  'jsoner/deserialize-sync.vala',
+  'jsoner/serialize-async.vala',
+  'jsoner/serialize-sync.vala',
+
   'collection-factory.vala',
   'convert.vala',
   'data-object.vala',
