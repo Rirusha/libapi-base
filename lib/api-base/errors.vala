@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Vladimir Romanov <rirusha@altlinux.org>
+ * Copyright (C) 2025-2026 Vladimir Romanov <rirusha@altlinux.org>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,37 +19,9 @@
  */
 
 /**
- * Error from libjson
- *
- * @since 3.0
- */
-public errordomain ApiBase.JsonError {
-    /**
-     * Json string is empty
-     */
-    EMPTY,
-
-    /**
-     * Json string is invalid
-     */
-    INVALID,
-
-    /**
-     * Try to deserislize wrong type
-     */
-    WRONG_TYPE,
-
-    /**
-     * Try to 'step' non existing members
-     */
-    NO_MEMBER;
-}
-
-/**
  * Error from libsoup
- *
- * @since 3.0
  */
+[Version (since = "3.0")]
 public errordomain ApiBase.SoupError {
     INTERNAL,
     CANCELLED;

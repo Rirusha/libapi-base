@@ -1,7 +1,7 @@
 // ind-check=skip-file
 // vala-lint=skip-file
 
-using ApiBase;
+using Serialize;
 
 const string STRING_VAL_NAME = "string-val";
 const string STRING_VAL = "test";
@@ -19,6 +19,8 @@ const string TYPE__NAME = "type";
 const string TYPE_ = "some text";
 const string ERROR_CODE_NAME = "error-code";
 const int ERROR_CODE = 6;
+const string CUSTOM_NICK_VAL_NAME = "renamed-val";
+const string CUSTOM_NICK_VAL = "renamed";
 
 public class ValuesData : DataObject {
     public string string_val { get; set; }
@@ -31,9 +33,14 @@ public class ValuesData : DataObject {
     // Strange names
 
     // Property with 'type' name cannot exists
+    [Description (nick="type")]
     public string type_ { get; set; }
     // The issue is lost, but there was an error about incorrect deserialization of "error_code"
     public int error_code { get; set; }
+
+    // Property with custom nick
+    [Description (nick="renamed-val")]
+    public string custom_nick_val { get; set; }
 }
 
 public class TestObjectString : DataObject {
@@ -45,6 +52,7 @@ public class TestObjectStringCamel : Object {
 }
 
 public class TestObjectStringCamelW : Object {
+    [Description (nick="string-value")]
     public string string_value_ { get; set; }
 }
 
@@ -65,8 +73,8 @@ public class TestObjectDouble : DataObject {
 }
 
 public enum TestEnum {
-    VALUE_1,
-    VALUE_2,
+    VALUE1 = 0,
+    VALUE_2 = 1,
 }
 
 public class TestObjectEnum : Object {
@@ -95,37 +103,71 @@ public class TestObjectArrayArray : Object {
     public Gee.ArrayList<Gee.ArrayList<SimpleObject>> value { get; set; default = new Gee.ArrayList<Gee.ArrayList<SimpleObject>> (); }
 }
 
-public class TestObjectAlbum : Object {
+public class TestObjectAlbum : DataObject {
     public Gee.ArrayList<Gee.ArrayList<TestObjectInt>> value { get; set; default = new Gee.ArrayList<Gee.ArrayList<TestObjectInt>> (); }
 
-    construct {
-        value.add (new Gee.ArrayList<TestObjectInt> ());
+    public override CollectionFactory[] collection_factories (string property_name) {
+        if (property_name == "value") {
+            return {
+                new ArrayFactory<Gee.ArrayList> (),
+                new ArrayFactory<TestObjectInt> ()
+            };
+        }
+        return {};
     }
 }
 
-string get_name_with_c (string name, ApiBase.Case c) {
+public class TestObjectAlbum2 : DataObject {
+    public Gee.ArrayList<Gee.ArrayList<Gee.HashMap<string, int>>> value { get; set; }
+
+    public override CollectionFactory[] collection_factories (string property_name) {
+        if (property_name == "value") {
+            return {
+                new ArrayFactory<Gee.ArrayList> (),
+                new ArrayFactory<Gee.HashMap> (),
+                new DictFactory<int> ()
+            };
+        }
+        return {};
+    }
+}
+
+public class TestObjectFamilyParent: Object, TypeFamily {
+    public GLib.Type match_type (Json.Node node) {
+        switch (node.get_object().get_string_member("type")) {
+            case "child":
+                return typeof(TestObjectFamilyChild);
+            default:
+                return typeof(TestObjectFamilyParent);
+        }
+    }
+}
+public class TestObjectFamilyChild: TestObjectFamilyParent {}
+
+string get_name_with_c (string name, Case c) {
     switch (c) {
         case KEBAB:
             return name;
         case SNAKE:
-            return kebab2snake (name);
+            return Convert.kebab2snake (name);
         case CAMEL:
-            return kebab2camel (name);
+            return Convert.kebab2camel (name);
         default:
             assert_not_reached ();
     }
 }
 
-string get_exp_json (ApiBase.Case c) {
+string get_exp_json (Case c) {
     return "{%s}".printf (string.joinv (",", {
         @"\"$(get_name_with_c (STRING_VAL_NAME, c))\":\"$STRING_VAL\"",
         @"\"$(get_name_with_c (INT64_VAL_NAME, c))\":$INT64_VAL",
         @"\"$(get_name_with_c (INT_VAL_NAME, c))\":$INT_VAL",
         @"\"$(get_name_with_c (DOUBLE_VAL_NAME, c))\":$DOUBLE_VAL",
         @"\"$(get_name_with_c (BOOL_VAL_NAME, c))\":$BOOL_VAL",
-        @"\"$(get_name_with_c (ENUM_VAL_NAME, c))\":\"$(get_enum_nick (typeof (TestEnum), ENUM_VAL))\"",
+        @"\"$(get_name_with_c (ENUM_VAL_NAME, c))\":1",
         @"\"$(get_name_with_c (TYPE__NAME, c))\":\"$TYPE_\"",
         @"\"$(get_name_with_c (ERROR_CODE_NAME, c))\":$ERROR_CODE",
+        @"\"$(get_name_with_c (CUSTOM_NICK_VAL_NAME, c))\":\"$CUSTOM_NICK_VAL\"",
     }));
 }
 
@@ -145,12 +187,13 @@ public int main (string[] args) {
             test_object.enum_val = ENUM_VAL;
             test_object.type_ = TYPE_;
             test_object.error_code = ERROR_CODE;
+            test_object.custom_nick_val = CUSTOM_NICK_VAL;
 
             string expectation = get_exp_json (c);
             var result = Jsoner.serialize (test_object, c);
 
             if (result != expectation) {
-                Test.fail_printf (result + " != " + expectation);
+                Test.fail_printf (result + "\n!=\n" + expectation);
             }
         }
     });
@@ -191,7 +234,10 @@ public int main (string[] args) {
                 Test.fail_printf (@"$(result.type_) != $(TYPE_)");
             }
             if (result.error_code != ERROR_CODE) {
-                Test.fail_printf (@"$(result.type_) != $(ERROR_CODE)");
+                Test.fail_printf (@"$(result.error_code) != $(ERROR_CODE)");
+            }
+            if (result.custom_nick_val != CUSTOM_NICK_VAL) {
+                Test.fail_printf (@"$(result.custom_nick_val) != $(CUSTOM_NICK_VAL)");
             }
         }
     });
@@ -352,6 +398,26 @@ public int main (string[] args) {
 
         string expectation = "{\"value\":[[{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false}],[{\"string-value\":\"why are we still here\",\"int-value\":42,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":\"kekw\",\"int-value\":0,\"bool-value\":false}],[{\"string-value\":null,\"int-value\":56,\"bool-value\":false}]]}";
         string result = Jsoner.serialize (test_object);
+
+        if (result != expectation) {
+            Test.fail_printf (result + " != " + expectation);
+        }
+    });
+
+    Test.add_func ("/jsoner/serialize/array/array/without-default", () => {
+        var test_object = new TestObjectArrayArray ();
+        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
+        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
+        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
+        test_object.value[0].add (new SimpleObject ());
+        test_object.value[0].add (new SimpleObject ());
+        test_object.value[1].add (new SimpleObject () { string_value = "why are we still here", int_value = 42 });
+        test_object.value[1].add (new SimpleObject () { bool_value = false });
+        test_object.value[1].add (new SimpleObject () { string_value = "kekw" });
+        test_object.value[2].add (new SimpleObject () { int_value = 56 });
+
+        string expectation = "{\"value\":[[{},{}],[{\"string-value\":\"why are we still here\",\"int-value\":42},{},{\"string-value\":\"kekw\"}],[{\"int-value\":56}]]}";
+        string result = Jsoner.serialize (test_object, Case.AUTO, false, true);
 
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
@@ -553,7 +619,7 @@ public int main (string[] args) {
             if (result.value[0].string_value != "Baby one more time" || result.value[1].int_value != 17 || result.value[2].bool_value != true) {
                 Test.fail_printf (
                     result.value[0].string_value + " != Baby one more time\n" +
-                    result.value[1].int_value.to_string () + " != 17\n" +
+                    result.value[1].int_value.to_string () + " != 17 || " +
                     result.value[2].bool_value.to_string () + " != true"
                 );
             }
@@ -565,11 +631,11 @@ public int main (string[] args) {
     Test.add_func ("/jsoner/deserialize/array/array", () => {
         try {
             var jsoner = new Jsoner ("{\"value\":[[{\"value\":7}],[{\"value\":98}]]}");
-            var result = jsoner.deserialize_object<TestObjectAlbum> (sub_creation);
+            var result = jsoner.deserialize_object<TestObjectAlbum> ();
 
             if (result.value[0][0].value != 7 || result.value[1][0].value != 98) {
                 Test.fail_printf (
-                    result.value[0][0].value.to_string () + " != 7\n" +
+                    result.value[0][0].value.to_string () + " != 7 || " +
                     result.value[1][0].value.to_string () + " != 98\n"
                 );
             }
@@ -578,14 +644,47 @@ public int main (string[] args) {
         }
     });
 
+    Test.add_func ("/jsoner/deserialize/array/array2", () => {
+        try {
+            var jsoner = new Jsoner ("{\"value\":[[{\"value\":7}],[{\"value\":98}]]}");
+            var result = jsoner.deserialize_object<TestObjectAlbum2> ();
+
+            if (result.value[0][0]["value"] != 7 || result.value[1][0]["value"] != 98) {
+                Test.fail_printf (
+                    result.value[0][0]["value"].to_string () + " != 7\n" +
+                    result.value[1][0]["value"].to_string () + " != 98\n"
+                );
+            }
+        } catch (JsonError e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
+    Test.add_func ("/jsoner/deserialize/object/runtime_type/child", () => {
+        try {
+            var jsoner = new Jsoner ("{\"type\":\"child\"}");
+            var result = jsoner.deserialize_object<TestObjectFamilyParent> ();
+
+            if (!(result is TestObjectFamilyChild)) {
+                Test.fail_printf ("%s != %s", result.get_type ().name (), typeof(TestObjectFamilyChild).name());
+            }
+        } catch (JsonError e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
+    Test.add_func ("/jsoner/deserialize/object/runtime_type/parent", () => {
+        try {
+            var jsoner = new Jsoner ("{\"type\":\"any-other-thing\"}");
+            var result = jsoner.deserialize_object<TestObjectFamilyParent> ();
+
+            if (!(result is TestObjectFamilyParent)) {
+                Test.fail_printf ("%s != %s", result.get_type ().name (), typeof(TestObjectFamilyParent).name());
+            }
+        } catch (JsonError e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
     return Test.run ();
-}
-
-void sub_creation (out Gee.Traversable collection, Type element_type) {
-    if (element_type == typeof (TestObjectInt)) {
-        collection = new Gee.ArrayList<TestObjectInt> ();
-        return;
-    }
-
-    assert_not_reached ();
 }

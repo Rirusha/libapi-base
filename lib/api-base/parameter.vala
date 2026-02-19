@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Vladimir Romanov <rirusha@altlinux.org>
+ * Copyright (C) 2024-2026 Vladimir Romanov <rirusha@altlinux.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,8 +16,15 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-public struct ApiBase.Header {
+public struct ApiBase.Param {
 
     public string name;
     public string value;
+
+    public string to_string () {
+        return "%s=%s".printf (
+            name,
+            Uri.escape_string (value)
+        );
+    }
 }

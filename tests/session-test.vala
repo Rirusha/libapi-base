@@ -2,6 +2,7 @@
 // vala-lint=skip-file
 
 using ApiBase;
+using Serialize;
 
 class UserAgentInfo : DataObject {
     public string user_agent { get; set; }
@@ -37,7 +38,7 @@ const string EXPECTED_JSON = """{
 const string EXPECTED_ROBOTS = """User-agent: *
 Disallow: /deny""";
 
-const string EXPECTED_POST_START = """{
+const string EXPECTED_CONTENT_START = """{
   "args": {}, 
   "data": "", 
   "files": {}, 
@@ -158,7 +159,7 @@ public int main (string[] args) {
         try {
             var request = new Request.POST ("https://httpbin.org/post");
 
-            PostContent post_content = { X_WWW_FORM_URLENCODED };
+            Content content = { X_WWW_FORM_URLENCODED };
 
             var dict = new Gee.HashMap<string, string> ();
             dict["custname"] = "Rirusha";
@@ -168,11 +169,11 @@ public int main (string[] args) {
             dict["delivery"] = "";
             dict["comments"] = "FAST";
 
-            post_content.set_dict (dict);
-            request.add_post_content (post_content);
+            content.set_dict (dict);
+            request.add_content (content);
             var response = (string) (request.simple_exec ().get_data ());
 
-            if (!(response.strip ().has_prefix (EXPECTED_POST_START))) {
+            if (!(response.strip ().has_prefix (EXPECTED_CONTENT_START))) {
                 Test.fail ();
             }
 
@@ -185,7 +186,7 @@ public int main (string[] args) {
         try {
             var request = new Request.POST ("https://httpbin.org/post");
 
-            PostContent post_content = { X_WWW_FORM_URLENCODED };
+            Content content = { X_WWW_FORM_URLENCODED };
 
             var datalist = Datalist<string> ();
             datalist.set_data ("custname", "Rirusha");
@@ -195,11 +196,65 @@ public int main (string[] args) {
             datalist.set_data ("delivery", "");
             datalist.set_data ("comments", "FAST");
 
-            post_content.set_datalist (datalist);
-            request.add_post_content (post_content);
+            content.set_datalist (datalist);
+            request.add_content (content);
             var response = (string) (request.simple_exec ().get_data ());
 
-            if (!(response.strip ().has_prefix (EXPECTED_POST_START))) {
+            if (!(response.strip ().has_prefix (EXPECTED_CONTENT_START))) {
+                Test.fail ();
+            }
+
+        } catch (Error e) {
+            Test.fail_printf ("Error: \n%s", e.message);
+        }
+    });
+
+    Test.add_func ("/soup-wrapper/put/data/dict", () => {
+        try {
+            var request = new Request.PUT ("https://httpbin.org/put");
+
+            Content content = { X_WWW_FORM_URLENCODED };
+
+            var dict = new Gee.HashMap<string, string> ();
+            dict["custname"] = "Rirusha";
+            dict["custtel"] = "666666";
+            dict["custemail"] = "rirusha@altlinux.org";
+            dict["size"] = "large";
+            dict["delivery"] = "";
+            dict["comments"] = "FAST";
+
+            content.set_dict (dict);
+            request.add_content (content);
+            var response = (string) (request.simple_exec ().get_data ());
+
+            if (!(response.strip ().has_prefix (EXPECTED_CONTENT_START))) {
+                Test.fail ();
+            }
+
+        } catch (Error e) {
+            Test.fail_printf ("Error: \n%s", e.message);
+        }
+    });
+
+    Test.add_func ("/soup-wrapper/put/data/datalist", () => {
+        try {
+            var request = new Request.PUT ("https://httpbin.org/put");
+
+            Content content = { X_WWW_FORM_URLENCODED };
+
+            var datalist = Datalist<string> ();
+            datalist.set_data ("custname", "Rirusha");
+            datalist.set_data ("custtel", "666666");
+            datalist.set_data ("custemail", "rirusha@altlinux.org");
+            datalist.set_data ("size", "large");
+            datalist.set_data ("delivery", "");
+            datalist.set_data ("comments", "FAST");
+
+            content.set_datalist (datalist);
+            request.add_content (content);
+            var response = (string) (request.simple_exec ().get_data ());
+
+            if (!(response.strip ().has_prefix (EXPECTED_CONTENT_START))) {
                 Test.fail ();
             }
 

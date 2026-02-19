@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Vladimir Romanov <rirusha@altlinux.org>
+ * Copyright (C) 2025-2026 Vladimir Romanov <rirusha@altlinux.org>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,14 +30,14 @@ public enum ApiBase.HttpMethod {
     CONNECT;
 
     public string to_string () {
-        return get_enum_class (typeof (HttpMethod)).get_value (this).value_nick.up ();
+        return Serialize.Enum.get_class<HttpMethod> ().get_value (this).value_nick.up ();
     }
 }
 
 /**
- * Supported post content types
+ * Supported content types
  */
-public enum ApiBase.PostContentType {
+public enum ApiBase.ContentType {
     X_WWW_FORM_URLENCODED,
     JSON;
 
@@ -51,17 +51,17 @@ public enum ApiBase.PostContentType {
                 assert_not_reached ();
         }
     }
-}
 
-/**
- * Name cases. With AUTO {@link Jsoner} will try detect name case for every member of
- * json object. Useful for working with bad API developers
- */
-public enum ApiBase.Case {
-    AUTO,
-    SNAKE,
-    KEBAB,
-    CAMEL;
+    public static ContentType from_string (string str) {
+        switch (str) {
+            case "application/x-www-form-urlencoded":
+                return X_WWW_FORM_URLENCODED;
+            case "application/json":
+                return JSON;
+            default:
+                assert_not_reached ();
+        }
+    }
 }
 
 /**

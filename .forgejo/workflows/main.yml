@@ -6,16 +6,11 @@ on:
   push:
     branches:
       - 'main'
-      - 'altlinux'
-
-permissions:
-  contents: read
-  pull-requests: read
 
 jobs:
   lint-vala:
     name: Check vala files
-    runs-on: alt-sisyphus
+    runs-on: als-tiny
     container:
       image: altlinux.space/alt-gnome/coding-style-image:latest
 
@@ -28,7 +23,7 @@ jobs:
 
   test-build:
     name: Test Build
-    runs-on: alt-sisyphus
+    runs-on: als-tiny
     needs:
       - lint-vala
       - checkers
@@ -52,24 +47,30 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: actions/deploy-pages@v1
         with:
-          directory: ./_build/doc/libapi-base-4-vala
+          directory: ./_build/doc/api-base
 
-  build-altlinux:
-    name: Build RPM for altlinux
+  build-altlinux-nightly:
+    name: Build Nightly RPM for altlinux
 
-    runs-on: alt-sisyphus
+    runs-on: als-tiny
     container:
-      image: altlinux.space/rirusha/riru-build-image:latest
+      image: altlinux.space/actions/runner/hasherc:sisyphus
     needs:
       - test-build
 
     steps:
+      - name: Install utils
+        run: |
+          apt-get update
+          apt-get install -y meson jq /usr/bin/add_changelog
+
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          ref: 'altlinux'
-          fetch-tags: true
-          fetch-depth: 0
+
+      - name: Prepare RPM build
+        run: |
+          ./build-aux/altlinux/prepare
+          git add .
 
       - uses: alt-gnome/build-rpm-action@main
         name: Build RPMs
@@ -80,4 +81,4 @@ jobs:
         with:
           directory: ~/.cache/hasherc/libapi-base/out/RPMS
           token: ${{ secrets.TOKEN }}
-          group: libapi-base
+          group: libapi-base-nightly/${{ matrix.branch }}

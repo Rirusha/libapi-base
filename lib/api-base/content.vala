@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Vladimir Romanov <rirusha@altlinux.org>
+ * Copyright (C) 2024-2026 Vladimir Romanov <rirusha@altlinux.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,30 +16,28 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-public struct ApiBase.PostContent {
+[Version (since = "6.0")]
+public struct ApiBase.Content {
 
-    public PostContentType content_type;
+    public ContentType content_type;
     string content;
 
-    /**
-     * @return content bytes
-     */
+    [Version (since = "6.0")]
     public Bytes get_bytes () {
         return new Bytes (content.data);
     }
 
     /**
      * Set content dict
-     *
-     * @since 3.0
      */
+    [Version (since = "6.0")]
     public void set_dict (Gee.HashMap<string, string> dict) {
         switch (content_type) {
             case X_WWW_FORM_URLENCODED:
-                content = Soup.Form.encode_datalist (hashmap_to_datalist<string> (dict));
+                content = Soup.Form.encode_datalist (Serialize.hashmap_to_datalist<string> (dict));
                 break;
             case JSON:
-                content = Jsoner.serialize (dict);
+                content = Serialize.Jsoner.serialize (dict);
                 break;
             default:
                 assert_not_reached ();
@@ -49,16 +47,18 @@ public struct ApiBase.PostContent {
     /**
      * Set content datalist
      */
+    [Version (since = "6.0")]
     public void set_datalist (Datalist<string> datalist) {
         switch (content_type) {
             case X_WWW_FORM_URLENCODED:
                 content = Soup.Form.encode_datalist (datalist);
                 break;
             case JSON:
-                content = Jsoner.serialize (datalist_to_hashmap<string> (datalist));
+                content = Serialize.Jsoner.serialize (Serialize.datalist_to_hashmap<string> (datalist));
                 break;
             default:
                 assert_not_reached ();
             }
     }
+
 }

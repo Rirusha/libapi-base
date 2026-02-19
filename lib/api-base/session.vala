@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Vladimir Romanov <rirusha@altlinux.org>
+ * Copyright (C) 2025-2026 Vladimir Romanov <rirusha@altlinux.org>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,9 +68,8 @@ public sealed class ApiBase.Session : Soup.Session {
      *
      * @param cookie_jar_type   Cookies storage type
      * @param cookies_file_path Path to cookies
-     *
-     * @since 3.0
      */
+    [Version (since = "3.0")]
     public void init_cookies (
         CookieJarType cookie_jar_type,
         string cookies_file_path
@@ -167,9 +166,8 @@ public sealed class ApiBase.Session : Soup.Session {
      *
      * @throws SoupError            Internal error from libsoup
      * @throws BadStatusCodeError   Bad status code from request
-     *
-     * @since 3.0
      */
+    [Version (since = "3.0")]
     public GLib.Bytes? exec (
         Request request,
         Cancellable? cancellable = null
@@ -201,9 +199,8 @@ public sealed class ApiBase.Session : Soup.Session {
      *
      * @throws SoupError            Internal error from libsoup
      * @throws BadStatusCodeError   Bad status code from request
-     *
-     * @since 3.0
      */
+    [Version (since = "3.0")]
     public async GLib.Bytes? exec_async (
         Request request,
         int priority = Priority.DEFAULT,

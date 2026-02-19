@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Vladimir Romanov <rirusha@altlinux.org>
+ * Copyright (C) 2025-2026 Vladimir Romanov <rirusha@altlinux.org>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,12 +19,11 @@
  */
 
 /**
- * Request object. Can handle parameters, headers, post content.
+ * Request object. Can handle parameters, headers, content.
  * {@link Session.exec} and {@link Session.exec_async}
  * form message via {@link form_message} and set this to readonly
- *
- * @since 3.0
  */
+[Version (since = "3.0")]
 public class ApiBase.Request : Object {
 
     public HttpMethod method { get; construct; }
@@ -62,7 +61,7 @@ public class ApiBase.Request : Object {
         }
     }
 
-    PostContent? post_content = null;
+    Content? content = null;
 
     Request (HttpMethod method, string uri) {
         Object (
@@ -123,9 +122,8 @@ public class ApiBase.Request : Object {
      *
      * @param header    Header object
      * @param replace   Replace existing header with equal name or not
-     *
-     * @since 4.0
      */
+    [Version (since = "4.0")]
     public void add_header (string name, string value, bool replace = true) {
         add_header_struct ({ name, value }, replace);
     }
@@ -144,9 +142,8 @@ public class ApiBase.Request : Object {
      *
      * @param headers   Header objects array
      * @param replace   Replace existing header with equal name or not
-     *
-     * @since 3.0
      */
+    [Version (since = "3.0")]
     public void add_headers (Header[] headers, bool replace = true) {
         foreach (var header in headers) {
             add_header_struct (header, replace);
@@ -158,9 +155,8 @@ public class ApiBase.Request : Object {
      *
      * @param name      Parameter name
      * @param value     Parameter value
-     *
-     * @since 4.0
      */
+    [Version (since = "4.0")]
     public void add_param (string name, string value) {
         add_param_struct ({ name, value });
     }
@@ -175,9 +171,8 @@ public class ApiBase.Request : Object {
      * Add parameters with an array
      *
      * @param parameters Parameter objeccts array
-     *
-     * @since 3.0
      */
+    [Version (since = "3.0")]
     public void add_parameters (Param[] parameters) {
         foreach (var parameter in parameters) {
             add_param_struct (parameter);
@@ -185,17 +180,16 @@ public class ApiBase.Request : Object {
     }
 
     /**
-     * Add post content to request
+     * Add content to request
      *
-     * @param post_content  Post content object
-     *
-     * @since 3.0
+     * @param content  Content object
      */
-    public void add_post_content (PostContent post_content) {
+    [Version (since = "6.0")]
+    public void add_content (Content content) {
         assert (message == null);
-        assert (method == HttpMethod.POST);
+        assert (method == HttpMethod.POST || method == HttpMethod.PUT);
 
-        this.post_content = post_content;
+        this.content = content;
     }
 
     /**
@@ -204,9 +198,8 @@ public class ApiBase.Request : Object {
      * {@link Session.exec}/{@link Session.exec_async}
      *
      * @return  Status
-     *
-     * @since 3.0
      */
+    [Version (since = "3.0")]
     public Soup.Status get_status_code () {
         assert (message != null);
 
@@ -216,9 +209,8 @@ public class ApiBase.Request : Object {
     /**
      * Get formed message object
      * @return  Response body
-     *
-     * @since 5.0
      */
+    [Version (since = "5.0")]
     public Soup.Message form_message () {
         if (message != null) {
             return message;
@@ -234,10 +226,10 @@ public class ApiBase.Request : Object {
 
         message = new Soup.Message (method.to_string (), new_uri);
 
-        if (post_content != null) {
+        if (content != null) {
             message.set_request_body_from_bytes (
-                post_content.content_type.to_string (),
-                post_content.get_bytes ()
+                content.content_type.to_string (),
+                content.get_bytes ()
             );
         }
 
@@ -266,9 +258,8 @@ public class ApiBase.Request : Object {
      *
      * @throws SoupError            Internal error from libsoup
      * @throws BadStatusCodeError   Bad status code from request
-     *
-     * @since 3.0
      */
+    [Version (since = "3.0")]
     public GLib.Bytes simple_exec (
         Cancellable? cancellable = null
     ) throws SoupError, BadStatusCodeError {
@@ -281,9 +272,8 @@ public class ApiBase.Request : Object {
      *
      * @throws SoupError            Internal error from libsoup
      * @throws BadStatusCodeError   Bad status code from request
-     *
-     * @since 3.0
      */
+    [Version (since = "3.0")]
     public async GLib.Bytes simple_exec_async (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null

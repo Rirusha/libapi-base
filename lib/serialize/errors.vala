@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Vladimir Romanov <rirusha@altlinux.org>
+ * Copyright (C) 2025-2026 Vladimir Romanov <rirusha@altlinux.org>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,29 +19,27 @@
  */
 
 /**
- * A class with convenient methods for fast de/serialization
+ * Error from libjson
  */
-public abstract class ApiBase.DataObject : Object {
+[Version (since = "6.0")]
+public errordomain Serialize.JsonError {
+    /**
+     * Json string is empty
+     */
+    EMPTY,
 
     /**
-     * Parse json and fill up this object via
-     * {@link Jsoner.deserialize_object_into}
-     *
-     * @throws JsonError    Error with json or sub_members
+     * Json string is invalid
      */
-    public void fill_from_json (
-        string json,
-        string[]? sub_members = null,
-        Case names_case = Case.AUTO
-    ) throws JsonError {
-        var jsoner = new Jsoner (json, sub_members, names_case);
-        jsoner.deserialize_object_into (this);
-    }
+    INVALID,
 
     /**
-     * Serialize object to json
+     * Try to deserislize wrong type
      */
-    public string to_json (Case names_case = Case.AUTO) {
-        return Jsoner.serialize (this, names_case);
-    }
+    WRONG_TYPE,
+
+    /**
+     * Try to 'step' non existing members
+     */
+    NO_MEMBER;
 }
