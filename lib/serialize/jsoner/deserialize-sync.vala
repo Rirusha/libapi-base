@@ -219,7 +219,7 @@ namespace Serialize.JsonerDeserializeSync {
                             }
 
                         } else {
-                            assert_not_reached ();
+                            warning ("Property has enum type, but json doesn'y hold int64 or string type");
                         }
 
                     } else {
