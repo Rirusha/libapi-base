@@ -149,7 +149,6 @@ Requires: %sname%api_version-gir = %EVR
 %_pkgconfigdir/%sname-%api_version.pc
 %_vapidir/%sname-%api_version.vapi
 %_vapidir/%sname-%api_version.deps
-%doc README.md
 
 %files -n %sname%api_version-gir
 %_typelibdir/%gir_sname-%api_version.typelib
