@@ -210,13 +210,16 @@ namespace Serialize.JsonerDeserializeSync {
                             );
 
                         } else if (val.type () == Type.STRING) {
-                            obj.set_property (
-                                property.name,
-                                Enum.get_by_nick_gtype (prop_type, val.get_string ())
-                            );
+                            var strval = val.get_string ();
+                            if (strval != null) {
+                                obj.set_property (
+                                    property.name,
+                                    Enum.get_by_nick_gtype (prop_type, val.get_string ())
+                                );
+                            }
 
                         } else {
-                            assert_not_reached ();
+                            warning ("Property has enum type, but json doesn'y hold int64 or string type");
                         }
 
                     } else {
