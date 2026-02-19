@@ -27,10 +27,10 @@ public struct ApiBase.Content {
         return new Bytes (content.data);
     }
 
-    [Version (since = "6.0")]
     /**
      * Set content dict
      */
+    [Version (since = "6.0")]
     public void set_dict (Gee.HashMap<string, string> dict) {
         switch (content_type) {
             case X_WWW_FORM_URLENCODED:
@@ -44,10 +44,10 @@ public struct ApiBase.Content {
             }
     }
 
-    [Version (since = "6.0")]
     /**
      * Set content datalist
      */
+    [Version (since = "6.0")]
     public void set_datalist (Datalist<string> datalist) {
         switch (content_type) {
             case X_WWW_FORM_URLENCODED:

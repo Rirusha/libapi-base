@@ -19,10 +19,11 @@
 
 using Gee;
 
-[Version (since = "6.0")]
+
 /**
  * Json helper for de/serialization
  */
+[Version (since = "6.0")]
 public class Serialize.Jsoner : Object {
 
     /**
@@ -32,7 +33,6 @@ public class Serialize.Jsoner : Object {
 
     public Json.Node root { internal get; construct; }
 
-    [Version (since = "6.0")]
     /**
      * Performs initialization for deserialization. Accepts a json string. In case of
      * a parsing error
@@ -44,6 +44,7 @@ public class Serialize.Jsoner : Object {
      *
      * @throws JsonError    Error with json or sub_members
      */
+    [Version (since = "6.0")]
     public Jsoner (
         string json_string,
         string[]? sub_members = null,
@@ -77,7 +78,6 @@ public class Serialize.Jsoner : Object {
         Object (root: node, names_case: names_case);
     }
 
-    [Version (since = "6.0")]
     /**
      * Performs initialization for deserialization. Accepts a json string in the
      * form of bytes, the object {@link GLib.Bytes}. In case of a parsing error
@@ -88,6 +88,7 @@ public class Serialize.Jsoner : Object {
      *
      * @throws JsonError    Error with json or sub_members
      */
+    [Version (since = "6.0")]
     public Jsoner.from_bytes (
         Bytes bytes,
         string[]? sub_members = null,
@@ -100,7 +101,6 @@ public class Serialize.Jsoner : Object {
         this.from_data (bytes.get_data (), sub_members, names_case);
     }
 
-    [Version (since = "6.0")]
     /**
      * Performs initialization for deserialization. Accepts a json string in the form of bytes,
      * an {@link uint8} array. In case of a parsing error
@@ -111,6 +111,7 @@ public class Serialize.Jsoner : Object {
      *
      * @throws JsonError    Error with json or sub_members
      */
+    [Version (since = "6.0")]
     public Jsoner.from_data (
         owned uint8[] data,
         string[]? sub_members = null,
@@ -145,7 +146,6 @@ public class Serialize.Jsoner : Object {
         return node;
     }
 
-    [Version (since = "6.0")]
     /**
      * Serialize {@link GLib.Object} into a correct json string
      *
@@ -156,6 +156,7 @@ public class Serialize.Jsoner : Object {
      *
      * @return              Json string
      */
+    [Version (since = "6.0")]
     public static inline string serialize (
         Object obj,
         Case names_case = Case.AUTO,
@@ -165,7 +166,6 @@ public class Serialize.Jsoner : Object {
         return JsonerSerializeSync.serialize (obj, names_case, pretty, ignore_default);
     }
 
-    [Version (since = "6.0")]
     /**
      * Object creation method from json 
      * via {@link Jsoner.deserialize_object}
@@ -182,6 +182,7 @@ public class Serialize.Jsoner : Object {
      *
      * @throws JsonError        Error with json or sub_members
      */
+    [Version (since = "6.0")]
     public static inline T simple_from_json<T> (
         string json,
         string[]? sub_members = null,
@@ -190,7 +191,6 @@ public class Serialize.Jsoner : Object {
         return JsonerDeserializeSync.simple_from_json<T> (json, sub_members, names_case);
     }
 
-    [Version (since = "6.0")]
     /**
      * Array creation method from json 
      * via {@link Jsoner.deserialize_array}
@@ -207,6 +207,7 @@ public class Serialize.Jsoner : Object {
      *
      * @throws JsonError        Error with json or sub_members
      */
+    [Version (since = "6.0")]
     public static inline ArrayList<T> simple_array_from_json<T> (
         string json,
         string[]? sub_members = null,
@@ -216,7 +217,6 @@ public class Serialize.Jsoner : Object {
         return JsonerDeserializeSync.simple_array_from_json<T> (json, sub_members, names_case, collection_hierarchy);
     }
 
-    [Version (since = "6.0")]
     /**
      * Dict creation method from json 
      * via {@link Jsoner.deserialize_dict}
@@ -233,6 +233,7 @@ public class Serialize.Jsoner : Object {
      *
      * @throws JsonError        Error with json or sub_members
      */
+    [Version (since = "6.0")]
     public static inline HashMap<string, T> simple_dict_from_json<T> (
         string json,
         string[]? sub_members = null,
@@ -242,7 +243,6 @@ public class Serialize.Jsoner : Object {
         return JsonerDeserializeSync.simple_dict_from_json<T> (json, sub_members, names_case, collection_hierarchy);
     }
 
-    [Version (since = "6.0")]
     /**
      * Method for deserializing the {@link GLib.Object}
      *
@@ -253,11 +253,11 @@ public class Serialize.Jsoner : Object {
      *
      * @throws JsonError    Error with json string
      */
+    [Version (since = "6.0")]
     public inline T deserialize_object<T> () throws JsonError {
         return JsonerDeserializeSync.deserialize_object<T> (this);
     }
 
-    [Version (since = "6.0")]
     /**
      * Method for deserializing the {@link GLib.Object} with {@link GLib.Type}
      *
@@ -269,13 +269,13 @@ public class Serialize.Jsoner : Object {
      *
      * @throws JsonError    Error with json string
      */
+    [Version (since = "6.0")]
     public inline Object deserialize_object_by_type (
         GLib.Type obj_type
     ) throws JsonError {
         return JsonerDeserializeSync.deserialize_object_by_type (this, obj_type);
     }
 
-    [Version (since = "6.0")]
     /**
      * Method for deserializing into existing object
      *
@@ -285,13 +285,13 @@ public class Serialize.Jsoner : Object {
      *
      * @throws JsonError    Error with json string
      */
+    [Version (since = "6.0")]
     public inline void deserialize_object_into (
         Object obj
     ) throws JsonError {
         JsonerDeserializeSync.deserialize_object_into (this, obj);
     }
 
-    [Version (since = "6.0")]
     /**
      * Method for deserializing the {@link GLib.Value}
      *
@@ -299,11 +299,11 @@ public class Serialize.Jsoner : Object {
      *
      * @throws JsonError    Error with json string
      */
+    [Version (since = "6.0")]
     public inline Value deserialize_value () throws JsonError {
         return JsonerDeserializeSync.deserialize_value (this);
     }
 
-    [Version (since = "6.0")]
     /**
      * Method for deserializing the {@link Gee.ArrayList}
      *
@@ -311,13 +311,13 @@ public class Serialize.Jsoner : Object {
      *
      * @throws JsonError    Error with json string
      */
+    [Version (since = "6.0")]
     public inline ArrayList<T> deserialize_array<T> (
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
         return JsonerDeserializeSync.deserialize_array<T> (this, collection_hierarchy);
     }
 
-    [Version (since = "6.0")]
     /**
      * Method for deserializing the {@link Gee.ArrayList}
      *
@@ -326,6 +326,7 @@ public class Serialize.Jsoner : Object {
      *
      * @throws JsonError    Error with json string
      */
+    [Version (since = "6.0")]
     public inline void deserialize_array_into (
         ArrayList array_list,
         CollectionFactory[] collection_hierarchy = {}
@@ -333,19 +334,18 @@ public class Serialize.Jsoner : Object {
         JsonerDeserializeSync.deserialize_array_into (this, array_list, collection_hierarchy);
     }
 
-    [Version (since = "6.0")]
     /**
      * Method for deserializing the {@link Gee.HashMap}
      *
      * @throws JsonError    Error with json string
      */
+    [Version (since = "6.0")]
     public inline HashMap<string, T> deserialize_dict<T> (
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
         return JsonerDeserializeSync.deserialize_dict<T> (this, collection_hierarchy);
     }
 
-    [Version (since = "6.0")]
     /**
      * Method for deserializing the {@link Gee.HashMap}
      *
@@ -353,6 +353,7 @@ public class Serialize.Jsoner : Object {
      *
      * @throws JsonError    Error with json string
      */
+    [Version (since = "6.0")]
     public inline void deserialize_dict_into (
         HashMap dict,
         CollectionFactory[] collection_hierarchy = {}
@@ -360,10 +361,10 @@ public class Serialize.Jsoner : Object {
         JsonerDeserializeSync.deserialize_dict_into (this, dict, collection_hierarchy);
     }
 
-    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link serialize}
      */
+    [Version (since = "6.0")]
     public static inline async string serialize_async (
         Object obj,
         Case names_case = Case.AUTO,
@@ -372,7 +373,6 @@ public class Serialize.Jsoner : Object {
         return yield JsonerSerializeAsync.serialize (obj, names_case, pretty);
     }
 
-    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link simple_from_json_async}
      *
@@ -384,6 +384,7 @@ public class Serialize.Jsoner : Object {
      *
      * @throws JsonError        Error with json or sub_members
      */
+    [Version (since = "6.0")]
     public async static inline T simple_from_json_async<T> (
         string json,
         string[]? sub_members = null,
@@ -392,7 +393,6 @@ public class Serialize.Jsoner : Object {
         return yield JsonerDeserializeAsync.simple_from_json<T> (json, sub_members, names_case);
     }
 
-    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link simple_array_from_json_async}
      *
@@ -404,6 +404,7 @@ public class Serialize.Jsoner : Object {
      *
      * @throws JsonError        Error with json or sub_members
      */
+    [Version (since = "6.0")]
     public async static inline ArrayList<T> simple_array_from_json_async<T> (
         string json,
         string[]? sub_members = null,
@@ -412,7 +413,6 @@ public class Serialize.Jsoner : Object {
         return yield JsonerDeserializeAsync.simple_array_from_json<T> (json, sub_members, names_case);
     }
 
-    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link simple_dict_from_json_async}
      *
@@ -424,6 +424,7 @@ public class Serialize.Jsoner : Object {
      *
      * @throws JsonError        Error with json or sub_members
      */
+    [Version (since = "6.0")]
     public async static inline HashMap<string, T> simple_dict_from_json_async<T> (
         string json,
         string[]? sub_members = null,
@@ -432,7 +433,6 @@ public class Serialize.Jsoner : Object {
         return yield JsonerDeserializeAsync.simple_dict_from_json<T> (json, sub_members, names_case);
     }
 
-    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link deserialize_object}
      *
@@ -440,45 +440,45 @@ public class Serialize.Jsoner : Object {
      *
      * @throws JsonError    Error with json string
      */
+    [Version (since = "6.0")]
     public async inline T deserialize_object_async<T> () throws JsonError {
         return yield JsonerDeserializeAsync.deserialize_object<T> (this);
     }
 
-    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link deserialize_object_by_type}
      *
      * @throws JsonError    Error with json string
      */
+    [Version (since = "6.0")]
     public async inline Object deserialize_object_by_type_async (
         GLib.Type obj_type
     ) throws JsonError {
         return yield JsonerDeserializeAsync.deserialize_object_by_type (this, obj_type);
     }
 
-    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link deserialize_object_into}
      *
      * @throws JsonError    Error with json string
      */
+    [Version (since = "6.0")]
     public async inline void deserialize_object_into_async (
         Object obj
     ) throws JsonError {
         yield JsonerDeserializeAsync.deserialize_object_into (this, obj);
     }
 
-    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link deserialize_array}
      *
      * @throws JsonError    Error with json string
      */
+    [Version (since = "6.0")]
     public async ArrayList<T> deserialize_array_async<T> () throws JsonError {
         return yield JsonerDeserializeAsync.deserialize_array<T> (this);
     }
 
-    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link deserialize_array_into}
      *
@@ -486,23 +486,23 @@ public class Serialize.Jsoner : Object {
      *
      * @throws JsonError    Error with json string
      */
+    [Version (since = "6.0")]
     public async inline void deserialize_array_into_async (
         ArrayList array_list
     ) throws JsonError {
         yield JsonerDeserializeAsync.deserialize_array_into (this, array_list);
     }
 
-    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link deserialize_dict}
      *
      * @throws JsonError    Error with json string
      */
+    [Version (since = "6.0")]
     public async inline HashMap<string, T> deserialize_dict_async<T> () throws JsonError {
         return yield JsonerDeserializeAsync.deserialize_dict<T> (this);
     }
 
-    [Version (since = "6.0")]
     /**
      * Asynchronous version of method {@link deserialize_dict_into}
      *
@@ -510,6 +510,7 @@ public class Serialize.Jsoner : Object {
      *
      * @throws JsonError    Error with json string
      */
+    [Version (since = "6.0")]
     public async void deserialize_dict_into_async (
         HashMap dict
     ) throws JsonError {

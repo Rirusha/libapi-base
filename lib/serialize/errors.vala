@@ -18,10 +18,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-[Version (since = "6.0")]
 /**
  * Error from libjson
  */
+[Version (since = "6.0")]
 public errordomain Serialize.JsonError {
     /**
      * Json string is empty

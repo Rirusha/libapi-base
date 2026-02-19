@@ -20,23 +20,23 @@
 
 namespace Serialize.Enum {
 
-    [Version (since = "6.0")]
     /**
      * @param nick              String enum in snake case
      *
      * @return                  Enum
      */
+    [Version (since = "6.0")]
     public EnumType get_by_nick<EnumType> (string nick) {
         assert (typeof (EnumType).is_enum ());
         return get_by_nick_gtype (typeof (EnumType), nick);
     }
 
-    [Version (since = "6.0")]
     /**
      * @param enum_             Enum
      *
      * @return                  Nick
      */
+    [Version (since = "6.0")]
     public string get_nick<EnumType> (EnumType enum_, Case case_) {
         assert (typeof (EnumType).is_enum ());
         return get_nick_gtype (typeof (EnumType), (int) enum_, case_);
@@ -68,11 +68,11 @@ namespace Serialize.Enum {
     }
 }
 
-[Version (since = "6.0")]
 /**
  * Name cases. With AUTO {@link Jsoner} will try detect name case for every member of
  * json object. Useful for working with bad API developers
  */
+[Version (since = "6.0")]
 public enum Serialize.Case {
     AUTO,
     SNAKE,

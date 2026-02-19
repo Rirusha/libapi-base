@@ -18,10 +18,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-[Version (since = "3.0")]
 /**
  * Error from libsoup
  */
+[Version (since = "3.0")]
 public errordomain ApiBase.SoupError {
     INTERNAL,
     CANCELLED;

@@ -19,10 +19,10 @@
 
 namespace Serialize {
 
-    [Version (since = "6.0")]
     /**
      * Helper interface for chosing class to deserialize
      */
+    [Version (since = "6.0")]
     public interface TypeFamily : Object {
         /**
          * Return object type to deserialize
@@ -54,13 +54,13 @@ namespace Serialize {
                 !find_generic (type_));
     }
 
-    [Version (since = "6.0")]
     /**
      * Check GType on valid for using as Jsoner dataclass for
      * de/serialization. On fail will used {@link GLib.error}
      *
      * @param type_ type to check
      */
+    [Version (since = "6.0")]
     public void check_type (Type type_) {
         Type[] supported_collections_types = {
             typeof (Gee.ArrayList),

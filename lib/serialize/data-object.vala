@@ -18,7 +18,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-[Version (since = "6.0")]
 /**
  * A class with convenient methods for fast de/serialization
  *
@@ -31,16 +30,17 @@
  *   }
  * }}}
  */
+[Version (since = "6.0")]
 public abstract class Serialize.DataObject : Object {
 
 
-    [Version (since = "6.0")]
     /**
      * Parse json and fill up this object via
      * {@link Jsoner.deserialize_object_into}
      *
      * @throws JsonError    Error with json or sub_members
      */
+    [Version (since = "6.0")]
     public void fill_from_json (
         string json,
         string[]? sub_members = null,
@@ -50,15 +50,14 @@ public abstract class Serialize.DataObject : Object {
         jsoner.deserialize_object_into (this);
     }
 
-    [Version (since = "6.0")]
     /**
      * Serialize object to json
      */
+    [Version (since = "6.0")]
     public string to_json (Case names_case = Case.AUTO) {
         return Jsoner.serialize (this, names_case);
     }
 
-    [Version (since = "6.0")]
     /**
      * Function for creating collection objects with generics. Used only
      * for Collection<Collection<...>> types. Collection<Collection<Collection<...>>>
@@ -68,6 +67,7 @@ public abstract class Serialize.DataObject : Object {
      *
      * @return              Collection object
      */
+    [Version (since = "6.0")]
     public virtual CollectionFactory[] collection_factories (string property_name) {
         return {};
     }

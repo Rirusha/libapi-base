@@ -39,22 +39,6 @@ namespace Serialize.Convert {
         return KEBAB;
     }
 
-    internal string strip (string str, char ch) {
-        int start = 0;
-        int end = str.length;
-
-        while (str[start] == ch) {
-            start++;
-        }
-
-        while (str[end - 1] == ch) {
-            end--;
-        }
-
-        return str[start:end];
-    }
-
-    [Version (since = "6.0")]
     /**
      * Convert `сamelCase` to `kebab-case` string
      *
@@ -62,6 +46,7 @@ namespace Serialize.Convert {
      *
      * @return `kebab-case` string
      */
+    [Version (since = "6.0")]
     public string camel2kebab (string camel_string) {
         var builder = new StringBuilder ();
 
@@ -79,7 +64,6 @@ namespace Serialize.Convert {
         return builder.free_and_steal ();
     }
 
-    [Version (since = "6.0")]
     /**
      * Convert `сamelCase` to `snake_case` string
      *
@@ -87,6 +71,7 @@ namespace Serialize.Convert {
      *
      * @return `snake_case` string
      */
+    [Version (since = "6.0")]
     public string camel2snake (string camel_string) {
         var builder = new StringBuilder ();
 
@@ -104,7 +89,6 @@ namespace Serialize.Convert {
         return builder.free_and_steal ();
     }
 
-    [Version (since = "6.0")]
     /**
      * Convert `kebab-case` to `сamelCase` string
      *
@@ -112,6 +96,7 @@ namespace Serialize.Convert {
      *
      * @return `сamelCase` string
      */
+    [Version (since = "6.0")]
     public string kebab2camel (string kebab_string) {
         var builder = new StringBuilder ();
 
@@ -129,7 +114,6 @@ namespace Serialize.Convert {
         return builder.free_and_steal ();
     }
 
-    [Version (since = "6.0")]
     /**
      * Convert `kebab-case` to `snake_case` string
      *
@@ -137,6 +121,7 @@ namespace Serialize.Convert {
      *
      * @return `snake_case` string
      */
+    [Version (since = "6.0")]
     public string kebab2snake (string kebab_string) {
         var builder = new StringBuilder ();
 
@@ -153,7 +138,6 @@ namespace Serialize.Convert {
         return builder.free_and_steal ();
     }
 
-    [Version (since = "6.0")]
     /**
      * Convert `snake_case` to `kebab-case` string
      *
@@ -161,6 +145,7 @@ namespace Serialize.Convert {
      *
      * @return `kebab-case` string
      */
+    [Version (since = "6.0")]
     public string snake2kebab (string snake_string) {
         var builder = new StringBuilder ();
 
@@ -177,7 +162,6 @@ namespace Serialize.Convert {
         return builder.free_and_steal ();
     }
 
-    [Version (since = "6.0")]
     /**
      * Convert `snake_case` to `сamelCase` string
      *
@@ -185,6 +169,7 @@ namespace Serialize.Convert {
      *
      * @return `сamelCase` string
      */
+    [Version (since = "6.0")]
     public string snake2camel (string snake_string) {
         var builder = new StringBuilder ();
 
@@ -202,7 +187,6 @@ namespace Serialize.Convert {
         return builder.free_and_steal ();
     }
 
-    [Version (since = "6.0")]
     /**
      * Convert any case string to kebab-case
      *
@@ -210,6 +194,7 @@ namespace Serialize.Convert {
      *
      * @return Kebab string
      */
+    [Version (since = "6.0")]
     public string cany2kebab (string str, Case case_) {
         switch (case_) {
             case Case.CAMEL:
@@ -225,7 +210,6 @@ namespace Serialize.Convert {
         }
     }
 
-    [Version (since = "6.0")]
     /**
      * Convert any case string to snake_case
      *
@@ -233,6 +217,7 @@ namespace Serialize.Convert {
      *
      * @return Snake string
      */
+    [Version (since = "6.0")]
     public string cany2snake (string str, Case case_) {
         switch (case_) {
             case Case.CAMEL:
@@ -248,7 +233,6 @@ namespace Serialize.Convert {
         }
     }
 
-    [Version (since = "6.0")]
     /**
      * Convert any case string to camelCase
      *
@@ -256,6 +240,7 @@ namespace Serialize.Convert {
      *
      * @return Camel string
      */
+    [Version (since = "6.0")]
     public string cany2camel (string str, Case case_) {
         switch (case_) {
             case Case.CAMEL:
@@ -272,7 +257,6 @@ namespace Serialize.Convert {
     }
 
 
-    [Version (since = "6.0")]
     /**
      * Convert any case string to kebab-case
      *
@@ -280,12 +264,12 @@ namespace Serialize.Convert {
      *
      * @return Kebab string
      */
+    [Version (since = "6.0")]
     public string any2kebab (string str) {
         var str_case = detect_case (str);
         return cany2kebab (str, str_case);
     }
 
-    [Version (since = "6.0")]
     /**
      * Convert any case string to snake_case
      *
@@ -293,12 +277,12 @@ namespace Serialize.Convert {
      *
      * @return Snake string
      */
+    [Version (since = "6.0")]
     public string any2snake (string str) {
         var str_case = detect_case (str);
         return cany2snake (str, str_case);
     }
 
-    [Version (since = "6.0")]
     /**
      * Convert any case string to camelCase
      *
@@ -306,12 +290,12 @@ namespace Serialize.Convert {
      *
      * @return Camel string
      */
+    [Version (since = "6.0")]
     public string any2camel (string str) {
         var str_case = detect_case (str);
         return cany2camel (str, str_case);
     }
 
-    [Version (since = "6.0")]
     /**
      * Convert kebab-case to specified case
      *
@@ -320,6 +304,7 @@ namespace Serialize.Convert {
      *
      * @return Specified case string
      */
+    [Version (since = "6.0")]
     public string kebab2any (string str, Case case_) {
         switch (case_) {
             case Case.CAMEL:
@@ -333,7 +318,6 @@ namespace Serialize.Convert {
         }
     }
 
-    [Version (since = "6.0")]
     /**
      * Convert snake_case to specified case
      *
@@ -342,6 +326,7 @@ namespace Serialize.Convert {
      *
      * @return Specified case string
      */
+    [Version (since = "6.0")]
     public string snake2any (string str, Case case_) {
         switch (case_) {
             case Case.CAMEL:
@@ -355,7 +340,6 @@ namespace Serialize.Convert {
         }
     }
 
-    [Version (since = "6.0")]
     /**
      * Convert camelCase to specified case
      *
@@ -364,6 +348,7 @@ namespace Serialize.Convert {
      *
      * @return Specified case string
      */
+    [Version (since = "6.0")]
     public string camel2any (string str, Case case_) {
         switch (case_) {
             case Case.CAMEL:
