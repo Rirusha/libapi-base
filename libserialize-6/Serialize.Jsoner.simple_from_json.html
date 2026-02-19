@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8"/>
+    <title>Serialize.Jsoner.simple_from_json &ndash; libserialize-6 &ndash; Vala Binding Reference</title>
+    <link href="../style.css" rel="stylesheet" type="text/css"/><script src="../scripts.js" type="text/javascript">
+    </script>
+  </head>
+  <body>
+    <div class="site_header">Serialize.Jsoner.simple_from_json &ndash; libserialize-6 Reference Manual</div>
+    <div class="site_body">
+      <div class="site_navigation">
+        <ul class="navi_main">
+          <li class="package_index"><a href="../index.html">Packages</a></li>
+        </ul>
+        <hr class="navi_hr"/>
+        <ul class="navi_main">
+          <li class="package"><a href="index.htm">libserialize-6</a></li>
+        </ul>
+        <hr class="navi_hr"/>
+        <ul class="navi_main">
+          <li class="namespace"><a href="Serialize.html">Serialize</a></li>
+        </ul>
+        <hr class="navi_hr"/>
+        <ul class="navi_main">
+          <li class="class"><a href="Serialize.Jsoner.html">Jsoner</a></li>
+        </ul>
+        <hr class="navi_hr"/>
+        <ul class="navi_main">
+          <li class="property"><a href="Serialize.Jsoner.names_case.html">names_case</a></li>
+          <li class="property"><a href="Serialize.Jsoner.root.html">root</a></li>
+          <li class="static_method"><a href="Serialize.Jsoner.serialize.html">serialize</a></li>
+          <li class="static_method"><a href="Serialize.Jsoner.serialize_async.html">serialize_async</a></li>
+          <li class="static_method"><a href="Serialize.Jsoner.simple_array_from_json.html">simple_array_from_json</a></li>
+          <li class="static_method"><a href="Serialize.Jsoner.simple_array_from_json_async.html">simple_array_from_json_async</a></li>
+          <li class="static_method"><a href="Serialize.Jsoner.simple_dict_from_json.html">simple_dict_from_json</a></li>
+          <li class="static_method"><a href="Serialize.Jsoner.simple_dict_from_json_async.html">simple_dict_from_json_async</a></li>
+          <li class="static_method">simple_from_json</li>
+          <li class="static_method"><a href="Serialize.Jsoner.simple_from_json_async.html">simple_from_json_async</a></li>
+          <li class="creation_method"><a href="Serialize.Jsoner.Jsoner.html">Jsoner</a></li>
+          <li class="creation_method"><a href="Serialize.Jsoner.Jsoner.from_bytes.html">Jsoner.from_bytes</a></li>
+          <li class="creation_method"><a href="Serialize.Jsoner.Jsoner.from_data.html">Jsoner.from_data</a></li>
+          <li class="method"><a href="Serialize.Jsoner.deserialize_array.html">deserialize_array</a></li>
+          <li class="method"><a href="Serialize.Jsoner.deserialize_array_async.html">deserialize_array_async</a></li>
+          <li class="method"><a href="Serialize.Jsoner.deserialize_array_into.html">deserialize_array_into</a></li>
+          <li class="method"><a href="Serialize.Jsoner.deserialize_array_into_async.html">deserialize_array_into_async</a></li>
+          <li class="method"><a href="Serialize.Jsoner.deserialize_dict.html">deserialize_dict</a></li>
+          <li class="method"><a href="Serialize.Jsoner.deserialize_dict_async.html">deserialize_dict_async</a></li>
+          <li class="method"><a href="Serialize.Jsoner.deserialize_dict_into.html">deserialize_dict_into</a></li>
+          <li class="method"><a href="Serialize.Jsoner.deserialize_dict_into_async.html">deserialize_dict_into_async</a></li>
+          <li class="method"><a href="Serialize.Jsoner.deserialize_object.html">deserialize_object</a></li>
+          <li class="method"><a href="Serialize.Jsoner.deserialize_object_async.html">deserialize_object_async</a></li>
+          <li class="method"><a href="Serialize.Jsoner.deserialize_object_by_type.html">deserialize_object_by_type</a></li>
+          <li class="method"><a href="Serialize.Jsoner.deserialize_object_by_type_async.html">deserialize_object_by_type_async</a></li>
+          <li class="method"><a href="Serialize.Jsoner.deserialize_object_into.html">deserialize_object_into</a></li>
+          <li class="method"><a href="Serialize.Jsoner.deserialize_object_into_async.html">deserialize_object_into_async</a></li>
+          <li class="method"><a href="Serialize.Jsoner.deserialize_value.html">deserialize_value</a></li>
+        </ul>
+      </div>
+      <div class="site_content">
+        <h1 class="main_title">simple_from_json</h1>
+        <hr class="main_hr"/>
+        <h2 class="main_title">Description:</h2>
+        <div class="main_code_definition">[ <span class="main_type">Version</span> ( since = <span class="main_literal">"6.0"</span> ) ]<br/><span class="main_keyword">public</span> <span class="main_keyword">static</span> <span class="main_keyword">inline</span> <span class="main_type"><span>T</span></span> <b><span class="static_method">simple_from_json</span></b>&lt;<b><span>T</span></b>&gt; (<span class="main_basic_type"><span class="class">string</span></span> json, <span class="main_basic_type"><span class="class">string</span></span>[]? sub_members = <span class="main_literal">null</span>, <span class="main_type"><a href="Serialize.Case.html" class="enum">Case</a></span> names_case = <b><a href="Serialize.Case.AUTO.html" class="enumvalue">AUTO</a></b>) <span class="main_keyword">throws</span> <span class="main_type"><a href="Serialize.JsonError.html" class="errordomain">JsonError</a></span>
+        </div>
+        <div class="description">
+          <p>Object creation method from json via <a href="Serialize.Jsoner.deserialize_object.html" class="method">Jsoner.deserialize_object</a> 
+            Simple version for fast deserialization without manual <a href="Serialize.Jsoner.Jsoner.html" class="creation_method">Jsoner</a> instance 
+            creation</p>
+          <h2 class="main_title">Parameters:</h2>
+          <table class="main_parameter_table">
+            <tr>
+              <td class="main_parameter_table_name">json</td>
+              <td>
+                <p>Json string </p>
+              </td>
+            </tr>
+            <tr>
+              <td class="main_parameter_table_name">sub_members</td>
+              <td>
+                <p>Sub members to 'steps' </p>
+              </td>
+            </tr>
+            <tr>
+              <td class="main_parameter_table_name">names_case</td>
+              <td>
+                <p>Case of names in json </p>
+              </td>
+            </tr>
+            <tr class="main_parameter_table_unknown_parameter">
+              <td class="main_parameter_table_name">sub_creation_func</td>
+              <td>
+                <p>Function for creating collection objects with generics </p>
+              </td>
+            </tr>
+          </table>
+          <h2 class="main_title">Returns:</h2>
+          <table class="main_parameter_table">
+            <tr>
+              <td>
+                <p>Deserialized object </p>
+              </td>
+            </tr>
+          </table>
+          <h2 class="main_title">Exceptions:</h2>
+          <table class="main_parameter_table">
+            <tr>
+              <td class="main_parameter_table_name">JsonError</td>
+              <td>
+                <p>Error with json or sub_members </p>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div><br/>
+    <div class="site_footer">Generated by <a href="https://docs.vala.dev"><kbd>valadoc</kbd></a>
+    </div>
+  </body>
+</html>
