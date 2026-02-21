@@ -41,6 +41,7 @@ serialize_vala_sources = files(
   'enums.vala',
   'errors.vala',
   'jsoner.vala',
+  'type-famaly.vala',
   'utils.vala',
 )
 
