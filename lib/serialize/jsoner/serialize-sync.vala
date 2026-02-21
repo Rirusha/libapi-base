@@ -17,8 +17,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gee;
-
 namespace Serialize.JsonerSerializeSync {
 
     internal static string serialize (
@@ -33,11 +31,11 @@ namespace Serialize.JsonerSerializeSync {
 
         var builder = new Json.Builder ();
 
-        if (obj is HashMap) {
-            var dict = (HashMap) obj;
+        if (obj is Dict) {
+            var dict = (Dict) obj;
             serialize_dict (builder, dict, dict.value_type, names_case, ignore_default);
-        } else if (obj is ArrayList) {
-            var arr = (ArrayList) obj;
+        } else if (obj is Array) {
+            var arr = (Array) obj;
             serialize_array (builder, arr, arr.element_type, names_case, ignore_default);
         } else {
             serialize_object (builder, obj, names_case, ignore_default);
@@ -55,7 +53,7 @@ namespace Serialize.JsonerSerializeSync {
 
     static void serialize_array (
         Json.Builder builder,
-        ArrayList array_list,
+        Array array_list,
         Type element_type,
         Case names_case = Case.AUTO,
         bool ignore_default = false
@@ -66,41 +64,41 @@ namespace Serialize.JsonerSerializeSync {
 
         builder.begin_array ();
 
-        if (element_type == typeof (ArrayList)) {
-            var array_of_arrays = (ArrayList<ArrayList>) array_list;
+        if (element_type == typeof (Array)) {
+            var array_of_arrays = (Array<Array>) array_list;
 
             foreach (var sub_array_list in array_of_arrays) {
                 serialize_array (builder, sub_array_list, sub_array_list.element_type, names_case, ignore_default);
             }
 
-        } else if (element_type == typeof (HashMap)) {
-            var array_of_maps = (ArrayList<HashMap>) array_list;
+        } else if (element_type == typeof (Dict)) {
+            var array_of_maps = (Array<Dict>) array_list;
 
             foreach (var sub_hash_map in array_of_maps) {
                 serialize_dict (builder, sub_hash_map, sub_hash_map.element_type, names_case, ignore_default);
             }
 
         } else if (element_type.is_object ()) {
-            foreach (var obj in (ArrayList<Object>) array_list) {
+            foreach (var obj in (Array<Object>) array_list) {
                 serialize_object (builder, obj, names_case, ignore_default);
             }
 
         } else {
             switch (element_type) {
                 case Type.STRING:
-                    foreach (var val in (ArrayList<string>) array_list) {
+                    foreach (var val in (Array<string>) array_list) {
                         serialize_value (builder, val);
                     }
                     break;
 
                 case Type.INT:
-                    foreach (var val in (ArrayList<int>) array_list) {
+                    foreach (var val in (Array<int>) array_list) {
                         serialize_value (builder, val);
                     }
                     break;
 
                 case Type.INT64:
-                    foreach (var val in (ArrayList<int64?>) array_list) {
+                    foreach (var val in (Array<int64?>) array_list) {
                         var tval = Value (Type.INT64);
                         tval.set_int64 (val);
                         serialize_value (builder, tval);
@@ -108,7 +106,7 @@ namespace Serialize.JsonerSerializeSync {
                     break;
 
                 case Type.DOUBLE:
-                    foreach (var val in (ArrayList<double?>) array_list) {
+                    foreach (var val in (Array<double?>) array_list) {
                         var tval = Value (Type.DOUBLE);
                         tval.set_double (val);
                         serialize_value (builder, tval);
@@ -116,7 +114,7 @@ namespace Serialize.JsonerSerializeSync {
                     break;
 
                 case Type.BOOLEAN:
-                    foreach (var val in (ArrayList<bool>) array_list) {
+                    foreach (var val in (Array<bool>) array_list) {
                         serialize_value (builder, val);
                     }
                     break;
@@ -127,7 +125,7 @@ namespace Serialize.JsonerSerializeSync {
 
     static void serialize_dict (
         Json.Builder builder,
-        HashMap dict,
+        Dict dict,
         Type element_type,
         Case names_case = Case.AUTO,
         bool ignore_default = false
@@ -136,22 +134,18 @@ namespace Serialize.JsonerSerializeSync {
             names_case = Case.KEBAB;
         }
 
-        if (dict.key_type != Type.STRING) {
-            error ("HashMap can only have string as key type");
-        }
-
         builder.begin_object ();
 
-        if (element_type == typeof (ArrayList)) {
-            var dict_of_arrays = (HashMap<string, ArrayList>) dict;
+        if (element_type == typeof (Array)) {
+            var dict_of_arrays = (Dict<Array>) dict;
 
             foreach (var sub_array_list in dict_of_arrays) {
                 builder.set_member_name (sub_array_list.key);
                 serialize_array (builder, sub_array_list.value, sub_array_list.value.element_type, names_case, ignore_default);
             }
 
-        } else if (element_type == typeof (HashMap)) {
-            var dict_of_dicts = (HashMap<string, HashMap>) dict;
+        } else if (element_type == typeof (Dict)) {
+            var dict_of_dicts = (Dict<Dict>) dict;
 
             foreach (var sub_dict in dict_of_dicts) {
                 builder.set_member_name (sub_dict.key);
@@ -159,7 +153,7 @@ namespace Serialize.JsonerSerializeSync {
             }
 
         } else if (element_type.is_object ()) {
-            foreach (var entry in (HashMap<string, Object>) dict) {
+            foreach (var entry in (Dict<Object>) dict) {
                 builder.set_member_name (entry.key);
                 serialize_object (builder, entry.value, names_case, ignore_default);
             }
@@ -167,21 +161,21 @@ namespace Serialize.JsonerSerializeSync {
         } else {
             switch (element_type) {
                 case Type.STRING:
-                    foreach (var entry in (HashMap<string, string>) dict) {
+                    foreach (var entry in (Dict<string>) dict) {
                         builder.set_member_name (entry.key);
                         serialize_value (builder, entry.value);
                     }
                     break;
 
                 case Type.INT:
-                    foreach (var entry in (HashMap<string, int>) dict) {
+                    foreach (var entry in (Dict<int>) dict) {
                         builder.set_member_name (entry.key);
                         serialize_value (builder, entry.value);
                     }
                     break;
 
                 case Type.INT64:
-                    foreach (var entry in (HashMap<string, int64?>) dict) {
+                    foreach (var entry in (Dict<int64?>) dict) {
                         builder.set_member_name (entry.key);
                         var tval = Value (Type.INT64);
                         tval.set_int64 (entry.value);
@@ -190,7 +184,7 @@ namespace Serialize.JsonerSerializeSync {
                     break;
 
                 case Type.DOUBLE:
-                    foreach (var entry in (HashMap<string, double?>) dict) {
+                    foreach (var entry in (Dict<double?>) dict) {
                         builder.set_member_name (entry.key);
                         var tval = Value (Type.DOUBLE);
                         tval.set_double (entry.value);
@@ -199,7 +193,7 @@ namespace Serialize.JsonerSerializeSync {
                     break;
 
                 case Type.BOOLEAN:
-                    foreach (var entry in (HashMap<string, bool>) dict) {
+                    foreach (var entry in (Dict<bool>) dict) {
                         builder.set_member_name (entry.key);
                         serialize_value (builder, entry.value);
                     }
@@ -243,14 +237,14 @@ namespace Serialize.JsonerSerializeSync {
 
             builder.set_member_name (Convert.kebab2any (prop_name, names_case));
 
-            if (property.value_type == typeof (ArrayList)) {
-                var array_list = (ArrayList) prop_val.get_object ();
+            if (property.value_type == typeof (Array)) {
+                var array_list = (Array) prop_val.get_object ();
                 Type element_type = array_list.element_type;
 
                 serialize_array (builder, array_list, element_type, names_case, ignore_default);
 
-            } else if (property.value_type == typeof (HashMap)) {
-                var hash_map = (HashMap) prop_val.get_object ();
+            } else if (property.value_type == typeof (Dict)) {
+                var hash_map = (Dict) prop_val.get_object ();
                 Type element_type = hash_map.value_type;
 
                 serialize_dict (builder, hash_map, element_type, names_case, ignore_default);

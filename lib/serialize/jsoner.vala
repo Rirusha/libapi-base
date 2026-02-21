@@ -17,9 +17,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gee;
-
-
 /**
  * Json helper for de/serialization
  */
@@ -130,7 +127,7 @@ public class Serialize.Jsoner : Object {
         Json.Node node,
         string[] sub_members
     ) throws JsonError {
-        var members_trace = new Array<string> ();
+        var members_trace = new GLib.Array<string> ();
 
         foreach (string member_name in sub_members) {
             members_trace.append_val (member_name);
@@ -208,7 +205,7 @@ public class Serialize.Jsoner : Object {
      * @throws JsonError        Error with json or sub_members
      */
     [Version (since = "6.0")]
-    public static inline ArrayList<T> simple_array_from_json<T> (
+    public static inline Array<T> simple_array_from_json<T> (
         string json,
         string[]? sub_members = null,
         Case names_case = Case.AUTO,
@@ -234,7 +231,7 @@ public class Serialize.Jsoner : Object {
      * @throws JsonError        Error with json or sub_members
      */
     [Version (since = "6.0")]
-    public static inline HashMap<string, T> simple_dict_from_json<T> (
+    public static inline Dict<T> simple_dict_from_json<T> (
         string json,
         string[]? sub_members = null,
         Case names_case = Case.AUTO,
@@ -305,21 +302,21 @@ public class Serialize.Jsoner : Object {
     }
 
     /**
-     * Method for deserializing the {@link Gee.ArrayList}
+     * Method for deserializing the {@link Array}
      *
      * @param collection_hierarchy A function for creating subsets in the case of arrays in an array
      *
      * @throws JsonError    Error with json string
      */
     [Version (since = "6.0")]
-    public inline ArrayList<T> deserialize_array<T> (
+    public inline Array<T> deserialize_array<T> (
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
         return JsonerDeserializeSync.deserialize_array<T> (this, collection_hierarchy);
     }
 
     /**
-     * Method for deserializing the {@link Gee.ArrayList}
+     * Method for deserializing the {@link Array}
      *
      * @param array_list        Array
      * @param collection_hierarchy A function for creating subsets in the case of arrays in an array
@@ -328,26 +325,26 @@ public class Serialize.Jsoner : Object {
      */
     [Version (since = "6.0")]
     public inline void deserialize_array_into (
-        ArrayList array_list,
+        Array array_list,
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
         JsonerDeserializeSync.deserialize_array_into (this, array_list, collection_hierarchy);
     }
 
     /**
-     * Method for deserializing the {@link Gee.HashMap}
+     * Method for deserializing the {@link Dict}
      *
      * @throws JsonError    Error with json string
      */
     [Version (since = "6.0")]
-    public inline HashMap<string, T> deserialize_dict<T> (
+    public inline Dict<T> deserialize_dict<T> (
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
         return JsonerDeserializeSync.deserialize_dict<T> (this, collection_hierarchy);
     }
 
     /**
-     * Method for deserializing the {@link Gee.HashMap}
+     * Method for deserializing the {@link Dict}
      *
      * @param dict              Dict
      *
@@ -355,7 +352,7 @@ public class Serialize.Jsoner : Object {
      */
     [Version (since = "6.0")]
     public inline void deserialize_dict_into (
-        HashMap dict,
+        Dict dict,
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
         JsonerDeserializeSync.deserialize_dict_into (this, dict, collection_hierarchy);
@@ -405,7 +402,7 @@ public class Serialize.Jsoner : Object {
      * @throws JsonError        Error with json or sub_members
      */
     [Version (since = "6.0")]
-    public async static inline ArrayList<T> simple_array_from_json_async<T> (
+    public async static inline Array<T> simple_array_from_json_async<T> (
         string json,
         string[]? sub_members = null,
         Case names_case = Case.AUTO
@@ -425,7 +422,7 @@ public class Serialize.Jsoner : Object {
      * @throws JsonError        Error with json or sub_members
      */
     [Version (since = "6.0")]
-    public async static inline HashMap<string, T> simple_dict_from_json_async<T> (
+    public async static inline Dict<T> simple_dict_from_json_async<T> (
         string json,
         string[]? sub_members = null,
         Case names_case = Case.AUTO
@@ -472,48 +469,64 @@ public class Serialize.Jsoner : Object {
     /**
      * Asynchronous version of method {@link deserialize_array}
      *
+     * @param collection_factories  {@link CollectionFactory} array of hierarchy for
+     *                              collection deserialization
+     *
      * @throws JsonError    Error with json string
      */
     [Version (since = "6.0")]
-    public async ArrayList<T> deserialize_array_async<T> () throws JsonError {
-        return yield JsonerDeserializeAsync.deserialize_array<T> (this);
+    public async Array<T> deserialize_array_async<T> (
+        CollectionFactory[] collection_factories = {}
+    ) throws JsonError {
+        return yield JsonerDeserializeAsync.deserialize_array<T> (this, collection_factories);
     }
 
     /**
      * Asynchronous version of method {@link deserialize_array_into}
      *
      * @param array_list        Array
+     * @param collection_factories  {@link CollectionFactory} array of hierarchy for
+     *                              collection deserialization
      *
      * @throws JsonError    Error with json string
      */
     [Version (since = "6.0")]
     public async inline void deserialize_array_into_async (
-        ArrayList array_list
+        Array array_list,
+        CollectionFactory[] collection_factories = {}
     ) throws JsonError {
-        yield JsonerDeserializeAsync.deserialize_array_into (this, array_list);
+        yield JsonerDeserializeAsync.deserialize_array_into (this, array_list, collection_factories);
     }
 
     /**
      * Asynchronous version of method {@link deserialize_dict}
      *
+     * @param collection_factories  {@link CollectionFactory} array of hierarchy for
+     *                              collection deserialization
+     *
      * @throws JsonError    Error with json string
      */
     [Version (since = "6.0")]
-    public async inline HashMap<string, T> deserialize_dict_async<T> () throws JsonError {
-        return yield JsonerDeserializeAsync.deserialize_dict<T> (this);
+    public async inline Dict<T> deserialize_dict_async<T> (
+        CollectionFactory[] collection_factories = {}
+    ) throws JsonError {
+        return yield JsonerDeserializeAsync.deserialize_dict<T> (this, collection_factories);
     }
 
     /**
      * Asynchronous version of method {@link deserialize_dict_into}
      *
-     * @param dict              Dict
+     * @param dict                  Dict
+     * @param collection_factories  {@link CollectionFactory} array of hierarchy for
+     *                              collection deserialization
      *
      * @throws JsonError    Error with json string
      */
     [Version (since = "6.0")]
     public async void deserialize_dict_into_async (
-        HashMap dict
+        Dict dict,
+        CollectionFactory[] collection_factories = {}
     ) throws JsonError {
-        yield JsonerDeserializeAsync.deserialize_dict_into (this, dict);
+        yield JsonerDeserializeAsync.deserialize_dict_into (this, dict, collection_factories);
     }
 }

@@ -31,7 +31,7 @@ public struct ApiBase.Content {
      * Set content dict
      */
     [Version (since = "6.0")]
-    public void set_dict (Gee.HashMap<string, string> dict) {
+    public void set_dict (Serialize.Dict<string> dict) {
         switch (content_type) {
             case X_WWW_FORM_URLENCODED:
                 content = Soup.Form.encode_datalist (Serialize.hashmap_to_datalist<string> (dict));

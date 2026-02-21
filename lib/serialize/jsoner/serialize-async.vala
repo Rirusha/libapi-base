@@ -17,8 +17,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gee;
-
 namespace Serialize.JsonerSerializeAsync {
 
     internal static async string serialize (

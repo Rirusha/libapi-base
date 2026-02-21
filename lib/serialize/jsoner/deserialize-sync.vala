@@ -17,8 +17,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gee;
-
 namespace Serialize.JsonerDeserializeSync {
 
     internal static T simple_from_json<T> (
@@ -30,7 +28,7 @@ namespace Serialize.JsonerDeserializeSync {
         return jsoner.deserialize_object<T> ();
     }
 
-    internal static ArrayList<T> simple_array_from_json<T> (
+    internal static Array<T> simple_array_from_json<T> (
         string json,
         string[]? sub_members = null,
         Case names_case = Case.AUTO,
@@ -40,7 +38,7 @@ namespace Serialize.JsonerDeserializeSync {
         return jsoner.deserialize_array<T> (collection_hierarchy);
     }
 
-    internal static HashMap<string, T> simple_dict_from_json<T> (
+    internal static Dict<T> simple_dict_from_json<T> (
         string json,
         string[]? sub_members = null,
         Case names_case = Case.AUTO,
@@ -99,7 +97,7 @@ namespace Serialize.JsonerDeserializeSync {
         var class_ref = (ObjectClass) obj_type.class_ref ();
         ParamSpec[] properties = class_ref.list_properties ();
 
-        var props_data = new Gee.HashMap<string, ParamSpec> ();
+        var props_data = new Dict<ParamSpec> ();
         foreach (ParamSpec property in properties) {
             if ((property.flags & ParamFlags.WRITABLE) == 0) {
                 continue;
@@ -139,7 +137,7 @@ namespace Serialize.JsonerDeserializeSync {
                 case Json.NodeType.ARRAY:
                     var arrayval = Value (prop_type);
                     obj.get_property (property.name, ref arrayval);
-                    ArrayList array_list = (Gee.ArrayList) arrayval.get_object ();
+                    Array array_list = (Array) arrayval.get_object ();
 
                     CollectionFactory[] carr = {};
                     var data_obj = obj as DataObject;
@@ -150,8 +148,8 @@ namespace Serialize.JsonerDeserializeSync {
                     assert (array_list != null || carr.length != 0);
 
                     if (carr.length != 0) {
-                        assert (carr[0] is ArrayFactory);
-                        array_list = (ArrayList) carr[0].build ();
+                        assert (carr[0] is Array);
+                        array_list = (Array) carr[0].build ();
                     }
 
                     carr = carr[1:carr.length];
@@ -164,10 +162,10 @@ namespace Serialize.JsonerDeserializeSync {
                     break;
 
                 case Json.NodeType.OBJECT:
-                    if (prop_type.is_a (typeof (HashMap))) {
+                    if (prop_type.is_a (typeof (Dict))) {
                         var dictval = Value (prop_type);
                         obj.get_property (property.name, ref dictval);
-                        HashMap hash_map = (HashMap) dictval.get_object ();
+                        Dict hash_map = (Dict) dictval.get_object ();
 
                         CollectionFactory[] carr = {};
                         var data_obj = obj as DataObject;
@@ -178,8 +176,8 @@ namespace Serialize.JsonerDeserializeSync {
                         assert (hash_map != null || carr.length != 0);
 
                         if (carr.length != 0) {
-                            assert (carr[0] is DictFactory);
-                            hash_map = (HashMap) carr[0].build ();
+                            assert (carr[0] is Dict);
+                            hash_map = (Dict) carr[0].build ();
                         }
 
                         carr = carr[1:carr.length];
@@ -272,19 +270,19 @@ namespace Serialize.JsonerDeserializeSync {
         return node.get_value ();
     }
 
-    internal ArrayList<T> deserialize_array<T> (
+    internal Array<T> deserialize_array<T> (
         Jsoner self,
-        CollectionFactory[] collection_hierarchy = {}
+        CollectionFactory[] collection_hierarchy
     ) throws JsonError {
-        var array_list = new ArrayList<T> ();
+        var array_list = new Array<T> ();
         deserialize_array_into (self, array_list, collection_hierarchy);
         return array_list;
     }
 
     internal void deserialize_array_into (
         Jsoner self,
-        ArrayList array_list,
-        CollectionFactory[] collection_hierarchy = {},
+        Array array_list,
+        CollectionFactory[] collection_hierarchy,
         Json.Node? node = null
     ) throws JsonError {
         if (node == null) {
@@ -301,37 +299,37 @@ namespace Serialize.JsonerDeserializeSync {
 
         var jarray = node.get_array ();
 
-        if (array_list.element_type == typeof (ArrayList)) {
+        if (array_list.element_type == typeof (Array)) {
             var collection_factory = collection_hierarchy[0];
 
-            assert (collection_factory is ArrayFactory);
+            assert (collection_factory is Array);
 
             foreach (var sub_node in jarray.get_elements ()) {
-                var arr_obj = (ArrayList) collection_factory.build ();
+                var arr_obj = (Array) collection_factory.build ();
                 try {
                     deserialize_array_into (self, arr_obj, collection_hierarchy[1:collection_hierarchy.length], sub_node);
 
-                    ((ArrayList<ArrayList>) array_list).add (arr_obj);
+                    ((Array<Array>) array_list).add (arr_obj);
                 } catch (JsonError e) {}
             }
 
-        } else if (array_list.element_type == typeof (HashMap)) {
+        } else if (array_list.element_type == typeof (Dict)) {
             var collection_factory = collection_hierarchy[0];
 
-            assert (collection_factory is DictFactory);
+            assert (collection_factory is Dict);
 
             foreach (var sub_node in jarray.get_elements ()) {
-                var dict_obj = (HashMap) collection_factory.build ();
+                var dict_obj = (Dict) collection_factory.build ();
                 try {
                     deserialize_dict_into (self, dict_obj, collection_hierarchy[1:collection_hierarchy.length], sub_node);
 
-                    ((ArrayList<HashMap>) array_list).add (dict_obj);
+                    ((Array<Dict>) array_list).add (dict_obj);
                 } catch (JsonError e) {}
             }
 
         } else if (array_list.element_type.is_object ()) {
             array_list.clear ();
-            var narray_list = array_list as ArrayList<Object>;
+            var narray_list = array_list as Array<Object>;
 
             foreach (var sub_node in jarray.get_elements ()) {
                 try {
@@ -349,23 +347,23 @@ namespace Serialize.JsonerDeserializeSync {
 
                 switch (array_list.element_type) {
                     case Type.STRING:
-                        ((ArrayList<string>) array_list).add (new_val.get_string ());
+                        ((Array<string>) array_list).add (new_val.get_string ());
                         break;
 
                     case Type.INT:
-                        ((ArrayList<int>) array_list).add (new_val.get_int ());
+                        ((Array<int>) array_list).add (new_val.get_int ());
                         break;
 
                     case Type.INT64:
-                        ((ArrayList<int64?>) array_list).add (new_val.get_int64 ());
+                        ((Array<int64?>) array_list).add (new_val.get_int64 ());
                         break;
 
                     case Type.DOUBLE:
-                        ((ArrayList<double?>) array_list).add (new_val.get_double ());
+                        ((Array<double?>) array_list).add (new_val.get_double ());
                         break;
 
                     case Type.BOOLEAN:
-                        ((ArrayList<bool>) array_list).add (new_val.get_boolean ());
+                        ((Array<bool>) array_list).add (new_val.get_boolean ());
                         break;
 
                     default:
@@ -378,19 +376,19 @@ namespace Serialize.JsonerDeserializeSync {
         }
     }
 
-    internal HashMap<string, T> deserialize_dict<T> (
+    internal Dict<T> deserialize_dict<T> (
         Jsoner self,
-        CollectionFactory[] collection_hierarchy = {}
+        CollectionFactory[] collection_hierarchy
     ) throws JsonError {
-        var dict = new HashMap<string, T> ();
+        var dict = new Dict<T> ();
         deserialize_dict_into (self, dict, collection_hierarchy);
         return dict;
     }
 
     internal void deserialize_dict_into (
         Jsoner self,
-        HashMap dict,
-        CollectionFactory[] collection_hierarchy = {},
+        Dict dict,
+        CollectionFactory[] collection_hierarchy,
         Json.Node? node = null
     ) throws JsonError {
         if (node == null) {
@@ -405,42 +403,38 @@ namespace Serialize.JsonerDeserializeSync {
             throw new JsonError.WRONG_TYPE ("Node isn't object");
         }
 
-        if (dict.key_type != Type.STRING) {
-            error ("HashMap can only have string as key type");
-        }
-
         dict.clear ();
         var jobject = node.get_object ();
 
-        if (dict.value_type == typeof (ArrayList)) {
+        if (dict.value_type == typeof (Array)) {
             var collection_factory = collection_hierarchy[0];
 
-            assert (collection_factory is ArrayFactory);
+            assert (collection_factory is Array);
 
             foreach (var member_name in jobject.get_members ()) {
-                var arr_obj = (ArrayList) collection_factory.build ();
+                var arr_obj = (Array) collection_factory.build ();
                 var sub_node = jobject.get_member (member_name);
 
                 try {
                     deserialize_array_into (self, arr_obj, collection_hierarchy[1:collection_hierarchy.length], sub_node);
 
-                    ((HashMap<string, ArrayList>) dict)[member_name] = arr_obj;
+                    ((Dict<Array>) dict)[member_name] = arr_obj;
                 } catch (JsonError e) {}
             }
 
-        } else if (dict.value_type == typeof (HashMap)) {
+        } else if (dict.value_type == typeof (Dict)) {
             var collection_factory = collection_hierarchy[0];
 
-            assert (collection_factory is DictFactory);
+            assert (collection_factory is Dict);
 
             foreach (var member_name in jobject.get_members ()) {
-                var dict_obj = (HashMap) collection_factory.build ();
+                var dict_obj = (Dict) collection_factory.build ();
                 var sub_node = jobject.get_member (member_name);
 
                 try {
                     deserialize_dict_into (self, dict_obj, collection_hierarchy[1:collection_hierarchy.length], sub_node);
 
-                    ((HashMap<string, HashMap>) dict)[member_name] = dict_obj;
+                    ((Dict<Dict>) dict)[member_name] = dict_obj;
                 } catch (JsonError e) {}
             }
 
@@ -449,7 +443,7 @@ namespace Serialize.JsonerDeserializeSync {
                 var sub_node = jobject.get_member (member_name);
 
                 try {
-                    ((HashMap<string, Object>) dict)[member_name] = deserialize_object_by_type (
+                    ((Dict<Object>) dict)[member_name] = deserialize_object_by_type (
                         self,
                         dict.value_type,
                         sub_node
@@ -466,23 +460,23 @@ namespace Serialize.JsonerDeserializeSync {
 
                 switch (dict.value_type) {
                     case Type.STRING:
-                        ((HashMap<string, string>) dict)[member_name] = new_val.get_string ();
+                        ((Dict<string>) dict)[member_name] = new_val.get_string ();
                         break;
 
                     case Type.INT:
-                        ((HashMap<string, int>) dict)[member_name] = new_val.get_int ();
+                        ((Dict<int>) dict)[member_name] = new_val.get_int ();
                         break;
 
                     case Type.INT64:
-                        ((HashMap<string, int64?>) dict)[member_name] = new_val.get_int64 ();
+                        ((Dict<int64?>) dict)[member_name] = new_val.get_int64 ();
                         break;
 
                     case Type.DOUBLE:
-                        ((HashMap<string, double?>) dict)[member_name] = new_val.get_double ();
+                        ((Dict<double?>) dict)[member_name] = new_val.get_double ();
                         break;
 
                     case Type.BOOLEAN:
-                        ((HashMap<string, bool>) dict)[member_name] = new_val.get_boolean ();
+                        ((Dict<bool>) dict)[member_name] = new_val.get_boolean ();
                         break;
 
                     default:

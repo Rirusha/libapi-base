@@ -18,10 +18,16 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-[GenericAccessors]
-public interface Serialize.CollectionFactory<T> : Object {
+public class Serialize.Dict<T> : Gee.HashMap<string, T>, CollectionFactory<T> {
 
-    public virtual Type element_type { get { return typeof (T); } }
+    public Dict (owned Gee.EqualDataFunc<V>? value_equal_func = null) {
+        base (null, null, value_equal_func);
+    }
 
-    public abstract CollectionFactory<T> build ();
+    /**
+     * Create new empty Dict
+     */
+    public CollectionFactory<T> build () {
+        return new Dict<T> (value_equal_func);
+    }
 }

@@ -18,10 +18,16 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-[GenericAccessors]
-public interface Serialize.CollectionFactory<T> : Object {
+public class Serialize.Array<T> : Gee.ArrayList<T>, CollectionFactory<T> {
 
-    public virtual Type element_type { get { return typeof (T); } }
+    public Array (owned Gee.EqualDataFunc<G>? equal_func = null) {
+        base (equal_func);
+    }
 
-    public abstract CollectionFactory<T> build ();
+    /**
+     * Create new empty Array
+     */
+    public CollectionFactory<T> build () {
+        return new Array<T> (equal_func);
+    }
 }

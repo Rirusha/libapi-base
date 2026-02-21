@@ -17,8 +17,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gee;
-
 namespace Serialize.JsonerDeserializeAsync {
 
     internal async static T simple_from_json<T> (
@@ -54,15 +52,15 @@ namespace Serialize.JsonerDeserializeAsync {
         return thread.join ();
     }
 
-    internal async static ArrayList<T> simple_array_from_json<T> (
+    internal async static Array<T> simple_array_from_json<T> (
         string json,
         string[]? sub_members,
         Case names_case
     ) throws JsonError {
         JsonError? error = null;
 
-        var thread = new Thread<ArrayList<T>?> (null, () => {
-            ArrayList<T>? result = null;
+        var thread = new Thread<Array<T>?> (null, () => {
+            Array<T>? result = null;
 
             try {
                 result = JsonerDeserializeSync.simple_array_from_json<T> (
@@ -87,15 +85,15 @@ namespace Serialize.JsonerDeserializeAsync {
         return thread.join ();
     }
 
-    internal async static HashMap<string, T> simple_dict_from_json<T> (
+    internal async static Dict<T> simple_dict_from_json<T> (
         string json,
         string[]? sub_members,
         Case names_case
     ) throws JsonError {
         JsonError? error = null;
 
-        var thread = new Thread<HashMap<string, T>?> (null, () => {
-            HashMap<string, T>? result = null;
+        var thread = new Thread<Dict<T>?> (null, () => {
+            Dict<T>? result = null;
 
             try {
                 result = JsonerDeserializeSync.simple_dict_from_json<T> (
@@ -201,16 +199,17 @@ namespace Serialize.JsonerDeserializeAsync {
         thread.join ();
     }
 
-    internal async ArrayList<T> deserialize_array<T> (
-        Jsoner self
+    internal async Array<T> deserialize_array<T> (
+        Jsoner self,
+        CollectionFactory[] collection_factories
     ) throws JsonError {
         JsonError? error = null;
 
-        var thread = new Thread<ArrayList<T>?> (null, () => {
-            ArrayList<T>? result = null;
+        var thread = new Thread<Array<T>?> (null, () => {
+            Array<T>? result = null;
 
             try {
-                result = JsonerDeserializeSync.deserialize_array (self);
+                result = JsonerDeserializeSync.deserialize_array<T> (self, collection_factories);
             } catch (JsonError e) {
                 error = e;
             }
@@ -230,13 +229,14 @@ namespace Serialize.JsonerDeserializeAsync {
 
     internal async void deserialize_array_into (
         Jsoner self,
-        ArrayList array_list
+        Array array_list,
+        CollectionFactory[] collection_factories
     ) throws JsonError {
         JsonError? error = null;
 
         var thread = new Thread<void> (null, () => {
             try {
-                JsonerDeserializeSync.deserialize_array_into (self, array_list);
+                JsonerDeserializeSync.deserialize_array_into (self, array_list, collection_factories);
             } catch (JsonError e) {
                 error = e;
             }
@@ -254,16 +254,17 @@ namespace Serialize.JsonerDeserializeAsync {
         thread.join ();
     }
 
-    internal async HashMap<string, T> deserialize_dict<T> (
-        Jsoner self
+    internal async Dict<T> deserialize_dict<T> (
+        Jsoner self,
+        CollectionFactory[] collection_factories
     ) throws JsonError {
         JsonError? error = null;
 
-        var thread = new Thread<HashMap<string, T>?> (null, () => {
-            HashMap<string, T>? result = null;
+        var thread = new Thread<Dict<T>?> (null, () => {
+            Dict<T>? result = null;
 
             try {
-                result = JsonerDeserializeSync.deserialize_dict<T> (self);
+                result = JsonerDeserializeSync.deserialize_dict<T> (self, collection_factories);
             } catch (JsonError e) {
                 error = e;
             }
@@ -283,13 +284,14 @@ namespace Serialize.JsonerDeserializeAsync {
 
     internal async void deserialize_dict_into (
         Jsoner self,
-        HashMap dict
+        Dict dict,
+        CollectionFactory[] collection_factories
     ) throws JsonError {
         JsonError? error = null;
 
         var thread = new Thread<void> (null, () => {
             try {
-                JsonerDeserializeSync.deserialize_dict_into (self, dict);
+                JsonerDeserializeSync.deserialize_dict_into (self, dict, collection_factories);
             } catch (JsonError e) {
                 error = e;
             }

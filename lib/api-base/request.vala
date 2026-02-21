@@ -243,7 +243,7 @@ public class ApiBase.Request : Object {
     }
 
     string form_paramed_uri () {
-        var final_parameters = new Gee.ArrayList<string> ();
+        var final_parameters = new Serialize.Array<string> ();
         final_parameters.add_all_iterator (parameters.map<string> ((el) => {
             return el.to_string ();
         }));

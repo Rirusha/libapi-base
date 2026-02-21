@@ -88,29 +88,29 @@ public class SimpleObject : DataObject {
 }
 
 public class TestObjectArrayString : DataObject {
-    public Gee.ArrayList<string> value { get; set; default = new Gee.ArrayList<string> (); }
+    public Serialize.Array<string> value { get; set; default = new Serialize.Array<string> (); }
 }
 
 public class TestObjectDictString : DataObject {
-    public Gee.HashMap<string, string> value { get; set; default = new Gee.HashMap<string, string> (); }
+    public Serialize.Dict<string> value { get; set; default = new Serialize.Dict<string> (); }
 }
 
 public class TestObjectArrayObject : DataObject {
-    public Gee.ArrayList<SimpleObject> value { get; set; default = new Gee.ArrayList<SimpleObject> (); }
+    public Serialize.Array<SimpleObject> value { get; set; default = new Serialize.Array<SimpleObject> (); }
 }
 
 public class TestObjectArrayArray : Object {
-    public Gee.ArrayList<Gee.ArrayList<SimpleObject>> value { get; set; default = new Gee.ArrayList<Gee.ArrayList<SimpleObject>> (); }
+    public Serialize.Array<Serialize.Array<SimpleObject>> value { get; set; default = new Serialize.Array<Serialize.Array<SimpleObject>> (); }
 }
 
 public class TestObjectAlbum : DataObject {
-    public Gee.ArrayList<Gee.ArrayList<TestObjectInt>> value { get; set; default = new Gee.ArrayList<Gee.ArrayList<TestObjectInt>> (); }
+    public Serialize.Array<Serialize.Array<TestObjectInt>> value { get; set; default = new Serialize.Array<Serialize.Array<TestObjectInt>> (); }
 
     public override CollectionFactory[] collection_factories (string property_name) {
         if (property_name == "value") {
             return {
-                new ArrayFactory<Gee.ArrayList> (),
-                new ArrayFactory<TestObjectInt> ()
+                new Serialize.Array<Serialize.Array> (),
+                new Serialize.Array<TestObjectInt> ()
             };
         }
         return {};
@@ -118,14 +118,14 @@ public class TestObjectAlbum : DataObject {
 }
 
 public class TestObjectAlbum2 : DataObject {
-    public Gee.ArrayList<Gee.ArrayList<Gee.HashMap<string, int>>> value { get; set; }
+    public Serialize.Array<Serialize.Array<Serialize.Dict<int>>> value { get; set; }
 
     public override CollectionFactory[] collection_factories (string property_name) {
         if (property_name == "value") {
             return {
-                new ArrayFactory<Gee.ArrayList> (),
-                new ArrayFactory<Gee.HashMap> (),
-                new DictFactory<int> ()
+                new Serialize.Array<Serialize.Array> (),
+                new Serialize.Array<Serialize.Dict> (),
+                new Serialize.Dict<int> ()
             };
         }
         return {};
@@ -322,7 +322,7 @@ public int main (string[] args) {
     Test.add_func ("/jsoner/serialize/dict/string/direct", () => {
         var expected_json = "{\"kekw\":\"yes\",\"kek\":\"no\"}";
 
-        var obj = new Gee.HashMap<string, string> ();
+        var obj = new Serialize.Dict<string> ();
         obj.set ("kekw", "yes");
         obj.set ("kek", "no");
 
@@ -386,9 +386,9 @@ public int main (string[] args) {
 
     Test.add_func ("/jsoner/serialize/array/array", () => {
         var test_object = new TestObjectArrayArray ();
-        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
-        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
-        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
+        test_object.value.add (new Serialize.Array<SimpleObject> ());
+        test_object.value.add (new Serialize.Array<SimpleObject> ());
+        test_object.value.add (new Serialize.Array<SimpleObject> ());
         test_object.value[0].add (new SimpleObject ());
         test_object.value[0].add (new SimpleObject ());
         test_object.value[1].add (new SimpleObject () { string_value = "why are we still here", int_value = 42 });
@@ -406,9 +406,9 @@ public int main (string[] args) {
 
     Test.add_func ("/jsoner/serialize/array/array/without-default", () => {
         var test_object = new TestObjectArrayArray ();
-        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
-        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
-        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
+        test_object.value.add (new Serialize.Array<SimpleObject> ());
+        test_object.value.add (new Serialize.Array<SimpleObject> ());
+        test_object.value.add (new Serialize.Array<SimpleObject> ());
         test_object.value[0].add (new SimpleObject ());
         test_object.value[0].add (new SimpleObject ());
         test_object.value[1].add (new SimpleObject () { string_value = "why are we still here", int_value = 42 });
