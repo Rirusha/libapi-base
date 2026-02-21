@@ -103,10 +103,10 @@ public class TestObjectArrayArray : Object {
     public Serialize.Array<Serialize.Array<SimpleObject>> value { get; set; default = new Serialize.Array<Serialize.Array<SimpleObject>> (); }
 }
 
-public class TestObjectAlbum : DataObject {
+public class TestObjectAlbum : DataObject, HasComplexCollections {
     public Serialize.Array<Serialize.Array<TestObjectInt>> value { get; set; default = new Serialize.Array<Serialize.Array<TestObjectInt>> (); }
 
-    public override CollectionFactory[] collection_factories (string property_name) {
+    public CollectionFactory[] collection_factories (string property_name) {
         if (property_name == "value") {
             return {
                 new Serialize.Array<Serialize.Array> (),
@@ -117,10 +117,10 @@ public class TestObjectAlbum : DataObject {
     }
 }
 
-public class TestObjectAlbum2 : DataObject {
+public class TestObjectAlbum2 : DataObject, HasComplexCollections {
     public Serialize.Array<Serialize.Array<Serialize.Dict<int>>> value { get; set; }
 
-    public override CollectionFactory[] collection_factories (string property_name) {
+    public CollectionFactory[] collection_factories (string property_name) {
         if (property_name == "value") {
             return {
                 new Serialize.Array<Serialize.Array> (),

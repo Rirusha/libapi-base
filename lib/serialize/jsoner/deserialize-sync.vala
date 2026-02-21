@@ -140,9 +140,9 @@ namespace Serialize.JsonerDeserializeSync {
                     Array array_list = (Array) arrayval.get_object ();
 
                     CollectionFactory[] carr = {};
-                    var data_obj = obj as DataObject;
-                    if (data_obj != null) {
-                        carr = data_obj.collection_factories (property.name);
+                    var complex_col_obj = obj as HasComplexCollections;
+                    if (complex_col_obj != null) {
+                        carr = complex_col_obj.collection_factories (property.name);
                     }
 
                     assert (array_list != null || carr.length != 0);
@@ -168,9 +168,9 @@ namespace Serialize.JsonerDeserializeSync {
                         Dict hash_map = (Dict) dictval.get_object ();
 
                         CollectionFactory[] carr = {};
-                        var data_obj = obj as DataObject;
-                        if (data_obj != null) {
-                            carr = data_obj.collection_factories (property.name);
+                        var complex_col_obj = obj as HasComplexCollections;
+                        if (complex_col_obj != null) {
+                            carr = complex_col_obj.collection_factories (property.name);
                         }
 
                         assert (hash_map != null || carr.length != 0);

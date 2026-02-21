@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 Vladimir Romanov <rirusha@altlinux.org>
+ * Copyright (C) 2025-2026 Vladimir Romanov <rirusha@altlinux.org>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,15 +19,20 @@
  */
 
 /**
- * Helper interface for chosing class to deserialize
+ * Helper interface for complex collection deserializtion
  */
-[Version (since = "6.0")]
-public interface TypeFamily : Object {
+[Version (since = "7.0")]
+public interface Serialize.HasComplexCollections : Object {
 
     /**
-     * Return object type to deserialize
+     * Function for creating collection objects with generics. Used only
+     * for Collection<Collection<...>> types. Collection<Collection<Collection<...>>>
+     * doesn't supports.
      *
-     * @param node  Object node
+     * @param property_name Property name
+     *
+     * @return              Collection object
      */
-    public abstract Type match_type (Json.Node node);
+    [Version (since = "7.0")]
+    public abstract CollectionFactory[] collection_factories (string property_name);
 }

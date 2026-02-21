@@ -19,10 +19,11 @@
  */
 
 /**
- * A class with convenient methods for fast de/serialization
+ * A helper class with convenient methods for fast de/serialization
  *
  * To change json property name, change property nick via Description attribure
- * Example: `custom_nick` will be `renamed` in json data
+ * Example: `custom_nick` will be `renamed` in json data. It works for any {@link Object},
+ * not only {@link DataObject}
  * {{{
  *   public class ValuesData : DataObject {
  *      [Description (nick="renamed")]
@@ -32,7 +33,6 @@
  */
 [Version (since = "6.0")]
 public abstract class Serialize.DataObject : Object {
-
 
     /**
      * Parse json and fill up this object via
@@ -56,19 +56,5 @@ public abstract class Serialize.DataObject : Object {
     [Version (since = "6.0")]
     public string to_json (Case names_case = Case.AUTO) {
         return Jsoner.serialize (this, names_case);
-    }
-
-    /**
-     * Function for creating collection objects with generics. Used only
-     * for Collection<Collection<...>> types. Collection<Collection<Collection<...>>>
-     * doesn't supports.
-     *
-     * @param property_name Property name
-     *
-     * @return              Collection object
-     */
-    [Version (since = "6.0")]
-    public virtual CollectionFactory[] collection_factories (string property_name) {
-        return {};
     }
 }

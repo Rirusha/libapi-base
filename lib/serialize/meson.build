@@ -33,15 +33,17 @@ serialize_vala_sources = files(
   'jsoner/serialize-async.vala',
   'jsoner/serialize-sync.vala',
 
+  'object-helpers/data-object.vala',
+  'object-helpers/has-complex-collections.vala',
+  'object-helpers/type-famaly.vala',
+
   'array.vala',
   'collection-factory.vala',
   'convert.vala',
-  'data-object.vala',
   'dict.vala',
   'enums.vala',
   'errors.vala',
   'jsoner.vala',
-  'type-famaly.vala',
   'utils.vala',
 )
 
