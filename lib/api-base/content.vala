@@ -34,7 +34,7 @@ public struct ApiBase.Content {
     public void set_dict (Serialize.Dict<string> dict) {
         switch (content_type) {
             case X_WWW_FORM_URLENCODED:
-                content = Soup.Form.encode_datalist (Serialize.hashmap_to_datalist<string> (dict));
+                content = Soup.Form.encode_datalist (Serialize.Convert.dict2datalist<string> (dict));
                 break;
             case JSON:
                 content = Serialize.Jsoner.serialize (dict);
@@ -54,7 +54,7 @@ public struct ApiBase.Content {
                 content = Soup.Form.encode_datalist (datalist);
                 break;
             case JSON:
-                content = Serialize.Jsoner.serialize (Serialize.datalist_to_hashmap<string> (datalist));
+                content = Serialize.Jsoner.serialize (Serialize.Convert.datalist2dict<string> (datalist));
                 break;
             default:
                 assert_not_reached ();

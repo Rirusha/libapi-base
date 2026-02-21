@@ -154,26 +154,4 @@ namespace Serialize {
 
         return false;
     }
-
-    [Version (since = "6.0")]
-    public Datalist<T> hashmap_to_datalist<T> (Dict<T> hash_map) {
-        var dl = Datalist<T> ();
-
-        foreach (var entry in hash_map) {
-            dl.set_data (entry.key, entry.value);
-        }
-
-        return dl;
-    }
-
-    [Version (since = "6.0")]
-    public Dict<T> datalist_to_hashmap<T> (Datalist<T> datalist) {
-        var hash_map = new Dict<T> ();
-
-        datalist.foreach ((key_quark, value) => {
-            hash_map.set (key_quark.to_string (), value);
-        });
-
-        return hash_map;
-    }
 }
