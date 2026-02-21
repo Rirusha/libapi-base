@@ -65,9 +65,9 @@ namespace Serialize.JsonerDeserializeSync {
         if (obj_type.is_a (typeof (TypeFamily))) {
             var actual_type = ((TypeFamily)obj).match_type (node ?? self.root);
             debug (
-                    "Type transition %s -> %s",
-                    obj_type.name (), actual_type.name ()
-                );
+                "Type transition %s -> %s",
+                obj_type.name (), actual_type.name ()
+            );
             obj = Object.new (actual_type);
         }
 
