@@ -33,20 +33,20 @@ public class Serialize.Dict<T> : Gee.HashMap<string, T>, CollectionFactory<T> {
 
     [NoReturn]
     internal inline void print_type_warning (Type actual_type) {
-        warning ("Dict: expected '%s' value type, got '%s'", element_type.name (), actual_type.name ());
+        warning ("Dict: expected '%s' value type, got '%s'", value_type.name (), actual_type.name ());
     }
 
-    //  element_type must be an {@link Object} type
+    //  value_type must be an {@link Object} type
     internal inline void set_object (string key, Object obj) {
         ((Dict<Object>) this).set (key, obj);
     }
 
-    //  element_type must be an {@link Array} type
+    //  value_type must be an {@link Array} type
     internal inline void set_array (string key, Array array) {
         ((Dict<Array>) this).set (key, array);
     }
 
-    //  element_type must be an {@link Dict} type
+    //  value_type must be an {@link Dict} type
     internal inline void set_dict (string key, Dict dict) {
         ((Dict<Dict>) this).set (key, dict);
     }
@@ -54,8 +54,8 @@ public class Serialize.Dict<T> : Gee.HashMap<string, T>, CollectionFactory<T> {
     internal inline void set_base (string key, owned Value value) {
         Value nval;
 
-        if (element_type != value.type ()) {
-            nval = Value (element_type);
+        if (value_type != value.type ()) {
+            nval = Value (value_type);
             if (!Convert.value2value (ref value, ref nval)) {
                 return;
             }
@@ -101,25 +101,67 @@ public class Serialize.Dict<T> : Gee.HashMap<string, T>, CollectionFactory<T> {
         }
     }
 
+    internal void foreach_base (DictForeachBaseFunc foreach_func) {
+        var val = Value (value_type);
+
+        foreach (var entry in this) {
+            switch (value_type) {
+                case Type.STRING:
+                    val.set_string ((string) entry.value);
+                    break;
+
+                case Type.INT:
+                    val.set_int ((int) entry.value);
+                    break;
+
+                case Type.INT64:
+                    val.set_int64 ((int64?) entry.value);
+                    break;
+
+                case Type.DOUBLE:
+                    val.set_double ((double?) entry.value);
+                    break;
+
+                case Type.BOOLEAN:
+                    val.set_boolean ((bool) entry.value);
+                    break;
+
+                case Type.NONE:
+                    break;
+
+                default:
+                    if (value_type == typeof (DateTime)) {
+                        val.set_boxed ((DateTime?) entry.value);
+
+                    } else if (value_type.is_enum ()) {
+                        val.set_enum ((int) entry.value);
+                    }
+                    break;
+            }
+
+            foreach_func (entry.key, val);
+        }
+    }
+
     //  TODO: doc
     //  Also check types and print warning
     public void set_value (string key, Value value) {
-        if (element_type == typeof (Array)) {
+        if (value_type == typeof (Array)) {
             if (value.type () != typeof (Array)) {
                 print_type_warning (value.type ());
             }
             set_array (key, (Array) value.get_object ());
 
-        } else if (element_type == typeof (Dict)) {
+        } else if (value_type == typeof (Dict)) {
             if (value.type () != typeof (Dict)) {
                 print_type_warning (value.type ());
             }
             set_dict (key, (Dict) value.get_object ());
 
-        } else if (element_type.is_object ()) {
+        } else if (value_type.is_object ()) {
             set_object (key, value.get_object ());
 
-        } else if (element_type in SUPPORTED_BASE_TYPES || element_type == typeof (DateTime) || element_type.is_enum ()) {
+        } else if (value_type in SUPPORTED_BASE_TYPES || value_type == typeof (DateTime) || value_type.is_enum ()) {
             set_base (key, value);
         }
     }

@@ -19,6 +19,15 @@
 
 namespace Serialize.JsonerDeserializeSync {
 
+    internal void check_node_type (Json.Node node, Json.NodeType node_type) throws JsonError {
+        if (node.get_node_type () != node_type) {
+            throw new JsonError.WRONG_TYPE ("Wrong node type: expected '%s', got '%s'",
+                node_type.to_string (),
+                node.get_node_type ().to_string ()
+            );
+        }
+    }
+
     internal static T simple_from_json<T> (
         string json,
         string[]? sub_members,
@@ -46,6 +55,14 @@ namespace Serialize.JsonerDeserializeSync {
     ) throws JsonError {
         var jsoner = new Jsoner (json, sub_members, names_case);
         return jsoner.deserialize_dict<T> (collection_hierarchy);
+    }
+
+    internal Dict<Value?> deserialize (
+        Jsoner self
+    ) throws JsonError {
+        var dict = new Dict<Value?> ();
+        deserialize_dict_into (self, dict, {});
+        return dict;
     }
 
     internal T deserialize_object<T> (
@@ -83,13 +100,7 @@ namespace Serialize.JsonerDeserializeSync {
             node = self.root;
         }
 
-        if (node.get_node_type () != Json.NodeType.OBJECT) {
-            warning ("Wrong type: expected %s, got %s",
-                Json.NodeType.OBJECT.to_string (),
-                node.get_node_type ().to_string ()
-            );
-            throw new JsonError.WRONG_TYPE ("Node isn't object");
-        }
+        check_node_type (node, Json.NodeType.OBJECT);
 
         obj.freeze_notify ();
 
@@ -226,14 +237,7 @@ namespace Serialize.JsonerDeserializeSync {
             node = self.root;
         }
 
-        if (node.get_node_type () != Json.NodeType.VALUE) {
-            warning ("Wrong type: expected %s, got %s",
-                Json.NodeType.VALUE.to_string (),
-                node.get_node_type ().to_string ()
-            );
-
-            throw new JsonError.WRONG_TYPE ("Node isn't value");
-        }
+        check_node_type (node, Json.NodeType.VALUE);
 
         return node.get_value ();
     }
@@ -257,13 +261,7 @@ namespace Serialize.JsonerDeserializeSync {
             node = self.root;
         }
 
-        if (node.get_node_type () != Json.NodeType.ARRAY) {
-            warning ("Wrong type: expected %s, got %s",
-                Json.NodeType.ARRAY.to_string (),
-                node.get_node_type ().to_string ()
-            );
-            throw new JsonError.WRONG_TYPE ("Node isn't array");
-        }
+        check_node_type (node, Json.NodeType.ARRAY);
 
         var jarray = node.get_array ();
         array_list.clear ();
@@ -305,7 +303,38 @@ namespace Serialize.JsonerDeserializeSync {
 
         } else {
             foreach (var sub_node in jarray.get_elements ()) {
-                array_list.add_base (deserialize_value (self, sub_node));
+                if (array_list.element_type == typeof (Value?)) {
+                    var varray = (Array<Value?>) array_list;
+
+                    switch (sub_node.get_node_type ()) {
+                        case OBJECT:
+                            var sub_dict = new Dict<Value?> ();
+                            deserialize_dict_into (self, sub_dict, {}, sub_node);
+                            var dict_val = Value (typeof (Dict));
+                            dict_val.set_object (sub_dict);
+                            varray.add (dict_val);
+                            break;
+
+                        case ARRAY:
+                            var sub_array = new Array<Value?> ();
+                            deserialize_array_into (self, sub_array, {}, sub_node);
+                            var dict_val = Value (typeof (Array));
+                            dict_val.set_object (sub_array);
+                            varray.add (dict_val);
+                            break;
+
+                        case VALUE:
+                            varray.add (deserialize_value (self, sub_node));
+                            break;
+
+                        case NULL:
+                            varray.add (Value (Type.NONE));
+                            break;
+                    }
+
+                } else {
+                    array_list.add_base (deserialize_value (self, sub_node));
+                }
             }
         }
     }
@@ -329,13 +358,7 @@ namespace Serialize.JsonerDeserializeSync {
             node = self.root;
         }
 
-        if (node.get_node_type () != Json.NodeType.OBJECT) {
-            warning ("Wrong type: expected %s, got %s",
-                Json.NodeType.OBJECT.to_string (),
-                node.get_node_type ().to_string ()
-            );
-            throw new JsonError.WRONG_TYPE ("Node isn't object");
-        }
+        check_node_type (node, Json.NodeType.OBJECT);
 
         dict.clear ();
         var jobject = node.get_object ();
@@ -388,7 +411,39 @@ namespace Serialize.JsonerDeserializeSync {
         } else {
             foreach (var member_name in jobject.get_members ()) {
                 var sub_node = jobject.get_member (member_name);
-                dict.set_base (member_name, deserialize_value (self, sub_node));
+
+                if (dict.value_type == typeof (Value?)) {
+                    var vdict = (Dict<Value?>) dict;
+
+                    switch (sub_node.get_node_type ()) {
+                        case OBJECT:
+                            var sub_dict = new Dict<Value?> ();
+                            deserialize_dict_into (self, sub_dict, {}, sub_node);
+                            var dict_val = Value (typeof (Dict));
+                            dict_val.set_object (sub_dict);
+                            vdict.set (member_name, dict_val);
+                            break;
+
+                        case ARRAY:
+                            var sub_array = new Array<Value?> ();
+                            deserialize_array_into (self, sub_array, {}, sub_node);
+                            var dict_val = Value (typeof (Array));
+                            dict_val.set_object (sub_array);
+                            vdict.set (member_name, dict_val);
+                            break;
+
+                        case VALUE:
+                            vdict.set (member_name, deserialize_value (self, sub_node));
+                            break;
+
+                        case NULL:
+                            vdict.set (member_name, Value (Type.NONE));
+                            break;
+                    }
+
+                } else {
+                    dict.set_base (member_name, deserialize_value (self, sub_node));
+                }
             }
         }
     }

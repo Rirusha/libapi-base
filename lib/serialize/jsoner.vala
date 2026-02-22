@@ -172,8 +172,6 @@ public class Serialize.Jsoner : Object {
      * @param json              Json string
      * @param sub_members       Sub members to 'steps'
      * @param names_case        Case of names in json
-     * @param sub_creation_func Function for creating collection
-     *                          objects with generics
      *
      * @return                  Deserialized object
      *
@@ -194,15 +192,15 @@ public class Serialize.Jsoner : Object {
      * Simple version for fast deserialization without
      * manual {@link Jsoner} instance creation
      *
-     * @param json              Json string
-     * @param sub_members       Sub members to 'steps'
-     * @param names_case        Case of names in json
-     * @param sub_creation_func Function for creating collection
-     *                          objects with generics
+     * @param json                  Json string
+     * @param sub_members           Sub members to 'steps'
+     * @param names_case            Case of names in json
+     * @param collection_hierarchy  Objects for creating collection
+     *                              objects with generics
      *
-     * @return                  Deserialized array
+     * @return                      Deserialized array
      *
-     * @throws JsonError        Error with json or sub_members
+     * @throws JsonError            Error with json or sub_members
      */
     [Version (since = "6.0")]
     public static inline Array<T> simple_array_from_json<T> (
@@ -220,15 +218,15 @@ public class Serialize.Jsoner : Object {
      * Simple version for fast deserialization without
      * manual {@link Jsoner} instance creation
      *
-     * @param json              Json string
-     * @param sub_members       Sub members to 'steps'
-     * @param names_case        Case of names in json
-     * @param sub_creation_func Function for creating collection
-     *                          objects with generics
+     * @param json                  Json string
+     * @param sub_members           Sub members to 'steps'
+     * @param names_case            Case of names in json
+     * @param collection_hierarchy  Objects for creating collection
+     *                              objects with generics
      *
-     * @return                  Deserialized dict
+     * @return                      Deserialized dict
      *
-     * @throws JsonError        Error with json or sub_members
+     * @throws JsonError            Error with json or sub_members
      */
     [Version (since = "6.0")]
     public static inline Dict<T> simple_dict_from_json<T> (
@@ -241,10 +239,19 @@ public class Serialize.Jsoner : Object {
     }
 
     /**
-     * Method for deserializing the {@link GLib.Object}
+     * Method for deserializing to {@link Dict}
      *
-     * @param sub_creation_func Function for creating collection
-     *                          objects with generics
+     * @return              Deserialized {@link Dict}
+     *
+     * @throws JsonError    Error with json string
+     */
+    [Version (since = "7.0")]
+    public inline Dict<Value?> deserialize () throws JsonError {
+        return JsonerDeserializeSync.deserialize (this);
+    }
+
+    /**
+     * Method for deserializing the {@link GLib.Object}
      *
      * @return  Deserialized object
      *
@@ -258,8 +265,6 @@ public class Serialize.Jsoner : Object {
     /**
      * Method for deserializing the {@link GLib.Object} with {@link GLib.Type}
      *
-     * @param sub_creation_func Function for creating collection
-     *                          objects with generics
      * @param obj_type          Type of objects
      *
      * @return  Deserialized object
@@ -277,8 +282,6 @@ public class Serialize.Jsoner : Object {
      * Method for deserializing into existing object
      *
      * @param obj               Object
-     * @param sub_creation_func Function for creating collection
-     *                          objects with generics
      *
      * @throws JsonError    Error with json string
      */

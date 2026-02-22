@@ -268,6 +268,27 @@ public int main (string[] args) {
         }
     });
 
+    Test.add_func ("/jsoner/serialize/yam_obj/uni", () => {
+        var test_object = new Dict<Value?> ();
+        test_object["string-value"] = "test";
+        test_object["int-value"] = 42;
+        test_object["bool-value"] = true;
+
+        message ("TEST");
+
+        string expectation = "{\"string-value\":\"test\",\"int-value\":42,\"bool-value\":true}";
+        string result = Jsoner.serialize (test_object);
+
+        var expectation_arr = expectation[1:expectation.length - 1].split (",");
+        var result_arr = result[1:result.length - 1].split (",");
+
+        foreach (var pair in expectation_arr) {
+            if (!(pair in result_arr)) {
+                Test.fail_printf (result + " != " + expectation);
+            }
+        }
+    });
+
     Test.add_func ("/jsoner/deserialize/bad-json", () => {
         var json = "{\"string-value\":\"test\",\"int_value\":42,\"boolValue\":true}";
 
@@ -475,6 +496,19 @@ public int main (string[] args) {
         }
     });
 
+    Test.add_func ("/jsoner/deserialize/object/uni", () => {
+        try {
+            var jsoner = new Jsoner ("{\"value\":\"test\"}");
+            var result = jsoner.deserialize ();
+
+            if (result["value"].get_string () != "test") {
+                Test.fail_printf (result["value"].get_string () + " != test");
+            }
+        } catch (JsonError e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
     Test.add_func ("/jsoner/deserialize/object2", () => {
         try {
             var result = new TestObjectString ();
@@ -548,6 +582,21 @@ public int main (string[] args) {
 
             if (result.value[0] != "kekw" || result.value[1] != "yes" || result.value[2] != "no") {
                 Test.fail_printf (string.joinv (", ", result.value.to_array ()) + " != kekw, yes, no");
+            }
+        } catch (JsonError e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
+    Test.add_func ("/jsoner/deserialize/array/string/uni", () => {
+        try {
+            var jsoner = new Jsoner ("{\"value\":[\"kekw\",\"yes\",\"no\"]}");
+            var result = jsoner.deserialize ();
+
+            var arr = (Serialize.Array<Value?>) result["value"].get_object ();
+
+            if (arr[0].get_string () != "kekw" || arr[1].get_string () != "yes" || arr[2].get_string () != "no") {
+                Test.fail_printf ("Failed");
             }
         } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);

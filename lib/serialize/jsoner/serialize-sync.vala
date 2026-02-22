@@ -83,42 +83,15 @@ namespace Serialize.JsonerSerializeSync {
                 serialize_object (builder, obj, names_case, ignore_default);
             }
 
-        } else {
-            switch (element_type) {
-                case Type.STRING:
-                    foreach (var val in (Array<string>) array_list) {
-                        serialize_value (builder, val);
-                    }
-                    break;
-
-                case Type.INT:
-                    foreach (var val in (Array<int>) array_list) {
-                        serialize_value (builder, val);
-                    }
-                    break;
-
-                case Type.INT64:
-                    foreach (var val in (Array<int64?>) array_list) {
-                        var tval = Value (Type.INT64);
-                        tval.set_int64 (val);
-                        serialize_value (builder, tval);
-                    }
-                    break;
-
-                case Type.DOUBLE:
-                    foreach (var val in (Array<double?>) array_list) {
-                        var tval = Value (Type.DOUBLE);
-                        tval.set_double (val);
-                        serialize_value (builder, tval);
-                    }
-                    break;
-
-                case Type.BOOLEAN:
-                    foreach (var val in (Array<bool>) array_list) {
-                        serialize_value (builder, val);
-                    }
-                    break;
+        } else if (element_type == typeof (Value?)) {
+            foreach (var val in (Array<Value?>) array_list) {
+                serialize_value (builder, val);
             }
+
+        } else {
+            array_list.foreach_base ((fval) => {
+                serialize_value (builder, fval);
+            });
         }
         builder.end_array ();
     }
@@ -158,47 +131,17 @@ namespace Serialize.JsonerSerializeSync {
                 serialize_object (builder, entry.value, names_case, ignore_default);
             }
 
-        } else {
-            switch (element_type) {
-                case Type.STRING:
-                    foreach (var entry in (Dict<string>) dict) {
-                        builder.set_member_name (entry.key);
-                        serialize_value (builder, entry.value);
-                    }
-                    break;
-
-                case Type.INT:
-                    foreach (var entry in (Dict<int>) dict) {
-                        builder.set_member_name (entry.key);
-                        serialize_value (builder, entry.value);
-                    }
-                    break;
-
-                case Type.INT64:
-                    foreach (var entry in (Dict<int64?>) dict) {
-                        builder.set_member_name (entry.key);
-                        var tval = Value (Type.INT64);
-                        tval.set_int64 (entry.value);
-                        serialize_value (builder, tval);
-                    }
-                    break;
-
-                case Type.DOUBLE:
-                    foreach (var entry in (Dict<double?>) dict) {
-                        builder.set_member_name (entry.key);
-                        var tval = Value (Type.DOUBLE);
-                        tval.set_double (entry.value);
-                        serialize_value (builder, tval);
-                    }
-                    break;
-
-                case Type.BOOLEAN:
-                    foreach (var entry in (Dict<bool>) dict) {
-                        builder.set_member_name (entry.key);
-                        serialize_value (builder, entry.value);
-                    }
-                    break;
+        } else if (element_type == typeof (Value?)) {
+            foreach (var entry in (Dict<Value?>) dict) {
+                builder.set_member_name (entry.key);
+                serialize_value (builder, entry.value);
             }
+
+        } else {
+            dict.foreach_base ((key, fval) => {
+                builder.set_member_name (key);
+                serialize_value (builder, fval);
+            });
         }
         builder.end_object ();
     }
@@ -252,19 +195,12 @@ namespace Serialize.JsonerSerializeSync {
             } else if (property.value_type.is_object ()) {
                 serialize_object (builder, (Object) prop_val.get_object (), names_case, ignore_default);
 
-            } else if (property.value_type.is_enum ()) {
-                serialize_enum_gtype (builder, property.value_type, prop_val);
-
             } else {
                 serialize_value (builder, prop_val);
             }
         }
 
         builder.end_object ();
-    }
-
-    static void serialize_enum_gtype (Json.Builder builder, Type enum_type, Value prop_val) {
-        builder.add_int_value (prop_val.get_enum ());
     }
 
     static void serialize_value (Json.Builder builder, Value prop_val) {
@@ -275,10 +211,6 @@ namespace Serialize.JsonerSerializeSync {
 
             case Type.INT64:
                 builder.add_int_value (prop_val.get_int64 ());
-                break;
-
-            case Type.FLOAT:
-                builder.add_double_value ((double) prop_val.get_float ());
                 break;
 
             case Type.DOUBLE:
@@ -298,7 +230,16 @@ namespace Serialize.JsonerSerializeSync {
                 break;
 
             default:
-                warning ("Unknown type for serialize - %s", prop_val.type ().name ());
+                if (prop_val.holds (Type.ENUM)) {
+                    builder.add_int_value (prop_val.get_enum ());
+
+                } else if (prop_val.holds (typeof (DateTime))) {
+                    builder.add_string_value (((DateTime) prop_val.get_boxed ()).format_iso8601 ());
+
+                } else {
+                    warning ("Unknown type for serialize - %s", prop_val.type ().name ());
+                }
+
                 break;
         }
     }

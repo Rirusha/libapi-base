@@ -85,10 +85,6 @@ public class Serialize.Array<T> : Gee.ArrayList<T>, CollectionFactory<T> {
                 ((Array<bool>) this).add (nval.get_boolean ());
                 break;
 
-            case Type.ENUM:
-                add (nval.get_enum ());
-                break;
-
             case Type.NONE:
                 add (null);
                 break;
@@ -96,8 +92,53 @@ public class Serialize.Array<T> : Gee.ArrayList<T>, CollectionFactory<T> {
             default:
                 if (nval.holds (typeof (DateTime))) {
                     ((Array<DateTime?>) this).add ((DateTime) nval.get_boxed ());
+
+                } else if (nval.holds (Type.ENUM)) {
+                    add (nval.get_enum ());
                 }
                 break;
+        }
+    }
+
+    internal void foreach_base (ArrayForeachBaseFunc foreach_func) {
+        var val = Value (element_type);
+
+        foreach (var v in this) {
+            switch (element_type) {
+                case Type.STRING:
+                    val.set_string ((string) v);
+                    break;
+
+                case Type.INT:
+                    val.set_int ((int) v);
+                    break;
+
+                case Type.INT64:
+                    val.set_int64 ((int64?) v);
+                    break;
+
+                case Type.DOUBLE:
+                    val.set_double ((double?) v);
+                    break;
+
+                case Type.BOOLEAN:
+                    val.set_boolean ((bool) v);
+                    break;
+
+                case Type.NONE:
+                    break;
+
+                default:
+                    if (element_type == typeof (DateTime)) {
+                        val.set_boxed ((DateTime?) v);
+
+                    } else if (element_type.is_enum ()) {
+                        val.set_enum ((int) v);
+                    }
+                    break;
+            }
+
+            foreach_func (val);
         }
     }
 
