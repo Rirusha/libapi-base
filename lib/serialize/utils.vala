@@ -19,22 +19,21 @@
 
 namespace Serialize {
 
+    const Type[] SUPPORTED_BASE_TYPES = {
+        Type.STRING,
+        Type.INT,
+        Type.INT64,
+        Type.DOUBLE,
+        Type.BOOLEAN
+    };
 
     internal bool type_is_valid (Type type_) {
-        Type[] supported_base_types = {
-            Type.STRING,
-            Type.INT,
-            Type.INT64,
-            Type.DOUBLE,
-            Type.BOOLEAN
-        };
-
         Type[] supported_collections_types = {
             typeof (Array),
             typeof (Dict)
         };
 
-        return type_ in supported_base_types ||
+        return type_ in SUPPORTED_BASE_TYPES ||
                type_ in supported_collections_types ||
                type_.is_enum () ||
                (type_.is_object () &&

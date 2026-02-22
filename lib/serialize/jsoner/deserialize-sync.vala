@@ -199,43 +199,11 @@ namespace Serialize.JsonerDeserializeSync {
                     break;
 
                 case Json.NodeType.VALUE:
-                    var val = deserialize_value (self, sub_node);
-                    if (prop_type.is_enum ()) {
-                        if (val.type () == Type.INT64) {
-                            obj.set_property (
-                                property.name,
-                                val.get_int64 ()
-                            );
+                    var jval = deserialize_value (self, sub_node);
+                    var pval = Value (prop_type);
+                    Convert.value2value (ref jval, ref pval);
 
-                        } else if (val.type () == Type.STRING) {
-                            var strval = val.get_string ();
-                            if (strval != null) {
-                                obj.set_property (
-                                    property.name,
-                                    Enum.get_by_nick_gtype (prop_type, val.get_string ())
-                                );
-                            }
-
-                        } else {
-                            warning ("Property has enum type, but json doesn'y hold int64 or string type");
-                        }
-
-                    } else {
-                        var new_val = Value (prop_type);
-                        if (!val.transform (ref new_val)) {
-                            warning (
-                                "Failed to transform %s to %s of %s::%s",
-                                val.type_name (),
-                                prop_type.name (),
-                                obj_type.name (),
-                                property.name
-                            );
-                        }
-                        obj.set_property (
-                            property.name,
-                            new_val
-                        );
-                    }
+                    obj.set_property (property.name, pval);
                     break;
 
                 case Json.NodeType.NULL:
@@ -298,6 +266,7 @@ namespace Serialize.JsonerDeserializeSync {
         }
 
         var jarray = node.get_array ();
+        array_list.clear ();
 
         if (array_list.element_type == typeof (Array)) {
             var collection_factory = collection_hierarchy[0];
@@ -309,7 +278,7 @@ namespace Serialize.JsonerDeserializeSync {
                 try {
                     deserialize_array_into (self, arr_obj, collection_hierarchy[1:collection_hierarchy.length], sub_node);
 
-                    ((Array<Array>) array_list).add (arr_obj);
+                    array_list.add_array (arr_obj);
                 } catch (JsonError e) {}
             }
 
@@ -323,55 +292,20 @@ namespace Serialize.JsonerDeserializeSync {
                 try {
                     deserialize_dict_into (self, dict_obj, collection_hierarchy[1:collection_hierarchy.length], sub_node);
 
-                    ((Array<Dict>) array_list).add (dict_obj);
+                    array_list.add_dict (dict_obj);
                 } catch (JsonError e) {}
             }
 
         } else if (array_list.element_type.is_object ()) {
-            array_list.clear ();
-            var narray_list = array_list as Array<Object>;
-
             foreach (var sub_node in jarray.get_elements ()) {
                 try {
-                    narray_list.add (deserialize_object_by_type (self, narray_list.element_type, sub_node));
+                    array_list.add_object (deserialize_object_by_type (self, array_list.element_type, sub_node));
                 } catch (JsonError e) {}
             }
 
         } else {
-            array_list.clear ();
-
             foreach (var sub_node in jarray.get_elements ()) {
-                var dval = deserialize_value (self, sub_node);
-                var new_val = Value (array_list.element_type);
-                dval.transform (ref new_val);
-
-                switch (array_list.element_type) {
-                    case Type.STRING:
-                        ((Array<string>) array_list).add (new_val.get_string ());
-                        break;
-
-                    case Type.INT:
-                        ((Array<int>) array_list).add (new_val.get_int ());
-                        break;
-
-                    case Type.INT64:
-                        ((Array<int64?>) array_list).add (new_val.get_int64 ());
-                        break;
-
-                    case Type.DOUBLE:
-                        ((Array<double?>) array_list).add (new_val.get_double ());
-                        break;
-
-                    case Type.BOOLEAN:
-                        ((Array<bool>) array_list).add (new_val.get_boolean ());
-                        break;
-
-                    default:
-                        warning ("Unknown type of element of array - %s",
-                            array_list.element_type.name ()
-                        );
-                        break;
-                }
+                array_list.add_base (deserialize_value (self, sub_node));
             }
         }
     }
@@ -418,7 +352,7 @@ namespace Serialize.JsonerDeserializeSync {
                 try {
                     deserialize_array_into (self, arr_obj, collection_hierarchy[1:collection_hierarchy.length], sub_node);
 
-                    ((Dict<Array>) dict)[member_name] = arr_obj;
+                    dict.set_array (member_name, arr_obj);
                 } catch (JsonError e) {}
             }
 
@@ -434,7 +368,7 @@ namespace Serialize.JsonerDeserializeSync {
                 try {
                     deserialize_dict_into (self, dict_obj, collection_hierarchy[1:collection_hierarchy.length], sub_node);
 
-                    ((Dict<Dict>) dict)[member_name] = dict_obj;
+                    dict.set_dict (member_name, dict_obj);
                 } catch (JsonError e) {}
             }
 
@@ -443,48 +377,18 @@ namespace Serialize.JsonerDeserializeSync {
                 var sub_node = jobject.get_member (member_name);
 
                 try {
-                    ((Dict<Object>) dict)[member_name] = deserialize_object_by_type (
+                    dict.set_object (member_name, deserialize_object_by_type (
                         self,
                         dict.value_type,
                         sub_node
-                    );
+                    ));
                 } catch (JsonError e) {}
             }
 
         } else {
             foreach (var member_name in jobject.get_members ()) {
                 var sub_node = jobject.get_member (member_name);
-                var dval = deserialize_value (self, sub_node);
-                var new_val = Value (dict.value_type);
-                dval.transform (ref new_val);
-
-                switch (dict.value_type) {
-                    case Type.STRING:
-                        ((Dict<string>) dict)[member_name] = new_val.get_string ();
-                        break;
-
-                    case Type.INT:
-                        ((Dict<int>) dict)[member_name] = new_val.get_int ();
-                        break;
-
-                    case Type.INT64:
-                        ((Dict<int64?>) dict)[member_name] = new_val.get_int64 ();
-                        break;
-
-                    case Type.DOUBLE:
-                        ((Dict<double?>) dict)[member_name] = new_val.get_double ();
-                        break;
-
-                    case Type.BOOLEAN:
-                        ((Dict<bool>) dict)[member_name] = new_val.get_boolean ();
-                        break;
-
-                    default:
-                        warning ("Unknown type of element of hashmap - %s",
-                            dict.value_type.name ()
-                        );
-                        break;
-                }
+                dict.set_base (member_name, deserialize_value (self, sub_node));
             }
         }
     }

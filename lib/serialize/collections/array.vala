@@ -30,4 +30,97 @@ public class Serialize.Array<T> : Gee.ArrayList<T>, CollectionFactory<T> {
     public CollectionFactory<T> build () {
         return new Array<T> (equal_func);
     }
+
+    [NoReturn]
+    internal inline void print_type_warning (Type actual_type) {
+        warning ("Array: expected '%s' value type, got '%s'", element_type.name (), actual_type.name ());
+    }
+
+    //  element_type must be an {@link Object} type
+    internal inline void add_object (Object obj) {
+        ((Array<Object>) this).add (obj);
+    }
+
+    //  element_type must be an {@link Array} type
+    internal inline void add_array (Array array) {
+        ((Array<Array>) this).add (array);
+    }
+
+    //  element_type must be an {@link Dict} type
+    internal inline void add_dict (Dict dict) {
+        ((Array<Dict>) this).add (dict);
+    }
+
+    internal inline void add_base (owned Value value) {
+        Value nval;
+
+        if (element_type != value.type ()) {
+            nval = Value (element_type);
+            if (!Convert.value2value (ref value, ref nval)) {
+                return;
+            }
+
+        } else {
+            nval = value;
+        }
+
+        switch (nval.type ()) {
+            case Type.STRING:
+                ((Array<string>) this).add (nval.get_string ());
+                break;
+
+            case Type.INT:
+                ((Array<int>) this).add (nval.get_int ());
+                break;
+
+            case Type.INT64:
+                ((Array<int64?>) this).add (nval.get_int64 ());
+                break;
+
+            case Type.DOUBLE:
+                ((Array<double?>) this).add (nval.get_double ());
+                break;
+
+            case Type.BOOLEAN:
+                ((Array<bool>) this).add (nval.get_boolean ());
+                break;
+
+            case Type.ENUM:
+                add (nval.get_enum ());
+                break;
+
+            case Type.NONE:
+                add (null);
+                break;
+
+            default:
+                if (nval.holds (typeof (DateTime))) {
+                    ((Array<DateTime?>) this).add ((DateTime) nval.get_boxed ());
+                }
+                break;
+        }
+    }
+
+    //  TODO: doc
+    //  Also check types and print warning
+    public void add_value (Value value) {
+        if (element_type == typeof (Array)) {
+            if (value.type () != typeof (Array)) {
+                print_type_warning (value.type ());
+            }
+            add_array ((Array) value.get_object ());
+
+        } else if (element_type == typeof (Dict)) {
+            if (value.type () != typeof (Dict)) {
+                print_type_warning (value.type ());
+            }
+            add_dict ((Dict) value.get_object ());
+
+        } else if (element_type.is_object ()) {
+            add_object (value.get_object ());
+
+        } else if (element_type in SUPPORTED_BASE_TYPES || element_type == typeof (DateTime) || element_type.is_enum ()) {
+            add_base (value);
+        }
+    }
 }
