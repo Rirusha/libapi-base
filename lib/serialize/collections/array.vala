@@ -134,6 +134,12 @@ public class Serialize.Array<T> : Gee.ArrayList<T>, CollectionFactory<T> {
 
                     } else if (element_type.is_enum ()) {
                         val.set_enum ((int) v);
+                    } else if (element_type.is_object ()) {
+                        val.set_object ((Object) v);
+                    } else if (element_type == typeof (Value)) {
+                        val = (Value?) v; // Just leave it as is
+                    } else {
+                        warning ("Failed to make iter value for %s", element_type.name ());
                     }
                     break;
             }
