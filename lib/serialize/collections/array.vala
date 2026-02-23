@@ -101,7 +101,7 @@ public class Serialize.Array<T> : Gee.ArrayList<T>, CollectionFactory<T> {
     }
 
     internal void foreach_base (ArrayForeachBaseFunc foreach_func) {
-        var val = Value (element_type);
+        Value? val = Value (element_type);
 
         foreach (var v in this) {
             switch (element_type) {

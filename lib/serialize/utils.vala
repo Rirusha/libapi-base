@@ -19,8 +19,8 @@
 
 namespace Serialize {
 
-    internal delegate void ArrayForeachBaseFunc (Value val);
-    internal delegate void DictForeachBaseFunc (string key, Value val);
+    internal delegate void ArrayForeachBaseFunc (Value? val);
+    internal delegate void DictForeachBaseFunc (string key, Value? val);
 
     const Type[] SUPPORTED_BASE_TYPES = {
         Type.STRING,

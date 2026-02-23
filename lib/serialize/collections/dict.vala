@@ -102,7 +102,7 @@ public class Serialize.Dict<T> : Gee.HashMap<string, T>, CollectionFactory<T> {
     }
 
     internal void foreach_base (DictForeachBaseFunc foreach_func) {
-        var val = Value (value_type);
+        Value? val = Value (value_type);
 
         foreach (var entry in this) {
             switch (value_type) {
