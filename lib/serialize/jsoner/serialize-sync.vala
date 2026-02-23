@@ -166,7 +166,9 @@ namespace Serialize.JsonerSerializeSync {
         var cls = (ObjectClass) api_obj.get_type ().class_ref ();
 
         foreach (ParamSpec property in cls.list_properties ()) {
-            if (((property.flags & ParamFlags.READABLE) == 0) || ((property.flags & ParamFlags.WRITABLE) == 0)) {
+            if (((property.flags & ParamFlags.READABLE) == 0) ||
+                ((property.flags & ParamFlags.WRITABLE) == 0) ||
+                (api_obj is DeserializeFallback && property.name == "deserialize-fallback")) {
                 continue;
             }
 
@@ -197,6 +199,14 @@ namespace Serialize.JsonerSerializeSync {
 
             } else {
                 serialize_value (builder, prop_val);
+            }
+        }
+
+        if (api_obj is DeserializeFallback) {
+            var fallback = (DeserializeFallback) api_obj;
+            foreach (var member_name in fallback.deserialize_fallback.get_members ()) {
+                builder.set_member_name (member_name);
+                builder.add_value (fallback.deserialize_fallback.get_member (member_name));
             }
         }
 

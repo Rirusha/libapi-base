@@ -122,6 +122,7 @@ namespace Serialize.JsonerDeserializeSync {
             props_data[prop_name] = property;
         }
 
+        var fallback_object = new Json.Object ();
         foreach (var member_name in node.get_object ().get_members ()) {
             var kebabbed_member_name = Convert.cany2kebab (member_name, self.names_case);
 
@@ -135,6 +136,7 @@ namespace Serialize.JsonerDeserializeSync {
                         member_name
                     );
                 }
+                fallback_object.set_member (member_name, node.get_object ().get_member (member_name));
                 continue;
             }
 
@@ -226,6 +228,9 @@ namespace Serialize.JsonerDeserializeSync {
             }
         }
 
+        if (obj is DeserializeFallback) {
+            obj.set_property ("deserialize-fallback", fallback_object);
+        }
         obj.thaw_notify ();
     }
 
