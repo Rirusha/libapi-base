@@ -135,6 +135,10 @@ public class Serialize.Dict<T> : Gee.HashMap<string, T>, CollectionFactory<T> {
 
                     } else if (value_type.is_enum ()) {
                         val.set_enum ((int) entry.value);
+                    } else if (element_type == typeof (Value)) {
+                        val = (Value?) entry.value; // Just leave it as is
+                    } else {
+                        warning ("Failed to make iter value for %s", element_type.name ());
                     }
                     break;
             }

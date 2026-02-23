@@ -30,15 +30,7 @@ namespace Serialize.JsonerSerializeSync {
 
         var builder = new Json.Builder ();
 
-        if (obj is Dict) {
-            var dict = (Dict) obj;
-            serialize_dict (builder, dict, dict.value_type, real_settings);
-        } else if (obj is Array) {
-            var arr = (Array) obj;
-            serialize_array (builder, arr, arr.element_type, real_settings);
-        } else {
-            serialize_object (builder, obj, real_settings);
-        }
+        serialize_value (builder, obj, real_settings);
 
         var res = Json.to_string (builder.get_root (), real_settings.pretty);
 
@@ -58,35 +50,10 @@ namespace Serialize.JsonerSerializeSync {
     ) {
         builder.begin_array ();
 
-        if (element_type == typeof (Array)) {
-            var array_of_arrays = (Array<Array>) array;
+        array.foreach_base ((fval) => {
+            serialize_value (builder, fval, settings);
+        });
 
-            foreach (var sub_array in array_of_arrays) {
-                serialize_array (builder, sub_array, sub_array.element_type, settings);
-            }
-
-        } else if (element_type == typeof (Dict)) {
-            var array_of_maps = (Array<Dict>) array;
-
-            foreach (var sub_hash_map in array_of_maps) {
-                serialize_dict (builder, sub_hash_map, sub_hash_map.element_type, settings);
-            }
-
-        } else if (element_type.is_object ()) {
-            foreach (var obj in (Array<Object>) array) {
-                serialize_object (builder, obj, settings);
-            }
-
-        } else if (element_type == typeof (Value?)) {
-            foreach (var val in (Array<Value?>) array) {
-                serialize_value (builder, val);
-            }
-
-        } else {
-            array.foreach_base ((fval) => {
-                serialize_value (builder, fval);
-            });
-        }
         builder.end_array ();
     }
 
@@ -101,40 +68,10 @@ namespace Serialize.JsonerSerializeSync {
             builder.begin_object ();
         }
 
-        if (element_type == typeof (Array)) {
-            var dict_of_arrays = (Dict<Array>) dict;
-
-            foreach (var sub_array in dict_of_arrays) {
-                builder.set_member_name (sub_array.key);
-                serialize_array (builder, sub_array.value, sub_array.value.element_type, settings);
-            }
-
-        } else if (element_type == typeof (Dict)) {
-            var dict_of_dicts = (Dict<Dict>) dict;
-
-            foreach (var sub_dict in dict_of_dicts) {
-                builder.set_member_name (sub_dict.key);
-                serialize_dict (builder, sub_dict.value, sub_dict.value.element_type, settings);
-            }
-
-        } else if (element_type.is_object ()) {
-            foreach (var entry in (Dict<Object>) dict) {
-                builder.set_member_name (entry.key);
-                serialize_object (builder, entry.value, settings);
-            }
-
-        } else if (element_type == typeof (Value?)) {
-            foreach (var entry in (Dict<Value?>) dict) {
-                builder.set_member_name (entry.key);
-                serialize_value (builder, entry.value);
-            }
-
-        } else {
-            dict.foreach_base ((key, fval) => {
-                builder.set_member_name (key);
-                serialize_value (builder, fval);
-            });
-        }
+        dict.foreach_base ((key, fval) => {
+            builder.set_member_name (key);
+            serialize_value (builder, fval, settings);
+        });
 
         if (new_object) {
             builder.end_object ();
@@ -156,8 +93,8 @@ namespace Serialize.JsonerSerializeSync {
         var cls = (ObjectClass) obj.get_type ().class_ref ();
 
         foreach (ParamSpec property in cls.list_properties ()) {
-            if (((property.flags & ParamFlags.READABLE) == 0) ||
-                ((property.flags & ParamFlags.WRITABLE) == 0) ||
+            if (!(READABLE in property.flags) ||
+                !(WRITABLE in property.flags) ||
                 (obj is HasFallback && property.name == HasFallback.FALLBACK_PROPERTY_NAME)) {
                 continue;
             }
@@ -171,25 +108,7 @@ namespace Serialize.JsonerSerializeSync {
             }
 
             builder.set_member_name (Convert.kebab2any (prop_name, settings.names_case));
-
-            if (property.value_type == typeof (Array)) {
-                var array = (Array) prop_val.get_object ();
-                Type element_type = array.element_type;
-
-                serialize_array (builder, array, element_type, settings);
-
-            } else if (property.value_type == typeof (Dict)) {
-                var hash_map = (Dict) prop_val.get_object ();
-                Type element_type = hash_map.value_type;
-
-                serialize_dict (builder, hash_map, element_type, settings);
-
-            } else if (property.value_type.is_object ()) {
-                serialize_object (builder, (Object) prop_val.get_object (), settings);
-
-            } else {
-                serialize_value (builder, prop_val);
-            }
+            serialize_value (builder, prop_val, settings);
         }
 
         if (obj is HasFallback) {
@@ -200,7 +119,7 @@ namespace Serialize.JsonerSerializeSync {
         builder.end_object ();
     }
 
-    static void serialize_value (Json.Builder builder, Value prop_val) {
+    static void serialize_value (Json.Builder builder, Value prop_val, Settings settings) {
         switch (prop_val.type ()) {
             case Type.INT:
                 builder.add_int_value ((int64) prop_val.get_int ());
@@ -227,14 +146,25 @@ namespace Serialize.JsonerSerializeSync {
                 break;
 
             default:
-                if (prop_val.holds (Type.ENUM)) {
+                // Get actual type if value is object
+                var val_type = prop_val.type ().is_object () ? prop_val.get_object ()?.get_type () ?? prop_val.type () : prop_val.type ();
+
+                if (val_type.is_enum ()) {
                     builder.add_int_value (prop_val.get_enum ());
-
-                } else if (prop_val.holds (typeof (DateTime))) {
+                } else if (val_type == typeof (DateTime)) {
                     builder.add_string_value (((DateTime) prop_val.get_boxed ()).format_iso8601 ());
-
+                } else if (val_type == typeof (Dict)) {
+                    var dict = (Dict) prop_val.get_object ();
+                    Type element_type = dict.element_type;
+                    serialize_dict (builder, dict, element_type, settings);
+                } else if (val_type == typeof (Array)) {
+                    var array = (Array) prop_val.get_object ();
+                    Type element_type = array.element_type;
+                    serialize_array (builder, array, element_type, settings);
+                } else if (prop_val.type ().is_object ()) {
+                    serialize_object (builder, prop_val.get_object (), settings);
                 } else {
-                    warning ("Unknown type for serialize - %s", prop_val.type ().name ());
+                    warning ("Unknown type for serialize - %s (%s)", prop_val.type ().name (), val_type.name ());
                 }
 
                 break;
