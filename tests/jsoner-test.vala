@@ -152,6 +152,11 @@ public class TestObjectDeserializeFallback: Object, HasFallback {
     public Dict<Value?> serialize_fallback { get; set; }
 }
 
+public class TestObjectWithNestedObjects: Object {
+    public TestObjectWithNestedObjects child_typed { get; set; }
+    public Object child_any { get; set; }
+}
+
 string get_name_with_c (string name, Case c) {
     switch (c) {
         case KEBAB:
@@ -448,6 +453,21 @@ public int main (string[] args) {
         string expectation = "{\"value\":[[{},{}],[{\"string-value\":\"why are we still here\",\"int-value\":42},{},{\"string-value\":\"kekw\"}],[{\"int-value\":56}]]}";
         string result = Jsoner.serialize (test_object, new Serialize.Settings () { ignore_default = true });
 
+        if (result != expectation) {
+            Test.fail_printf (result + " != " + expectation);
+        }
+    });
+
+    Test.add_func ("/jsoner/serialize/object-with-nested-childs", () => {
+        var test_object = new TestObjectWithNestedObjects () {
+            child_typed = new TestObjectWithNestedObjects () {
+                child_any = new TestObjectWithNestedObjects ()
+                // test_typed should be null
+            }
+            // test_any should be null
+        };
+        string expectation = "{\"child-typed\":{\"child-typed\":null,\"child-any\":{\"child-typed\":null,\"child-any\":null}},\"child-any\":null}";
+        string result = Jsoner.serialize (test_object, new Serialize.Settings ());
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
         }
