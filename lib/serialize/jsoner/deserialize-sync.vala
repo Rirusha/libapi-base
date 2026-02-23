@@ -28,6 +28,15 @@ namespace Serialize.JsonerDeserializeSync {
         }
     }
 
+    internal static Dict<Value?> simple_deserialize (
+        string json,
+        string[]? sub_members,
+        Serialize.Settings? settings = null
+    ) throws JsonError {
+        var jsoner = new Jsoner (json, sub_members, settings);
+        return jsoner.deserialize ();
+    }
+
     internal static T simple_from_json<T> (
         string json,
         string[]? sub_members,

@@ -163,6 +163,27 @@ public class Serialize.Jsoner : Object {
     }
 
     /**
+     * {@link deserialize} without
+     * manual {@link Jsoner} instance creation
+     *
+     * @param json              Json string
+     * @param sub_members       Sub members to 'steps'
+     * @param settings          Settings
+     *
+     * @return                  Deserialized object
+     *
+     * @throws JsonError        Error with json or sub_members
+     */
+    [Version (since = "7.0")]
+    public static inline Dict<Value?> simple_deserialize (
+        string json,
+        string[]? sub_members = null,
+        Serialize.Settings? settings = null
+    ) throws JsonError {
+        return JsonerDeserializeSync.simple_deserialize (json, sub_members, settings);
+    }
+
+    /**
      * Object creation method from json 
      * via {@link Jsoner.deserialize_object}
      * Simple version for fast deserialization without
