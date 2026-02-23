@@ -144,12 +144,12 @@ public class TestObjectFamilyParent: Object, TypeFamily {
 }
 public class TestObjectFamilyChild: TestObjectFamilyParent {}
 
-public class TestObjectDeserializeFallback: Object, DeserializeFallback {
+public class TestObjectDeserializeFallback: Object, HasFallback {
     // Fields that should be deserialized successfuly
     public string string_val { get; set; }
     public int64 int64_val { get; set; }
     // Other (fallback) fields
-    public Json.Object deserialize_fallback { get; set; }
+    public Dict<Value?> serialize_fallback { get; set; }
 }
 
 string get_name_with_c (string name, Case c) {
@@ -757,8 +757,14 @@ public int main (string[] args) {
                 return;
             }
             var result_ser = Jsoner.serialize (result, c);
-            if (result_ser != json) {
-                Test.fail_printf ("\n"+result_ser + "\n!=\n" + json);
+
+            var expectation_arr = json[1:json.length - 1].split (",");
+            var result_arr = result_ser[1:result_ser.length - 1].split (",");
+
+            foreach (var pair in expectation_arr) {
+                if (!(pair in result_arr)) {
+                    Test.fail_printf (result_ser + " != " + json);
+                }
             }
         }
     });

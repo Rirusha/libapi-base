@@ -101,13 +101,16 @@ namespace Serialize.JsonerSerializeSync {
         Dict dict,
         Type element_type,
         Case names_case = Case.AUTO,
-        bool ignore_default = false
+        bool ignore_default = false,
+        bool new_object = true
     ) {
         if (names_case == Case.AUTO) {
             names_case = Case.KEBAB;
         }
 
-        builder.begin_object ();
+        if (new_object) {
+            builder.begin_object ();
+        }
 
         if (element_type == typeof (Array)) {
             var dict_of_arrays = (Dict<Array>) dict;
@@ -143,7 +146,10 @@ namespace Serialize.JsonerSerializeSync {
                 serialize_value (builder, fval);
             });
         }
-        builder.end_object ();
+
+        if (new_object) {
+            builder.end_object ();
+        }
     }
 
     static void serialize_object (
@@ -168,7 +174,7 @@ namespace Serialize.JsonerSerializeSync {
         foreach (ParamSpec property in cls.list_properties ()) {
             if (((property.flags & ParamFlags.READABLE) == 0) ||
                 ((property.flags & ParamFlags.WRITABLE) == 0) ||
-                (api_obj is DeserializeFallback && property.name == "deserialize-fallback")) {
+                (api_obj is HasFallback && property.name == HasFallback.FALLBACK_PROPERTY_NAME)) {
                 continue;
             }
 
@@ -202,12 +208,9 @@ namespace Serialize.JsonerSerializeSync {
             }
         }
 
-        if (api_obj is DeserializeFallback) {
-            var fallback = (DeserializeFallback) api_obj;
-            foreach (var member_name in fallback.deserialize_fallback.get_members ()) {
-                builder.set_member_name (member_name);
-                builder.add_value (fallback.deserialize_fallback.get_member (member_name));
-            }
+        if (api_obj is HasFallback) {
+            var fallback = (HasFallback) api_obj;
+            serialize_dict (builder, fallback.serialize_fallback, typeof (Value?), names_case, ignore_default, false);
         }
 
         builder.end_object ();

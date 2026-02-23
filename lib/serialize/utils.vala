@@ -30,17 +30,6 @@ namespace Serialize {
         Type.BOOLEAN
     };
 
-    /**
-     * Helper interface for storing fields that wasn't successfuly deserialized
-     */
-    [Version (since = "6.2")]
-    public interface DeserializeFallback : Object {
-        /**
-         * Contain field that wasn't deserialized successfuly
-         */
-        public abstract Json.Object deserialize_fallback {get; set;}
-    }
-
     internal bool type_is_valid (Type type_) {
         Type[] supported_collections_types = {
             typeof (Array),
