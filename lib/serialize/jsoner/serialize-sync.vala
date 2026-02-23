@@ -151,18 +151,23 @@ namespace Serialize.JsonerSerializeSync {
 
                 if (val_type.is_enum ()) {
                     builder.add_int_value (prop_val.get_enum ());
+
                 } else if (val_type == typeof (DateTime)) {
                     builder.add_string_value (((DateTime) prop_val.get_boxed ()).format_iso8601 ());
+
                 } else if (val_type == typeof (Dict)) {
                     var dict = (Dict) prop_val.get_object ();
                     Type element_type = dict.element_type;
                     serialize_dict (builder, dict, element_type, settings);
+
                 } else if (val_type == typeof (Array)) {
                     var array = (Array) prop_val.get_object ();
                     Type element_type = array.element_type;
                     serialize_array (builder, array, element_type, settings);
+
                 } else if (prop_val.type ().is_object ()) {
                     serialize_object (builder, prop_val.get_object (), settings);
+
                 } else {
                     warning ("Unknown type for serialize - %s (%s)", prop_val.type ().name (), val_type.name ());
                 }

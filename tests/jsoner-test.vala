@@ -134,11 +134,11 @@ public class TestObjectAlbum2 : DataObject, HasComplexCollections {
 
 public class TestObjectFamilyParent: Object, TypeFamily {
     public GLib.Type match_type (Json.Node node) {
-        switch (node.get_object().get_string_member("type")) {
+        switch (node.get_object ().get_string_member ("type")) {
             case "child":
-                return typeof(TestObjectFamilyChild);
+                return typeof (TestObjectFamilyChild);
             default:
-                return typeof(TestObjectFamilyParent);
+                return typeof (TestObjectFamilyParent);
         }
     }
 }
@@ -286,8 +286,6 @@ public int main (string[] args) {
         test_object["string-value"] = "test";
         test_object["int-value"] = 42;
         test_object["bool-value"] = true;
-
-        message ("TEST");
 
         string expectation = "{\"string-value\":\"test\",\"int-value\":42,\"bool-value\":true}";
         string result = Jsoner.serialize (test_object);
