@@ -150,10 +150,24 @@ namespace Serialize.JsonerSerializeSync {
                 var val_type = prop_val.type ().is_object () ? prop_val.get_object ()?.get_type () ?? prop_val.type () : prop_val.type ();
 
                 if (val_type.is_enum ()) {
-                    builder.add_int_value (prop_val.get_enum ());
+                    switch (settings.enum_serialize_method) {
+                        case INT:
+                            builder.add_int_value (prop_val.get_enum ());
+                            break;
+                        case STRING:
+                            builder.add_string_value (Enum.get_nick_gtype (val_type, prop_val.get_enum (), settings.enum_serialize_case));
+                            break;
+                    }
 
                 } else if (val_type == typeof (DateTime)) {
-                    builder.add_string_value (((DateTime) prop_val.get_boxed ()).format_iso8601 ());
+                    switch (settings.date_time_serialize_method) {
+                        case ISO8601:
+                            builder.add_string_value (((DateTime) prop_val.get_boxed ()).format_iso8601 ());
+                            break;
+                        case UNIX:
+                            builder.add_int_value (((DateTime) prop_val.get_boxed ()).to_unix ());
+                            break;
+                    }
 
                 } else if (val_type == typeof (Dict)) {
                     var dict = (Dict) prop_val.get_object ();

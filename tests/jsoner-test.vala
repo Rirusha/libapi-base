@@ -184,6 +184,20 @@ string get_exp_json (Case c) {
     }));
 }
 
+string get_exp_json2 (Case c) {
+    return "{%s}".printf (string.joinv (",", {
+        @"\"$(get_name_with_c (STRING_VAL_NAME, c))\":\"$STRING_VAL\"",
+        @"\"$(get_name_with_c (INT64_VAL_NAME, c))\":$INT64_VAL",
+        @"\"$(get_name_with_c (INT_VAL_NAME, c))\":$INT_VAL",
+        @"\"$(get_name_with_c (DOUBLE_VAL_NAME, c))\":$DOUBLE_VAL",
+        @"\"$(get_name_with_c (BOOL_VAL_NAME, c))\":$BOOL_VAL",
+        @"\"$(get_name_with_c (ENUM_VAL_NAME, c))\":\"value2\"",
+        @"\"$(get_name_with_c (TYPE__NAME, c))\":\"$TYPE_\"",
+        @"\"$(get_name_with_c (ERROR_CODE_NAME, c))\":$ERROR_CODE",
+        @"\"$(get_name_with_c (CUSTOM_NICK_VAL_NAME, c))\":\"$CUSTOM_NICK_VAL\"",
+    }));
+}
+
 public int main (string[] args) {
     Test.init (ref args);
 
@@ -203,7 +217,37 @@ public int main (string[] args) {
             test_object.custom_nick_val = CUSTOM_NICK_VAL;
 
             string expectation = get_exp_json (c);
-            var result = Jsoner.serialize (test_object, new Serialize.Settings () { names_case = c });
+            var result = Jsoner.serialize (test_object, new Serialize.Settings () {
+                names_case = c
+            });
+
+            if (result != expectation) {
+                Test.fail_printf (result + "\n!=\n" + expectation);
+            }
+        }
+    });
+
+    Test.add_func ("/jsoner/serialize/values2", () => {
+        Case[] cases = {KEBAB, SNAKE, CAMEL};
+        foreach (var c in cases) {
+            var test_object = new ValuesData ();
+
+            test_object.string_val = STRING_VAL;
+            test_object.int64_val = INT64_VAL;
+            test_object.int_val = INT_VAL;
+            test_object.double_val = DOUBLE_VAL;
+            test_object.bool_val = BOOL_VAL;
+            test_object.enum_val = ENUM_VAL;
+            test_object.type_ = TYPE_;
+            test_object.error_code = ERROR_CODE;
+            test_object.custom_nick_val = CUSTOM_NICK_VAL;
+
+            string expectation = get_exp_json2 (c);
+            var result = Jsoner.serialize (test_object, new Serialize.Settings () {
+                names_case = c,
+                enum_serialize_method = STRING,
+                enum_serialize_case = CAMEL
+            });
 
             if (result != expectation) {
                 Test.fail_printf (result + "\n!=\n" + expectation);

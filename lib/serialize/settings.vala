@@ -37,9 +37,16 @@ namespace Serialize {
 [Version (since = "7.0")]
 public sealed class Serialize.Settings : Object {
 
-    public EnumSerializeMethod enum_serialize_method { get; set; default = STRING; }
+    /**
+     * How enum will be serialized: {@link EnumSerializeMethod.STRING} serialize enum to string with
+     * {@link enum_serialize_case} case or {@link EnumSerializeMethod.INT}
+     */
+    public EnumSerializeMethod enum_serialize_method { get; set; default = INT; }
 
-    public EnumSerializeCase enum_serialize_case { get; set; default = SNAKE; }
+    /**
+     * Works only when {@link date_time_serialize_method} equal to {@link Case.STRING}
+     */
+    public Case enum_serialize_case { get; set; default = AUTO; }
 
     public DateTimeSerializeMethod date_time_serialize_method { get; set; default = ISO8601; }
 
