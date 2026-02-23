@@ -144,6 +144,14 @@ public class TestObjectFamilyParent: Object, TypeFamily {
 }
 public class TestObjectFamilyChild: TestObjectFamilyParent {}
 
+public class TestObjectDeserializeFallback: Object, HasFallback {
+    // Fields that should be deserialized successfuly
+    public string string_val { get; set; }
+    public int64 int64_val { get; set; }
+    // Other (fallback) fields
+    public Dict<Value?> serialize_fallback { get; set; }
+}
+
 string get_name_with_c (string name, Case c) {
     switch (c) {
         case KEBAB:
@@ -732,6 +740,32 @@ public int main (string[] args) {
             }
         } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
+    Test.add_func ("/jsoner/object/fallback", () => {
+        Case[] cases = {KEBAB, SNAKE, CAMEL};
+        foreach (var c in cases) {
+            string json = get_exp_json (c);
+
+            TestObjectDeserializeFallback result;
+
+            try {
+                result = Jsoner.simple_from_json<TestObjectDeserializeFallback> (json, null, c);
+            } catch (Error e) {
+                Test.fail_printf (e.message);
+                return;
+            }
+            var result_ser = Jsoner.serialize (result, c);
+
+            var expectation_arr = json[1:json.length - 1].split (",");
+            var result_arr = result_ser[1:result_ser.length - 1].split (",");
+
+            foreach (var pair in expectation_arr) {
+                if (!(pair in result_arr)) {
+                    Test.fail_printf (result_ser + " != " + json);
+                }
+            }
         }
     });
 

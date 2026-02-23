@@ -122,12 +122,13 @@ namespace Serialize.JsonerDeserializeSync {
             props_data[prop_name] = property;
         }
 
+        var unknown_fields = new Array<string> ();
+
         foreach (var member_name in node.get_object ().get_members ()) {
             var kebabbed_member_name = Convert.cany2kebab (member_name, self.names_case);
 
             if (!props_data.has_key (kebabbed_member_name)) {
-                var unknown_fields = Environment.get_variable ("API_BASE_UNKNOWN_FIELDS");
-                if (unknown_fields != null) {
+                if (Environment.get_variable ("API_BASE_UNKNOWN_FIELDS") != null) {
                     warning (
                         "The object '%s' does not have a property '%s' corresponding to the json field '%s'",
                         obj_type.name (),
@@ -135,6 +136,8 @@ namespace Serialize.JsonerDeserializeSync {
                         member_name
                     );
                 }
+
+                unknown_fields.add (member_name);
                 continue;
             }
 
@@ -226,6 +229,11 @@ namespace Serialize.JsonerDeserializeSync {
             }
         }
 
+        if (obj is HasFallback) {
+            var fallback_dict = new Dict<Value?> ();
+            deserialize_dict_into (self, fallback_dict, {}, node, unknown_fields);
+            obj.set_property (HasFallback.FALLBACK_PROPERTY_NAME, fallback_dict);
+        }
         obj.thaw_notify ();
     }
 
@@ -352,7 +360,8 @@ namespace Serialize.JsonerDeserializeSync {
         Jsoner self,
         Dict dict,
         CollectionFactory[] collection_hierarchy,
-        Json.Node? node = null
+        Json.Node? node = null,
+        Array<string>? fallback_whitelist = null
     ) throws JsonError {
         if (node == null) {
             node = self.root;
@@ -413,6 +422,11 @@ namespace Serialize.JsonerDeserializeSync {
                 var sub_node = jobject.get_member (member_name);
 
                 if (dict.value_type == typeof (Value?)) {
+                    if (fallback_whitelist != null) {
+                        if (!(member_name in fallback_whitelist)) {
+                            continue;
+                        }
+                    }
                     var vdict = (Dict<Value?>) dict;
 
                     switch (sub_node.get_node_type ()) {
