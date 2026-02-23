@@ -198,7 +198,7 @@ public int main (string[] args) {
             test_object.custom_nick_val = CUSTOM_NICK_VAL;
 
             string expectation = get_exp_json (c);
-            var result = Jsoner.serialize (test_object, c);
+            var result = Jsoner.serialize (test_object, new Serialize.Settings () { names_case = c });
 
             if (result != expectation) {
                 Test.fail_printf (result + "\n!=\n" + expectation);
@@ -214,7 +214,7 @@ public int main (string[] args) {
             ValuesData result;
 
             try {
-                result = Jsoner.simple_from_json<ValuesData> (json, null, c);
+                result = Jsoner.simple_from_json<ValuesData> (json, null, new Serialize.Settings () { names_case = c });
             } catch (Error e) {
                 Test.fail_printf (e.message);
                 return;
@@ -446,7 +446,7 @@ public int main (string[] args) {
         test_object.value[2].add (new SimpleObject () { int_value = 56 });
 
         string expectation = "{\"value\":[[{},{}],[{\"string-value\":\"why are we still here\",\"int-value\":42},{},{\"string-value\":\"kekw\"}],[{\"int-value\":56}]]}";
-        string result = Jsoner.serialize (test_object, Case.AUTO, false, true);
+        string result = Jsoner.serialize (test_object, new Serialize.Settings () { ignore_default = true });
 
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
@@ -532,7 +532,7 @@ public int main (string[] args) {
 
     Test.add_func ("/jsoner/deserialize/object_camel", () => {
         try {
-            var jsoner = new Jsoner ("{\"stringValue\":\"test\"}", null, Case.CAMEL);
+            var jsoner = new Jsoner ("{\"stringValue\":\"test\"}", null, new Serialize.Settings () { names_case = Case.CAMEL });
             var result = jsoner.deserialize_object<TestObjectStringCamel> ();
 
             if (result.string_value != "test") {
@@ -545,7 +545,7 @@ public int main (string[] args) {
 
     Test.add_func ("/jsoner/deserialize/object_camel_", () => {
         try {
-            var jsoner = new Jsoner ("{\"stringValue\":\"test\"}", null, Case.CAMEL);
+            var jsoner = new Jsoner ("{\"stringValue\":\"test\"}", null, new Serialize.Settings () { names_case = Case.CAMEL });
             var result = jsoner.deserialize_object<TestObjectStringCamelW> ();
 
             if (result.string_value_ != "test") {
@@ -751,12 +751,12 @@ public int main (string[] args) {
             TestObjectDeserializeFallback result;
 
             try {
-                result = Jsoner.simple_from_json<TestObjectDeserializeFallback> (json, null, c);
+                result = Jsoner.simple_from_json<TestObjectDeserializeFallback> (json, null, new Serialize.Settings () { names_case = c });
             } catch (Error e) {
                 Test.fail_printf (e.message);
                 return;
             }
-            var result_ser = Jsoner.serialize (result, c);
+            var result_ser = Jsoner.serialize (result, new Serialize.Settings () { names_case = c });
 
             var expectation_arr = json[1:json.length - 1].split (",");
             var result_arr = result_ser[1:result_ser.length - 1].split (",");

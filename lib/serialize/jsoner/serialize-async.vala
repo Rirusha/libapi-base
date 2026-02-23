@@ -21,15 +21,10 @@ namespace Serialize.JsonerSerializeAsync {
 
     internal static async string serialize (
         Object obj,
-        Case names_case,
-        bool pretty
+        Serialize.Settings? settings
     ) {
-        if (names_case == Case.AUTO) {
-            names_case = Case.KEBAB;
-        }
-
         var thread = new Thread<string> (null, () => {
-            var result = JsonerSerializeSync.serialize (obj, names_case, pretty);
+            var result = JsonerSerializeSync.serialize (obj, settings);
 
             Idle.add (serialize.callback);
             return result;

@@ -31,29 +31,29 @@ namespace Serialize.JsonerDeserializeSync {
     internal static T simple_from_json<T> (
         string json,
         string[]? sub_members,
-        Case names_case
+        Serialize.Settings? settings = null
     ) throws JsonError {
-        var jsoner = new Jsoner (json, sub_members, names_case);
+        var jsoner = new Jsoner (json, sub_members, settings);
         return jsoner.deserialize_object<T> ();
     }
 
     internal static Array<T> simple_array_from_json<T> (
         string json,
         string[]? sub_members = null,
-        Case names_case = Case.AUTO,
+        Serialize.Settings? settings = null,
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
-        var jsoner = new Jsoner (json, sub_members, names_case);
+        var jsoner = new Jsoner (json, sub_members, settings);
         return jsoner.deserialize_array<T> (collection_hierarchy);
     }
 
     internal static Dict<T> simple_dict_from_json<T> (
         string json,
         string[]? sub_members = null,
-        Case names_case = Case.AUTO,
+        Serialize.Settings? settings = null,
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
-        var jsoner = new Jsoner (json, sub_members, names_case);
+        var jsoner = new Jsoner (json, sub_members, settings);
         return jsoner.deserialize_dict<T> (collection_hierarchy);
     }
 
@@ -125,7 +125,7 @@ namespace Serialize.JsonerDeserializeSync {
         var unknown_fields = new Array<string> ();
 
         foreach (var member_name in node.get_object ().get_members ()) {
-            var kebabbed_member_name = Convert.cany2kebab (member_name, self.names_case);
+            var kebabbed_member_name = Convert.cany2kebab (member_name, self.settings.names_case);
 
             if (!props_data.has_key (kebabbed_member_name)) {
                 if (Environment.get_variable ("API_BASE_UNKNOWN_FIELDS") != null) {

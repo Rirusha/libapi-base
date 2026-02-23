@@ -300,7 +300,7 @@ namespace Serialize.Convert {
      * Convert kebab-case to specified case
      *
      * @param str   String
-     * @param case_ Case
+     * @param case_ Case, using KEBAB if AUTO
      *
      * @return Specified case string
      */
@@ -311,6 +311,7 @@ namespace Serialize.Convert {
                 return kebab2camel (str);
             case Case.SNAKE:
                 return kebab2snake (str);
+            case Case.AUTO:
             case Case.KEBAB:
                 return str;
             default:
@@ -322,7 +323,7 @@ namespace Serialize.Convert {
      * Convert snake_case to specified case
      *
      * @param str   String
-     * @param case_ Case
+     * @param case_ Case, using KEBAB if AUTO
      *
      * @return Specified case string
      */
@@ -333,6 +334,7 @@ namespace Serialize.Convert {
                 return snake2camel (str);
             case Case.SNAKE:
                 return str;
+            case Case.AUTO:
             case Case.KEBAB:
                 return snake2kebab (str);
             default:
@@ -344,7 +346,7 @@ namespace Serialize.Convert {
      * Convert camelCase to specified case
      *
      * @param str   String
-     * @param case_ Case
+     * @param case_ Case, using KEBAB if AUTO
      *
      * @return Specified case string
      */
@@ -355,6 +357,7 @@ namespace Serialize.Convert {
                 return str;
             case Case.SNAKE:
                 return camel2snake (str);
+            case Case.AUTO:
             case Case.KEBAB:
                 return camel2kebab (str);
             default:

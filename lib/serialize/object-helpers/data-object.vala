@@ -40,21 +40,24 @@ public abstract class Serialize.DataObject : Object {
      *
      * @throws JsonError    Error with json or sub_members
      */
-    [Version (since = "6.0")]
+    [Version (since = "7.0")]
     public void fill_from_json (
         string json,
         string[]? sub_members = null,
-        Case names_case = Case.AUTO
+        Serialize.Settings? settings = null
     ) throws JsonError {
-        var jsoner = new Jsoner (json, sub_members, names_case);
+        var jsoner = new Jsoner (json, sub_members, settings);
         jsoner.deserialize_object_into (this);
     }
 
     /**
      * Serialize object to json
      */
-    [Version (since = "6.0")]
-    public string to_json (Case names_case = Case.AUTO) {
-        return Jsoner.serialize (this, names_case);
+    [Version (since = "7.0")]
+    public string to_json (Serialize.Settings? settings = null) {
+        return Jsoner.serialize (
+            this,
+            settings
+        );
     }
 }

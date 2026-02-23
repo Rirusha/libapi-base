@@ -22,7 +22,7 @@ namespace Serialize.JsonerDeserializeAsync {
     internal async static T simple_from_json<T> (
         string json,
         string[]? sub_members,
-        Case names_case
+        Serialize.Settings? settings
     ) throws JsonError {
         JsonError? error = null;
 
@@ -33,7 +33,7 @@ namespace Serialize.JsonerDeserializeAsync {
                 result = JsonerDeserializeSync.simple_from_json<T> (
                     json,
                     sub_members,
-                    names_case
+                    settings
                 );
             } catch (JsonError e) {
                 error = e;
@@ -55,7 +55,7 @@ namespace Serialize.JsonerDeserializeAsync {
     internal async static Array<T> simple_array_from_json<T> (
         string json,
         string[]? sub_members,
-        Case names_case
+        Serialize.Settings? settings
     ) throws JsonError {
         JsonError? error = null;
 
@@ -66,7 +66,7 @@ namespace Serialize.JsonerDeserializeAsync {
                 result = JsonerDeserializeSync.simple_array_from_json<T> (
                     json,
                     sub_members,
-                    names_case
+                    settings
                 );
             } catch (JsonError e) {
                 error = e;
@@ -88,7 +88,7 @@ namespace Serialize.JsonerDeserializeAsync {
     internal async static Dict<T> simple_dict_from_json<T> (
         string json,
         string[]? sub_members,
-        Case names_case
+        Serialize.Settings? settings
     ) throws JsonError {
         JsonError? error = null;
 
@@ -99,7 +99,7 @@ namespace Serialize.JsonerDeserializeAsync {
                 result = JsonerDeserializeSync.simple_dict_from_json<T> (
                     json,
                     sub_members,
-                    names_case
+                    settings
                 );
             } catch (JsonError e) {
                 error = e;
