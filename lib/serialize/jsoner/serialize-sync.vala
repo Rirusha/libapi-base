@@ -119,7 +119,12 @@ namespace Serialize.JsonerSerializeSync {
         builder.end_object ();
     }
 
-    static void serialize_value (Json.Builder builder, Value prop_val, Settings settings) {
+    static void serialize_value (Json.Builder builder, Value? prop_val, Settings settings) {
+        if (prop_val == null) {
+            builder.add_null_value ();
+            return;
+        }
+
         switch (prop_val.type ()) {
             case Type.INT:
                 builder.add_int_value ((int64) prop_val.get_int ());
@@ -171,13 +176,11 @@ namespace Serialize.JsonerSerializeSync {
 
                 } else if (val_type == typeof (Dict)) {
                     var dict = (Dict) prop_val.get_object ();
-                    Type element_type = dict.element_type;
-                    serialize_dict (builder, dict, element_type, settings);
+                    serialize_dict (builder, dict, dict.element_type, settings);
 
                 } else if (val_type == typeof (Array)) {
                     var array = (Array) prop_val.get_object ();
-                    Type element_type = array.element_type;
-                    serialize_array (builder, array, element_type, settings);
+                    serialize_array (builder, array, array.element_type, settings);
 
                 } else if (prop_val.type ().is_object ()) {
                     serialize_object (builder, prop_val.get_object (), settings);

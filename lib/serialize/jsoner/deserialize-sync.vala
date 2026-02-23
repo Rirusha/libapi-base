@@ -345,7 +345,7 @@ namespace Serialize.JsonerDeserializeSync {
                             break;
 
                         case NULL:
-                            varray.add (Value (Type.NONE));
+                            varray.add (null);
                             break;
                     }
 
@@ -460,7 +460,7 @@ namespace Serialize.JsonerDeserializeSync {
                             break;
 
                         case NULL:
-                            vdict.set (member_name, Value (Type.NONE));
+                            vdict.set (member_name, null);
                             break;
                     }
 
