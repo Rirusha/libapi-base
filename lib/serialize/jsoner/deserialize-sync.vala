@@ -149,9 +149,9 @@ namespace Serialize.JsonerDeserializeSync {
 
             switch (sub_node.get_node_type ()) {
                 case Json.NodeType.ARRAY:
-                    var arrayval = Value (prop_type);
-                    obj.get_property (property.name, ref arrayval);
-                    Array array_list = (Array) arrayval.get_object ();
+                    var array_val = Value (prop_type);
+                    obj.get_property (property.name, ref array_val);
+                    Array array = (Array) array_val.get_object ();
 
                     CollectionFactory[] carr = {};
                     var complex_col_obj = obj as HasComplexCollections;
@@ -159,19 +159,19 @@ namespace Serialize.JsonerDeserializeSync {
                         carr = complex_col_obj.collection_factories (property.name);
                     }
 
-                    assert (array_list != null || carr.length != 0);
+                    assert (array != null || carr.length != 0);
 
                     if (carr.length != 0) {
                         assert (carr[0] is Array);
-                        array_list = (Array) carr[0].build ();
+                        array = (Array) carr[0].build ();
                     }
 
                     carr = carr[1:carr.length];
 
-                    deserialize_array_into (self, array_list, carr, sub_node);
+                    deserialize_array_into (self, array, carr, sub_node);
                     obj.set_property (
                         property.name,
-                        array_list
+                        array
                     );
                     break;
 
@@ -254,14 +254,14 @@ namespace Serialize.JsonerDeserializeSync {
         Jsoner self,
         CollectionFactory[] collection_hierarchy
     ) throws JsonError {
-        var array_list = new Array<T> ();
-        deserialize_array_into (self, array_list, collection_hierarchy);
-        return array_list;
+        var array = new Array<T> ();
+        deserialize_array_into (self, array, collection_hierarchy);
+        return array;
     }
 
     internal void deserialize_array_into (
         Jsoner self,
-        Array array_list,
+        Array array,
         CollectionFactory[] collection_hierarchy,
         Json.Node? node = null
     ) throws JsonError {
@@ -272,9 +272,9 @@ namespace Serialize.JsonerDeserializeSync {
         check_node_type (node, Json.NodeType.ARRAY);
 
         var jarray = node.get_array ();
-        array_list.clear ();
+        array.clear ();
 
-        if (array_list.element_type == typeof (Array)) {
+        if (array.element_type == typeof (Array)) {
             var collection_factory = collection_hierarchy[0];
 
             assert (collection_factory is Array);
@@ -284,11 +284,11 @@ namespace Serialize.JsonerDeserializeSync {
                 try {
                     deserialize_array_into (self, arr_obj, collection_hierarchy[1:collection_hierarchy.length], sub_node);
 
-                    array_list.add_array (arr_obj);
+                    array.add_array (arr_obj);
                 } catch (JsonError e) {}
             }
 
-        } else if (array_list.element_type == typeof (Dict)) {
+        } else if (array.element_type == typeof (Dict)) {
             var collection_factory = collection_hierarchy[0];
 
             assert (collection_factory is Dict);
@@ -298,21 +298,21 @@ namespace Serialize.JsonerDeserializeSync {
                 try {
                     deserialize_dict_into (self, dict_obj, collection_hierarchy[1:collection_hierarchy.length], sub_node);
 
-                    array_list.add_dict (dict_obj);
+                    array.add_dict (dict_obj);
                 } catch (JsonError e) {}
             }
 
-        } else if (array_list.element_type.is_object ()) {
+        } else if (array.element_type.is_object ()) {
             foreach (var sub_node in jarray.get_elements ()) {
                 try {
-                    array_list.add_object (deserialize_object_by_type (self, array_list.element_type, sub_node));
+                    array.add_object (deserialize_object_by_type (self, array.element_type, sub_node));
                 } catch (JsonError e) {}
             }
 
         } else {
             foreach (var sub_node in jarray.get_elements ()) {
-                if (array_list.element_type == typeof (Value?)) {
-                    var varray = (Array<Value?>) array_list;
+                if (array.element_type == typeof (Value?)) {
+                    var varray = (Array<Value?>) array;
 
                     switch (sub_node.get_node_type ()) {
                         case OBJECT:
@@ -341,7 +341,7 @@ namespace Serialize.JsonerDeserializeSync {
                     }
 
                 } else {
-                    array_list.add_base (deserialize_value (self, sub_node));
+                    array.add_base (deserialize_value (self, sub_node));
                 }
             }
         }

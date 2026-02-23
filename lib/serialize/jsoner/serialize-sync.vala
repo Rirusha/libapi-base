@@ -53,7 +53,7 @@ namespace Serialize.JsonerSerializeSync {
 
     static void serialize_array (
         Json.Builder builder,
-        Array array_list,
+        Array array,
         Type element_type,
         Case names_case = Case.AUTO,
         bool ignore_default = false
@@ -65,31 +65,31 @@ namespace Serialize.JsonerSerializeSync {
         builder.begin_array ();
 
         if (element_type == typeof (Array)) {
-            var array_of_arrays = (Array<Array>) array_list;
+            var array_of_arrays = (Array<Array>) array;
 
-            foreach (var sub_array_list in array_of_arrays) {
-                serialize_array (builder, sub_array_list, sub_array_list.element_type, names_case, ignore_default);
+            foreach (var sub_array in array_of_arrays) {
+                serialize_array (builder, sub_array, sub_array.element_type, names_case, ignore_default);
             }
 
         } else if (element_type == typeof (Dict)) {
-            var array_of_maps = (Array<Dict>) array_list;
+            var array_of_maps = (Array<Dict>) array;
 
             foreach (var sub_hash_map in array_of_maps) {
                 serialize_dict (builder, sub_hash_map, sub_hash_map.element_type, names_case, ignore_default);
             }
 
         } else if (element_type.is_object ()) {
-            foreach (var obj in (Array<Object>) array_list) {
+            foreach (var obj in (Array<Object>) array) {
                 serialize_object (builder, obj, names_case, ignore_default);
             }
 
         } else if (element_type == typeof (Value?)) {
-            foreach (var val in (Array<Value?>) array_list) {
+            foreach (var val in (Array<Value?>) array) {
                 serialize_value (builder, val);
             }
 
         } else {
-            array_list.foreach_base ((fval) => {
+            array.foreach_base ((fval) => {
                 serialize_value (builder, fval);
             });
         }
@@ -115,9 +115,9 @@ namespace Serialize.JsonerSerializeSync {
         if (element_type == typeof (Array)) {
             var dict_of_arrays = (Dict<Array>) dict;
 
-            foreach (var sub_array_list in dict_of_arrays) {
-                builder.set_member_name (sub_array_list.key);
-                serialize_array (builder, sub_array_list.value, sub_array_list.value.element_type, names_case, ignore_default);
+            foreach (var sub_array in dict_of_arrays) {
+                builder.set_member_name (sub_array.key);
+                serialize_array (builder, sub_array.value, sub_array.value.element_type, names_case, ignore_default);
             }
 
         } else if (element_type == typeof (Dict)) {
@@ -154,7 +154,7 @@ namespace Serialize.JsonerSerializeSync {
 
     static void serialize_object (
         Json.Builder builder,
-        Object? api_obj,
+        Object? obj,
         Case names_case = Case.AUTO,
         bool ignore_default = false
     ) {
@@ -162,25 +162,25 @@ namespace Serialize.JsonerSerializeSync {
             names_case = Case.KEBAB;
         }
 
-        if (api_obj == null) {
+        if (obj == null) {
             builder.add_null_value ();
 
             return;
         }
 
         builder.begin_object ();
-        var cls = (ObjectClass) api_obj.get_type ().class_ref ();
+        var cls = (ObjectClass) obj.get_type ().class_ref ();
 
         foreach (ParamSpec property in cls.list_properties ()) {
             if (((property.flags & ParamFlags.READABLE) == 0) ||
                 ((property.flags & ParamFlags.WRITABLE) == 0) ||
-                (api_obj is HasFallback && property.name == HasFallback.FALLBACK_PROPERTY_NAME)) {
+                (obj is HasFallback && property.name == HasFallback.FALLBACK_PROPERTY_NAME)) {
                 continue;
             }
 
             var prop_val = Value (property.value_type);
             var prop_name = property.get_nick ();
-            api_obj.get_property (property.name, ref prop_val);
+            obj.get_property (property.name, ref prop_val);
 
             if (ignore_default && property.value_defaults (prop_val)) {
                 continue;
@@ -189,10 +189,10 @@ namespace Serialize.JsonerSerializeSync {
             builder.set_member_name (Convert.kebab2any (prop_name, names_case));
 
             if (property.value_type == typeof (Array)) {
-                var array_list = (Array) prop_val.get_object ();
-                Type element_type = array_list.element_type;
+                var array = (Array) prop_val.get_object ();
+                Type element_type = array.element_type;
 
-                serialize_array (builder, array_list, element_type, names_case, ignore_default);
+                serialize_array (builder, array, element_type, names_case, ignore_default);
 
             } else if (property.value_type == typeof (Dict)) {
                 var hash_map = (Dict) prop_val.get_object ();
@@ -208,8 +208,8 @@ namespace Serialize.JsonerSerializeSync {
             }
         }
 
-        if (api_obj is HasFallback) {
-            var fallback = (HasFallback) api_obj;
+        if (obj is HasFallback) {
+            var fallback = (HasFallback) obj;
             serialize_dict (builder, fallback.serialize_fallback, typeof (Value?), names_case, ignore_default, false);
         }
 

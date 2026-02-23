@@ -229,14 +229,14 @@ namespace Serialize.JsonerDeserializeAsync {
 
     internal async void deserialize_array_into (
         Jsoner self,
-        Array array_list,
+        Array array,
         CollectionFactory[] collection_factories
     ) throws JsonError {
         JsonError? error = null;
 
         var thread = new Thread<void> (null, () => {
             try {
-                JsonerDeserializeSync.deserialize_array_into (self, array_list, collection_factories);
+                JsonerDeserializeSync.deserialize_array_into (self, array, collection_factories);
             } catch (JsonError e) {
                 error = e;
             }

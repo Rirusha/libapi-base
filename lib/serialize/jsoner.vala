@@ -321,17 +321,17 @@ public class Serialize.Jsoner : Object {
     /**
      * Method for deserializing the {@link Array}
      *
-     * @param array_list        Array
+     * @param array        Array
      * @param collection_hierarchy A function for creating subsets in the case of arrays in an array
      *
      * @throws JsonError    Error with json string
      */
     [Version (since = "6.0")]
     public inline void deserialize_array_into (
-        Array array_list,
+        Array array,
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
-        JsonerDeserializeSync.deserialize_array_into (this, array_list, collection_hierarchy);
+        JsonerDeserializeSync.deserialize_array_into (this, array, collection_hierarchy);
     }
 
     /**
@@ -487,7 +487,7 @@ public class Serialize.Jsoner : Object {
     /**
      * Asynchronous version of method {@link deserialize_array_into}
      *
-     * @param array_list        Array
+     * @param array        Array
      * @param collection_factories  {@link CollectionFactory} array of hierarchy for
      *                              collection deserialization
      *
@@ -495,10 +495,10 @@ public class Serialize.Jsoner : Object {
      */
     [Version (since = "6.0")]
     public async inline void deserialize_array_into_async (
-        Array array_list,
+        Array array,
         CollectionFactory[] collection_factories = {}
     ) throws JsonError {
-        yield JsonerDeserializeAsync.deserialize_array_into (this, array_list, collection_factories);
+        yield JsonerDeserializeAsync.deserialize_array_into (this, array, collection_factories);
     }
 
     /**
