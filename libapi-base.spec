@@ -17,8 +17,8 @@ Release: alt1
 Summary: Base objects for API libraries on Vala
 License: GPL-3.0-or-later
 Group: System/Libraries
-Url: https://altlinux.space/rirusha/libapi-base
-Vcs: https://altlinux.space/rirusha/libapi-base.git
+URL: https://altlinux.space/rirusha/libapi-base
+VCS: https://altlinux.space/rirusha/libapi-base.git
 
 Source: %name-%version.tar
 Patch: %name-%version-%release.patch
