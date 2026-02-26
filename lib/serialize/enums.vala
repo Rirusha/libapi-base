@@ -79,3 +79,21 @@ public enum Serialize.Case {
     KEBAB,
     CAMEL;
 }
+
+/**
+ * How to serialize Enums
+ */
+[Version (since = "7.0")]
+public enum Serialize.EnumSerializeMethod {
+    STRING,
+    INT;
+}
+
+/**
+ * How to serialize DateTime
+ */
+[Version (since = "7.0")]
+public enum Serialize.DateTimeSerializeMethod {
+    ISO8601,
+    UNIX;
+}

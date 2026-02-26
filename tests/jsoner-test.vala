@@ -88,44 +88,44 @@ public class SimpleObject : DataObject {
 }
 
 public class TestObjectArrayString : DataObject {
-    public Gee.ArrayList<string> value { get; set; default = new Gee.ArrayList<string> (); }
+    public Serialize.Array<string> value { get; set; default = new Serialize.Array<string> (); }
 }
 
 public class TestObjectDictString : DataObject {
-    public Gee.HashMap<string, string> value { get; set; default = new Gee.HashMap<string, string> (); }
+    public Serialize.Dict<string> value { get; set; default = new Serialize.Dict<string> (); }
 }
 
 public class TestObjectArrayObject : DataObject {
-    public Gee.ArrayList<SimpleObject> value { get; set; default = new Gee.ArrayList<SimpleObject> (); }
+    public Serialize.Array<SimpleObject> value { get; set; default = new Serialize.Array<SimpleObject> (); }
 }
 
 public class TestObjectArrayArray : Object {
-    public Gee.ArrayList<Gee.ArrayList<SimpleObject>> value { get; set; default = new Gee.ArrayList<Gee.ArrayList<SimpleObject>> (); }
+    public Serialize.Array<Serialize.Array<SimpleObject>> value { get; set; default = new Serialize.Array<Serialize.Array<SimpleObject>> (); }
 }
 
-public class TestObjectAlbum : DataObject {
-    public Gee.ArrayList<Gee.ArrayList<TestObjectInt>> value { get; set; default = new Gee.ArrayList<Gee.ArrayList<TestObjectInt>> (); }
+public class TestObjectAlbum : DataObject, HasComplexCollections {
+    public Serialize.Array<Serialize.Array<TestObjectInt>> value { get; set; default = new Serialize.Array<Serialize.Array<TestObjectInt>> (); }
 
-    public override CollectionFactory[] collection_factories (string property_name) {
+    public CollectionFactory[] collection_factories (string property_name) {
         if (property_name == "value") {
             return {
-                new ArrayFactory<Gee.ArrayList> (),
-                new ArrayFactory<TestObjectInt> ()
+                new Serialize.Array<Serialize.Array> (),
+                new Serialize.Array<TestObjectInt> ()
             };
         }
         return {};
     }
 }
 
-public class TestObjectAlbum2 : DataObject {
-    public Gee.ArrayList<Gee.ArrayList<Gee.HashMap<string, int>>> value { get; set; }
+public class TestObjectAlbum2 : DataObject, HasComplexCollections {
+    public Serialize.Array<Serialize.Array<Serialize.Dict<int>>> value { get; set; }
 
-    public override CollectionFactory[] collection_factories (string property_name) {
+    public CollectionFactory[] collection_factories (string property_name) {
         if (property_name == "value") {
             return {
-                new ArrayFactory<Gee.ArrayList> (),
-                new ArrayFactory<Gee.HashMap> (),
-                new DictFactory<int> ()
+                new Serialize.Array<Serialize.Array> (),
+                new Serialize.Array<Serialize.Dict> (),
+                new Serialize.Dict<int> ()
             };
         }
         return {};
@@ -134,15 +134,28 @@ public class TestObjectAlbum2 : DataObject {
 
 public class TestObjectFamilyParent: Object, TypeFamily {
     public GLib.Type match_type (Json.Node node) {
-        switch (node.get_object().get_string_member("type")) {
+        switch (node.get_object ().get_string_member ("type")) {
             case "child":
-                return typeof(TestObjectFamilyChild);
+                return typeof (TestObjectFamilyChild);
             default:
-                return typeof(TestObjectFamilyParent);
+                return typeof (TestObjectFamilyParent);
         }
     }
 }
 public class TestObjectFamilyChild: TestObjectFamilyParent {}
+
+public class TestObjectDeserializeFallback: Object, HasFallback {
+    // Fields that should be deserialized successfuly
+    public string string_val { get; set; }
+    public int64 int64_val { get; set; }
+    // Other (fallback) fields
+    public Dict<Value?> serialize_fallback { get; set; }
+}
+
+public class TestObjectWithNestedObjects: Object {
+    public TestObjectWithNestedObjects child_typed { get; set; }
+    public Object child_any { get; set; }
+}
 
 string get_name_with_c (string name, Case c) {
     switch (c) {
@@ -171,6 +184,20 @@ string get_exp_json (Case c) {
     }));
 }
 
+string get_exp_json2 (Case c) {
+    return "{%s}".printf (string.joinv (",", {
+        @"\"$(get_name_with_c (STRING_VAL_NAME, c))\":\"$STRING_VAL\"",
+        @"\"$(get_name_with_c (INT64_VAL_NAME, c))\":$INT64_VAL",
+        @"\"$(get_name_with_c (INT_VAL_NAME, c))\":$INT_VAL",
+        @"\"$(get_name_with_c (DOUBLE_VAL_NAME, c))\":$DOUBLE_VAL",
+        @"\"$(get_name_with_c (BOOL_VAL_NAME, c))\":$BOOL_VAL",
+        @"\"$(get_name_with_c (ENUM_VAL_NAME, c))\":\"value2\"",
+        @"\"$(get_name_with_c (TYPE__NAME, c))\":\"$TYPE_\"",
+        @"\"$(get_name_with_c (ERROR_CODE_NAME, c))\":$ERROR_CODE",
+        @"\"$(get_name_with_c (CUSTOM_NICK_VAL_NAME, c))\":\"$CUSTOM_NICK_VAL\"",
+    }));
+}
+
 public int main (string[] args) {
     Test.init (ref args);
 
@@ -190,7 +217,45 @@ public int main (string[] args) {
             test_object.custom_nick_val = CUSTOM_NICK_VAL;
 
             string expectation = get_exp_json (c);
-            var result = Jsoner.serialize (test_object, c);
+            var result = Jsoner.serialize (test_object, new Serialize.Settings () {
+                names_case = c
+            });
+
+            if (result != expectation) {
+                Test.fail_printf (result + "\n!=\n" + expectation);
+            }
+        }
+    });
+
+    Test.add_func ("/jsoner/deserialize/big", () => {
+        var res = resources_lookup_data ("/test-data/big.json", ResourceLookupFlags.NONE);
+        var jsoner = new Jsoner.from_bytes (res);
+        var result = jsoner.deserialize ();
+
+        Jsoner.serialize (result);
+    });
+
+    Test.add_func ("/jsoner/serialize/values2", () => {
+        Case[] cases = {KEBAB, SNAKE, CAMEL};
+        foreach (var c in cases) {
+            var test_object = new ValuesData ();
+
+            test_object.string_val = STRING_VAL;
+            test_object.int64_val = INT64_VAL;
+            test_object.int_val = INT_VAL;
+            test_object.double_val = DOUBLE_VAL;
+            test_object.bool_val = BOOL_VAL;
+            test_object.enum_val = ENUM_VAL;
+            test_object.type_ = TYPE_;
+            test_object.error_code = ERROR_CODE;
+            test_object.custom_nick_val = CUSTOM_NICK_VAL;
+
+            string expectation = get_exp_json2 (c);
+            var result = Jsoner.serialize (test_object, new Serialize.Settings () {
+                names_case = c,
+                enum_serialize_method = STRING,
+                enum_serialize_case = CAMEL
+            });
 
             if (result != expectation) {
                 Test.fail_printf (result + "\n!=\n" + expectation);
@@ -206,7 +271,7 @@ public int main (string[] args) {
             ValuesData result;
 
             try {
-                result = Jsoner.simple_from_json<ValuesData> (json, null, c);
+                result = Jsoner.simple_from_json<ValuesData> (json, null, new Serialize.Settings () { names_case = c });
             } catch (Error e) {
                 Test.fail_printf (e.message);
                 return;
@@ -268,6 +333,25 @@ public int main (string[] args) {
         }
     });
 
+    Test.add_func ("/jsoner/serialize/yam_obj/uni", () => {
+        var test_object = new Dict<Value?> ();
+        test_object["string-value"] = "test";
+        test_object["int-value"] = 42;
+        test_object["bool-value"] = true;
+
+        string expectation = "{\"string-value\":\"test\",\"int-value\":42,\"bool-value\":true}";
+        string result = Jsoner.serialize (test_object);
+
+        var expectation_arr = expectation[1:expectation.length - 1].split (",");
+        var result_arr = result[1:result.length - 1].split (",");
+
+        foreach (var pair in expectation_arr) {
+            if (!(pair in result_arr)) {
+                Test.fail_printf (result + " != " + expectation);
+            }
+        }
+    });
+
     Test.add_func ("/jsoner/deserialize/bad-json", () => {
         var json = "{\"string-value\":\"test\",\"int_value\":42,\"boolValue\":true}";
 
@@ -322,7 +406,7 @@ public int main (string[] args) {
     Test.add_func ("/jsoner/serialize/dict/string/direct", () => {
         var expected_json = "{\"kekw\":\"yes\",\"kek\":\"no\"}";
 
-        var obj = new Gee.HashMap<string, string> ();
+        var obj = new Serialize.Dict<string> ();
         obj.set ("kekw", "yes");
         obj.set ("kek", "no");
 
@@ -386,9 +470,9 @@ public int main (string[] args) {
 
     Test.add_func ("/jsoner/serialize/array/array", () => {
         var test_object = new TestObjectArrayArray ();
-        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
-        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
-        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
+        test_object.value.add (new Serialize.Array<SimpleObject> ());
+        test_object.value.add (new Serialize.Array<SimpleObject> ());
+        test_object.value.add (new Serialize.Array<SimpleObject> ());
         test_object.value[0].add (new SimpleObject ());
         test_object.value[0].add (new SimpleObject ());
         test_object.value[1].add (new SimpleObject () { string_value = "why are we still here", int_value = 42 });
@@ -406,9 +490,9 @@ public int main (string[] args) {
 
     Test.add_func ("/jsoner/serialize/array/array/without-default", () => {
         var test_object = new TestObjectArrayArray ();
-        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
-        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
-        test_object.value.add (new Gee.ArrayList<SimpleObject> ());
+        test_object.value.add (new Serialize.Array<SimpleObject> ());
+        test_object.value.add (new Serialize.Array<SimpleObject> ());
+        test_object.value.add (new Serialize.Array<SimpleObject> ());
         test_object.value[0].add (new SimpleObject ());
         test_object.value[0].add (new SimpleObject ());
         test_object.value[1].add (new SimpleObject () { string_value = "why are we still here", int_value = 42 });
@@ -417,8 +501,23 @@ public int main (string[] args) {
         test_object.value[2].add (new SimpleObject () { int_value = 56 });
 
         string expectation = "{\"value\":[[{},{}],[{\"string-value\":\"why are we still here\",\"int-value\":42},{},{\"string-value\":\"kekw\"}],[{\"int-value\":56}]]}";
-        string result = Jsoner.serialize (test_object, Case.AUTO, false, true);
+        string result = Jsoner.serialize (test_object, new Serialize.Settings () { ignore_default = true });
 
+        if (result != expectation) {
+            Test.fail_printf (result + " != " + expectation);
+        }
+    });
+
+    Test.add_func ("/jsoner/serialize/object-with-nested-childs", () => {
+        var test_object = new TestObjectWithNestedObjects () {
+            child_typed = new TestObjectWithNestedObjects () {
+                child_any = new TestObjectWithNestedObjects ()
+                // test_typed should be null
+            }
+            // test_any should be null
+        };
+        string expectation = "{\"child-typed\":{\"child-typed\":null,\"child-any\":{\"child-typed\":null,\"child-any\":null}},\"child-any\":null}";
+        string result = Jsoner.serialize (test_object, new Serialize.Settings ());
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
         }
@@ -475,6 +574,19 @@ public int main (string[] args) {
         }
     });
 
+    Test.add_func ("/jsoner/deserialize/object/uni", () => {
+        try {
+            var jsoner = new Jsoner ("{\"value\":\"test\"}");
+            var result = jsoner.deserialize ();
+
+            if (result["value"].get_string () != "test") {
+                Test.fail_printf (result["value"].get_string () + " != test");
+            }
+        } catch (JsonError e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
     Test.add_func ("/jsoner/deserialize/object2", () => {
         try {
             var result = new TestObjectString ();
@@ -490,7 +602,7 @@ public int main (string[] args) {
 
     Test.add_func ("/jsoner/deserialize/object_camel", () => {
         try {
-            var jsoner = new Jsoner ("{\"stringValue\":\"test\"}", null, Case.CAMEL);
+            var jsoner = new Jsoner ("{\"stringValue\":\"test\"}", null, new Serialize.Settings () { names_case = Case.CAMEL });
             var result = jsoner.deserialize_object<TestObjectStringCamel> ();
 
             if (result.string_value != "test") {
@@ -503,7 +615,7 @@ public int main (string[] args) {
 
     Test.add_func ("/jsoner/deserialize/object_camel_", () => {
         try {
-            var jsoner = new Jsoner ("{\"stringValue\":\"test\"}", null, Case.CAMEL);
+            var jsoner = new Jsoner ("{\"stringValue\":\"test\"}", null, new Serialize.Settings () { names_case = Case.CAMEL });
             var result = jsoner.deserialize_object<TestObjectStringCamelW> ();
 
             if (result.string_value_ != "test") {
@@ -548,6 +660,21 @@ public int main (string[] args) {
 
             if (result.value[0] != "kekw" || result.value[1] != "yes" || result.value[2] != "no") {
                 Test.fail_printf (string.joinv (", ", result.value.to_array ()) + " != kekw, yes, no");
+            }
+        } catch (JsonError e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
+    Test.add_func ("/jsoner/deserialize/array/string/uni", () => {
+        try {
+            var jsoner = new Jsoner ("{\"value\":[\"kekw\",\"yes\",\"no\"]}");
+            var result = jsoner.deserialize ();
+
+            var arr = (Serialize.Array<Value?>) result["value"].get_object ();
+
+            if (arr[0].get_string () != "kekw" || arr[1].get_string () != "yes" || arr[2].get_string () != "no") {
+                Test.fail_printf ("Failed");
             }
         } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
@@ -683,6 +810,32 @@ public int main (string[] args) {
             }
         } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
+    Test.add_func ("/jsoner/object/fallback", () => {
+        Case[] cases = {KEBAB, SNAKE, CAMEL};
+        foreach (var c in cases) {
+            string json = get_exp_json (c);
+
+            TestObjectDeserializeFallback result;
+
+            try {
+                result = Jsoner.simple_from_json<TestObjectDeserializeFallback> (json, null, new Serialize.Settings () { names_case = c });
+            } catch (Error e) {
+                Test.fail_printf (e.message);
+                return;
+            }
+            var result_ser = Jsoner.serialize (result, new Serialize.Settings () { names_case = c });
+
+            var expectation_arr = json[1:json.length - 1].split (",");
+            var result_arr = result_ser[1:result_ser.length - 1].split (",");
+
+            foreach (var pair in expectation_arr) {
+                if (!(pair in result_arr)) {
+                    Test.fail_printf (result_ser + " != " + json);
+                }
+            }
         }
     });
 

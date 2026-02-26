@@ -19,34 +19,24 @@
 
 namespace Serialize {
 
-    /**
-     * Helper interface for chosing class to deserialize
-     */
-    [Version (since = "6.0")]
-    public interface TypeFamily : Object {
-        /**
-         * Return object type to deserialize
-         *
-         * @param node  Object node
-         */
-        public abstract Type match_type (Json.Node node);
-    }
+    internal delegate void ArrayForeachBaseFunc (Value? val);
+    internal delegate void DictForeachBaseFunc (string key, Value? val);
+
+    const Type[] SUPPORTED_BASE_TYPES = {
+        Type.STRING,
+        Type.INT,
+        Type.INT64,
+        Type.DOUBLE,
+        Type.BOOLEAN
+    };
 
     internal bool type_is_valid (Type type_) {
-        Type[] supported_base_types = {
-            Type.STRING,
-            Type.INT,
-            Type.INT64,
-            Type.DOUBLE,
-            Type.BOOLEAN
-        };
-
         Type[] supported_collections_types = {
-            typeof (Gee.ArrayList),
-            typeof (Gee.HashMap)
+            typeof (Array),
+            typeof (Dict)
         };
 
-        return type_ in supported_base_types ||
+        return type_ in SUPPORTED_BASE_TYPES ||
                type_ in supported_collections_types ||
                type_.is_enum () ||
                (type_.is_object () &&
@@ -63,8 +53,8 @@ namespace Serialize {
     [Version (since = "6.0")]
     public void check_type (Type type_) {
         Type[] supported_collections_types = {
-            typeof (Gee.ArrayList),
-            typeof (Gee.HashMap)
+            typeof (Array),
+            typeof (Dict)
         };
 
         if (find_generic (type_)) {
@@ -95,11 +85,11 @@ namespace Serialize {
                 Type el_type;
 
                 var obj = default_value.get_object ();
-                if (obj is Gee.ArrayList) {
-                    el_type = ((Gee.ArrayList) obj).element_type;
-                } else if (obj is Gee.HashMap) {
-                    var key_type = ((Gee.HashMap) obj).key_type;
-                    el_type = ((Gee.HashMap) obj).value_type;
+                if (obj is Array) {
+                    el_type = ((Array) obj).element_type;
+                } else if (obj is Dict) {
+                    var key_type = ((Dict) obj).key_type;
+                    el_type = ((Dict) obj).value_type;
 
                     if (key_type != Type.STRING) {
                         error (
@@ -126,9 +116,9 @@ namespace Serialize {
     }
 
     internal bool find_generic (Type type_) {
-        var _type = new Gee.ArrayList<string> ();
-        var _dup_func = new Gee.ArrayList<string> ();
-        var _destroy_func = new Gee.ArrayList<string> ();
+        var _type = new Array<string> ();
+        var _dup_func = new Array<string> ();
+        var _destroy_func = new Array<string> ();
 
         var class_ref = (ObjectClass) type_.class_ref ();
         foreach (var param_spec in class_ref.list_properties ()) {
@@ -153,27 +143,5 @@ namespace Serialize {
         }
 
         return false;
-    }
-
-    [Version (since = "6.0")]
-    public Datalist<T> hashmap_to_datalist<T> (Gee.HashMap<string, T> hash_map) {
-        var dl = Datalist<T> ();
-
-        foreach (var entry in hash_map) {
-            dl.set_data (entry.key, entry.value);
-        }
-
-        return dl;
-    }
-
-    [Version (since = "6.0")]
-    public Gee.HashMap<string, T> datalist_to_hashmap<T> (Datalist<T> datalist) {
-        var hash_map = new Gee.HashMap<string, T> ();
-
-        datalist.foreach ((key_quark, value) => {
-            hash_map.set (key_quark.to_string (), value);
-        });
-
-        return hash_map;
     }
 }

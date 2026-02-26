@@ -17,9 +17,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gee;
-
-
 /**
  * Json helper for de/serialization
  */
@@ -27,9 +24,9 @@ using Gee;
 public class Serialize.Jsoner : Object {
 
     /**
-     * Names case used for deserialization
+     * Settings
      */
-    public Case names_case { get; construct; }
+    public Serialize.Settings settings { get; construct; }
 
     public Json.Node root { internal get; construct; }
 
@@ -40,7 +37,7 @@ public class Serialize.Jsoner : Object {
      * @param json_string   Correct json string
      * @param sub_members   An array of names of json elements that need to be traversed
      *                      to the target node
-     * @param names_case    Name case of element names in a json string
+     * @param settings      Settings
      *
      * @throws JsonError    Error with json or sub_members
      */
@@ -48,7 +45,7 @@ public class Serialize.Jsoner : Object {
     public Jsoner (
         string json_string,
         string[]? sub_members = null,
-        Case names_case = Case.AUTO
+        Serialize.Settings? settings = null
     ) throws JsonError {
         if (json_string.length < 1) {
             throw new JsonError.EMPTY ("Json string is empty");
@@ -75,7 +72,10 @@ public class Serialize.Jsoner : Object {
             json_string
         );
 
-        Object (root: node, names_case: names_case);
+        Object (
+            root: node,
+            settings: settings == null ? get_settings () : settings
+        );
     }
 
     /**
@@ -84,7 +84,7 @@ public class Serialize.Jsoner : Object {
      *
      * @param bytes         Json string in the form of bytes, the object {@link GLib.Bytes}
      * @param sub_members   An array of names of json elements that need to be traversed to the target node
-     * @param names_case    Name case of element names in a json string
+     * @param settings      Settings
      *
      * @throws JsonError    Error with json or sub_members
      */
@@ -92,13 +92,13 @@ public class Serialize.Jsoner : Object {
     public Jsoner.from_bytes (
         Bytes bytes,
         string[]? sub_members = null,
-        Case names_case = Case.AUTO
+        Serialize.Settings? settings = null
     ) throws JsonError {
         if (bytes.length == 0) {
             throw new JsonError.EMPTY ("Json string is empty");
         }
 
-        this.from_data (bytes.get_data (), sub_members, names_case);
+        this.from_data (bytes.get_data (), sub_members, settings);
     }
 
     /**
@@ -107,7 +107,7 @@ public class Serialize.Jsoner : Object {
      *
      * @param data         Json string in the form of bytes, {@link uint8} array
      * @param sub_members   An array of names of json elements that need to be traversed to the target node
-     * @param names_case    Name case of element names in a json string
+     * @param settings      Settings
      *
      * @throws JsonError    Error with json or sub_members
      */
@@ -115,7 +115,7 @@ public class Serialize.Jsoner : Object {
     public Jsoner.from_data (
         owned uint8[] data,
         string[]? sub_members = null,
-        Case names_case = Case.AUTO
+        Serialize.Settings? settings = null
     ) throws JsonError {
         //  Fix not NUL-terminated
         if (data[data.length - 1] != 0) {
@@ -123,14 +123,14 @@ public class Serialize.Jsoner : Object {
             data[data.length - 1] = 0;
         }
 
-        this ((string) data, sub_members, names_case);
+        this ((string) data, sub_members, settings);
     }
 
     static Json.Node? steps (
         Json.Node node,
         string[] sub_members
     ) throws JsonError {
-        var members_trace = new Array<string> ();
+        var members_trace = new GLib.Array<string> ();
 
         foreach (string member_name in sub_members) {
             members_trace.append_val (member_name);
@@ -150,20 +150,37 @@ public class Serialize.Jsoner : Object {
      * Serialize {@link GLib.Object} into a correct json string
      *
      * @param obj               {@link GLib.Object}
-     * @param names_case        Name case of element names in a json string
-     * @param pretty            Pretty print of json or not
-     * @param ignore_default    Ignore fields with default values during object serialization. This option works only with primitive types
+     * @param settings          Settings
      *
-     * @return              Json string
+     * @return                  Json string
      */
     [Version (since = "6.0")]
     public static inline string serialize (
         Object obj,
-        Case names_case = Case.AUTO,
-        bool pretty = false,
-        bool ignore_default = false
+        Serialize.Settings? settings = null
     ) {
-        return JsonerSerializeSync.serialize (obj, names_case, pretty, ignore_default);
+        return JsonerSerializeSync.serialize (obj, settings);
+    }
+
+    /**
+     * {@link deserialize} without
+     * manual {@link Jsoner} instance creation
+     *
+     * @param json              Json string
+     * @param sub_members       Sub members to 'steps'
+     * @param settings          Settings
+     *
+     * @return                  Deserialized object
+     *
+     * @throws JsonError        Error with json or sub_members
+     */
+    [Version (since = "7.0")]
+    public static inline Dict<Value?> simple_deserialize (
+        string json,
+        string[]? sub_members = null,
+        Serialize.Settings? settings = null
+    ) throws JsonError {
+        return JsonerDeserializeSync.simple_deserialize (json, sub_members, settings);
     }
 
     /**
@@ -174,9 +191,7 @@ public class Serialize.Jsoner : Object {
      *
      * @param json              Json string
      * @param sub_members       Sub members to 'steps'
-     * @param names_case        Case of names in json
-     * @param sub_creation_func Function for creating collection
-     *                          objects with generics
+     * @param settings          Settings
      *
      * @return                  Deserialized object
      *
@@ -186,9 +201,9 @@ public class Serialize.Jsoner : Object {
     public static inline T simple_from_json<T> (
         string json,
         string[]? sub_members = null,
-        Case names_case = Case.AUTO
+        Serialize.Settings? settings = null
     ) throws JsonError {
-        return JsonerDeserializeSync.simple_from_json<T> (json, sub_members, names_case);
+        return JsonerDeserializeSync.simple_from_json<T> (json, sub_members, settings);
     }
 
     /**
@@ -197,24 +212,24 @@ public class Serialize.Jsoner : Object {
      * Simple version for fast deserialization without
      * manual {@link Jsoner} instance creation
      *
-     * @param json              Json string
-     * @param sub_members       Sub members to 'steps'
-     * @param names_case        Case of names in json
-     * @param sub_creation_func Function for creating collection
-     *                          objects with generics
+     * @param json                  Json string
+     * @param sub_members           Sub members to 'steps'
+     * @param settings              Settings
+     * @param collection_hierarchy  Objects for creating collection
+     *                              objects with generics
      *
-     * @return                  Deserialized array
+     * @return                      Deserialized array
      *
-     * @throws JsonError        Error with json or sub_members
+     * @throws JsonError            Error with json or sub_members
      */
     [Version (since = "6.0")]
-    public static inline ArrayList<T> simple_array_from_json<T> (
+    public static inline Array<T> simple_array_from_json<T> (
         string json,
         string[]? sub_members = null,
-        Case names_case = Case.AUTO,
+        Serialize.Settings? settings = null,
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
-        return JsonerDeserializeSync.simple_array_from_json<T> (json, sub_members, names_case, collection_hierarchy);
+        return JsonerDeserializeSync.simple_array_from_json<T> (json, sub_members, settings, collection_hierarchy);
     }
 
     /**
@@ -223,31 +238,40 @@ public class Serialize.Jsoner : Object {
      * Simple version for fast deserialization without
      * manual {@link Jsoner} instance creation
      *
-     * @param json              Json string
-     * @param sub_members       Sub members to 'steps'
-     * @param names_case        Case of names in json
-     * @param sub_creation_func Function for creating collection
-     *                          objects with generics
+     * @param json                  Json string
+     * @param sub_members           Sub members to 'steps'
+     * @param settings              Settings
+     * @param collection_hierarchy  Objects for creating collection
+     *                              objects with generics
      *
-     * @return                  Deserialized dict
+     * @return                      Deserialized dict
      *
-     * @throws JsonError        Error with json or sub_members
+     * @throws JsonError            Error with json or sub_members
      */
     [Version (since = "6.0")]
-    public static inline HashMap<string, T> simple_dict_from_json<T> (
+    public static inline Dict<T> simple_dict_from_json<T> (
         string json,
         string[]? sub_members = null,
-        Case names_case = Case.AUTO,
+        Serialize.Settings? settings = null,
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
-        return JsonerDeserializeSync.simple_dict_from_json<T> (json, sub_members, names_case, collection_hierarchy);
+        return JsonerDeserializeSync.simple_dict_from_json<T> (json, sub_members, settings, collection_hierarchy);
+    }
+
+    /**
+     * Method for deserializing to {@link Dict}
+     *
+     * @return              Deserialized {@link Dict}
+     *
+     * @throws JsonError    Error with json string
+     */
+    [Version (since = "7.0")]
+    public inline Dict<Value?> deserialize () throws JsonError {
+        return JsonerDeserializeSync.deserialize (this);
     }
 
     /**
      * Method for deserializing the {@link GLib.Object}
-     *
-     * @param sub_creation_func Function for creating collection
-     *                          objects with generics
      *
      * @return  Deserialized object
      *
@@ -261,8 +285,6 @@ public class Serialize.Jsoner : Object {
     /**
      * Method for deserializing the {@link GLib.Object} with {@link GLib.Type}
      *
-     * @param sub_creation_func Function for creating collection
-     *                          objects with generics
      * @param obj_type          Type of objects
      *
      * @return  Deserialized object
@@ -280,8 +302,6 @@ public class Serialize.Jsoner : Object {
      * Method for deserializing into existing object
      *
      * @param obj               Object
-     * @param sub_creation_func Function for creating collection
-     *                          objects with generics
      *
      * @throws JsonError    Error with json string
      */
@@ -305,49 +325,49 @@ public class Serialize.Jsoner : Object {
     }
 
     /**
-     * Method for deserializing the {@link Gee.ArrayList}
+     * Method for deserializing the {@link Array}
      *
      * @param collection_hierarchy A function for creating subsets in the case of arrays in an array
      *
      * @throws JsonError    Error with json string
      */
     [Version (since = "6.0")]
-    public inline ArrayList<T> deserialize_array<T> (
+    public inline Array<T> deserialize_array<T> (
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
         return JsonerDeserializeSync.deserialize_array<T> (this, collection_hierarchy);
     }
 
     /**
-     * Method for deserializing the {@link Gee.ArrayList}
+     * Method for deserializing the {@link Array}
      *
-     * @param array_list        Array
+     * @param array        Array
      * @param collection_hierarchy A function for creating subsets in the case of arrays in an array
      *
      * @throws JsonError    Error with json string
      */
     [Version (since = "6.0")]
     public inline void deserialize_array_into (
-        ArrayList array_list,
+        Array array,
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
-        JsonerDeserializeSync.deserialize_array_into (this, array_list, collection_hierarchy);
+        JsonerDeserializeSync.deserialize_array_into (this, array, collection_hierarchy);
     }
 
     /**
-     * Method for deserializing the {@link Gee.HashMap}
+     * Method for deserializing the {@link Dict}
      *
      * @throws JsonError    Error with json string
      */
     [Version (since = "6.0")]
-    public inline HashMap<string, T> deserialize_dict<T> (
+    public inline Dict<T> deserialize_dict<T> (
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
         return JsonerDeserializeSync.deserialize_dict<T> (this, collection_hierarchy);
     }
 
     /**
-     * Method for deserializing the {@link Gee.HashMap}
+     * Method for deserializing the {@link Dict}
      *
      * @param dict              Dict
      *
@@ -355,7 +375,7 @@ public class Serialize.Jsoner : Object {
      */
     [Version (since = "6.0")]
     public inline void deserialize_dict_into (
-        HashMap dict,
+        Dict dict,
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
         JsonerDeserializeSync.deserialize_dict_into (this, dict, collection_hierarchy);
@@ -367,10 +387,9 @@ public class Serialize.Jsoner : Object {
     [Version (since = "6.0")]
     public static inline async string serialize_async (
         Object obj,
-        Case names_case = Case.AUTO,
-        bool pretty = false
+        Serialize.Settings? settings = null
     ) {
-        return yield JsonerSerializeAsync.serialize (obj, names_case, pretty);
+        return yield JsonerSerializeAsync.serialize (obj, settings);
     }
 
     /**
@@ -378,7 +397,7 @@ public class Serialize.Jsoner : Object {
      *
      * @param json              Json string
      * @param sub_members       Sub members to 'steps'
-     * @param names_case        Case of names in json
+     * @param settings          Settings
      *
      * @return                  Deserialized object
      *
@@ -388,9 +407,9 @@ public class Serialize.Jsoner : Object {
     public async static inline T simple_from_json_async<T> (
         string json,
         string[]? sub_members = null,
-        Case names_case = Case.AUTO
+        Serialize.Settings? settings = null
     ) throws JsonError {
-        return yield JsonerDeserializeAsync.simple_from_json<T> (json, sub_members, names_case);
+        return yield JsonerDeserializeAsync.simple_from_json<T> (json, sub_members, settings);
     }
 
     /**
@@ -398,19 +417,19 @@ public class Serialize.Jsoner : Object {
      *
      * @param json              Json string
      * @param sub_members       Sub members to 'steps'
-     * @param names_case        Case of names in json
+     * @param settings          Settings
      *
      * @return                  Deserialized array
      *
      * @throws JsonError        Error with json or sub_members
      */
     [Version (since = "6.0")]
-    public async static inline ArrayList<T> simple_array_from_json_async<T> (
+    public async static inline Array<T> simple_array_from_json_async<T> (
         string json,
         string[]? sub_members = null,
-        Case names_case = Case.AUTO
+        Serialize.Settings? settings = null
     ) throws JsonError {
-        return yield JsonerDeserializeAsync.simple_array_from_json<T> (json, sub_members, names_case);
+        return yield JsonerDeserializeAsync.simple_array_from_json<T> (json, sub_members, settings);
     }
 
     /**
@@ -418,19 +437,19 @@ public class Serialize.Jsoner : Object {
      *
      * @param json              Json string
      * @param sub_members       Sub members to 'steps'
-     * @param names_case        Case of names in json
+     * @param settings          Settings
      *
      * @return                  Deserialized dict
      *
      * @throws JsonError        Error with json or sub_members
      */
     [Version (since = "6.0")]
-    public async static inline HashMap<string, T> simple_dict_from_json_async<T> (
+    public async static inline Dict<T> simple_dict_from_json_async<T> (
         string json,
         string[]? sub_members = null,
-        Case names_case = Case.AUTO
+        Serialize.Settings? settings = null
     ) throws JsonError {
-        return yield JsonerDeserializeAsync.simple_dict_from_json<T> (json, sub_members, names_case);
+        return yield JsonerDeserializeAsync.simple_dict_from_json<T> (json, sub_members, settings);
     }
 
     /**
@@ -472,48 +491,64 @@ public class Serialize.Jsoner : Object {
     /**
      * Asynchronous version of method {@link deserialize_array}
      *
+     * @param collection_factories  {@link CollectionFactory} array of hierarchy for
+     *                              collection deserialization
+     *
      * @throws JsonError    Error with json string
      */
     [Version (since = "6.0")]
-    public async ArrayList<T> deserialize_array_async<T> () throws JsonError {
-        return yield JsonerDeserializeAsync.deserialize_array<T> (this);
+    public async Array<T> deserialize_array_async<T> (
+        CollectionFactory[] collection_factories = {}
+    ) throws JsonError {
+        return yield JsonerDeserializeAsync.deserialize_array<T> (this, collection_factories);
     }
 
     /**
      * Asynchronous version of method {@link deserialize_array_into}
      *
-     * @param array_list        Array
+     * @param array        Array
+     * @param collection_factories  {@link CollectionFactory} array of hierarchy for
+     *                              collection deserialization
      *
      * @throws JsonError    Error with json string
      */
     [Version (since = "6.0")]
     public async inline void deserialize_array_into_async (
-        ArrayList array_list
+        Array array,
+        CollectionFactory[] collection_factories = {}
     ) throws JsonError {
-        yield JsonerDeserializeAsync.deserialize_array_into (this, array_list);
+        yield JsonerDeserializeAsync.deserialize_array_into (this, array, collection_factories);
     }
 
     /**
      * Asynchronous version of method {@link deserialize_dict}
      *
+     * @param collection_factories  {@link CollectionFactory} array of hierarchy for
+     *                              collection deserialization
+     *
      * @throws JsonError    Error with json string
      */
     [Version (since = "6.0")]
-    public async inline HashMap<string, T> deserialize_dict_async<T> () throws JsonError {
-        return yield JsonerDeserializeAsync.deserialize_dict<T> (this);
+    public async inline Dict<T> deserialize_dict_async<T> (
+        CollectionFactory[] collection_factories = {}
+    ) throws JsonError {
+        return yield JsonerDeserializeAsync.deserialize_dict<T> (this, collection_factories);
     }
 
     /**
      * Asynchronous version of method {@link deserialize_dict_into}
      *
-     * @param dict              Dict
+     * @param dict                  Dict
+     * @param collection_factories  {@link CollectionFactory} array of hierarchy for
+     *                              collection deserialization
      *
      * @throws JsonError    Error with json string
      */
     [Version (since = "6.0")]
     public async void deserialize_dict_into_async (
-        HashMap dict
+        Dict dict,
+        CollectionFactory[] collection_factories = {}
     ) throws JsonError {
-        yield JsonerDeserializeAsync.deserialize_dict_into (this, dict);
+        yield JsonerDeserializeAsync.deserialize_dict_into (this, dict, collection_factories);
     }
 }

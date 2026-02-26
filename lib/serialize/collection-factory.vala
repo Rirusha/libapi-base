@@ -18,42 +18,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-[Version (since = "6.0")]
-public abstract class Serialize.CollectionFactory<T> : Object {
+[GenericAccessors]
+public interface Serialize.CollectionFactory<T> : Object {
 
-    public Type element_type {
-        get {
-            return typeof (T);
-        }
-    }
+    public virtual Type element_type { get { return typeof (T); } }
 
-    public abstract Gee.Traversable<T> build ();
-}
-
-[Version (since = "6.0")]
-public sealed class Serialize.ArrayFactory<T> : Serialize.CollectionFactory<T> {
-
-    unowned Gee.EqualDataFunc? equal_func;
-
-    public ArrayFactory (Gee.EqualDataFunc? equal_data_func = null) {
-        this.equal_func = equal_data_func;
-    }
-
-    public override Gee.Traversable<T> build () {
-        return new Gee.ArrayList<T> (equal_func);
-    }
-}
-
-[Version (since = "6.0")]
-public sealed class Serialize.DictFactory<T> : Serialize.CollectionFactory<T> {
-
-    unowned Gee.EqualDataFunc? equal_data_func;
-
-    public DictFactory (Gee.EqualDataFunc? equal_func = null) {
-        this.equal_data_func = equal_func;
-    }
-
-    public override Gee.Traversable<T> build () {
-        return new Gee.HashMap<string, T> (null, equal_data_func);
-    }
+    public abstract CollectionFactory<T> build ();
 }

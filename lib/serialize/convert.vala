@@ -300,7 +300,7 @@ namespace Serialize.Convert {
      * Convert kebab-case to specified case
      *
      * @param str   String
-     * @param case_ Case
+     * @param case_ Case, using KEBAB if AUTO
      *
      * @return Specified case string
      */
@@ -311,6 +311,7 @@ namespace Serialize.Convert {
                 return kebab2camel (str);
             case Case.SNAKE:
                 return kebab2snake (str);
+            case Case.AUTO:
             case Case.KEBAB:
                 return str;
             default:
@@ -322,7 +323,7 @@ namespace Serialize.Convert {
      * Convert snake_case to specified case
      *
      * @param str   String
-     * @param case_ Case
+     * @param case_ Case, using KEBAB if AUTO
      *
      * @return Specified case string
      */
@@ -333,6 +334,7 @@ namespace Serialize.Convert {
                 return snake2camel (str);
             case Case.SNAKE:
                 return str;
+            case Case.AUTO:
             case Case.KEBAB:
                 return snake2kebab (str);
             default:
@@ -344,7 +346,7 @@ namespace Serialize.Convert {
      * Convert camelCase to specified case
      *
      * @param str   String
-     * @param case_ Case
+     * @param case_ Case, using KEBAB if AUTO
      *
      * @return Specified case string
      */
@@ -355,10 +357,120 @@ namespace Serialize.Convert {
                 return str;
             case Case.SNAKE:
                 return camel2snake (str);
+            case Case.AUTO:
             case Case.KEBAB:
                 return camel2kebab (str);
             default:
                 assert_not_reached ();
         }
+    }
+
+    [Version (since = "6.0")]
+    public Datalist<T> dict2datalist<T> (Dict<T> hash_map) {
+        var dl = Datalist<T> ();
+
+        foreach (var entry in hash_map) {
+            dl.set_data (entry.key, entry.value);
+        }
+
+        return dl;
+    }
+
+    [Version (since = "6.0")]
+    public Dict<T> datalist2dict<T> (Datalist<T> datalist) {
+        var hash_map = new Dict<T> ();
+
+        datalist.foreach ((key_quark, value) => {
+            hash_map.set (key_quark.to_string (), value);
+        });
+
+        return hash_map;
+    }
+
+    /**
+     * Convert to desired type when possible
+     */
+    [Version (since = "7.0")]
+    public bool value2value (ref Value source_value, ref Value target_value) {
+
+        //  Check if type equal
+        if (source_value.holds (target_value.type ())) {
+            source_value.copy (ref target_value);
+            return true;
+        }
+
+        //  Auto transformation between enums and strings is not what we want
+        if (source_value.holds (Type.ENUM)) {
+            if (target_value.holds (Type.STRING)) {
+                target_value.set_string (Enum.get_nick_gtype (source_value.type (), source_value.get_enum (), Case.SNAKE));
+                return true;
+            }
+        }
+
+        if (source_value.holds (Type.STRING)) {
+            if (target_value.holds (Type.ENUM)) {
+                target_value.set_enum (Enum.get_by_nick_gtype (target_value.type (), source_value.get_string ()));
+                return true;
+
+            } else if (target_value.holds (Type.INT64)) {
+                int64 res;
+                if (int64.try_parse (source_value.get_string (), out res)) {
+                    target_value.set_int64 (res);
+                    return true;
+                }
+            } else if (target_value.holds (Type.INT)) {
+                int res;
+                if (int.try_parse (source_value.get_string (), out res)) {
+                    target_value.set_int (res);
+                    return true;
+                }
+            } else if (target_value.holds (Type.DOUBLE)) {
+                double res;
+                if (double.try_parse (source_value.get_string (), out res)) {
+                    target_value.set_double (res);
+                    return true;
+                }
+            } else if (target_value.holds (Type.BOOLEAN)) {
+                bool res;
+                if (bool.try_parse (source_value.get_string (), out res)) {
+                    target_value.set_boolean (res);
+                    return true;
+                }
+            } else if (target_value.holds (typeof (DateTime))) {
+                var dt = new DateTime.from_iso8601 (source_value.get_string (), null);
+                if (dt != null) {
+                    target_value.set_boxed (dt);
+                    return true;
+                }
+                int64 res;
+                if (int64.try_parse (source_value.get_string (), out res)) {
+                    dt = new DateTime.from_unix_utc (res);
+                    if (dt != null) {
+                        target_value.set_boxed (dt);
+                        return true;
+                    }
+                }
+            }
+        }
+
+        if (source_value.transform (ref target_value)) {
+            return true;
+        }
+
+        if (source_value.holds (typeof (DateTime))) {
+            var dt = (DateTime) source_value.get_boxed ();
+            if (target_value.holds (Type.INT64)) {
+                target_value.set_int64 (dt.to_unix ());
+                return true;
+
+            } else if (target_value.holds (Type.STRING)) {
+                target_value.set_string (dt.format_iso8601 ());
+                return true;
+            }
+        }
+
+        warning ("Failed to convert '%s' to '%s'", source_value.type ().name (), target_value.type ().name ());
+
+        return false;
     }
 }

@@ -9,7 +9,7 @@ class UserAgentInfo : DataObject {
 }
 
 class CookiesInfo : DataObject {
-    public Gee.HashMap<string, string> cookies { get; set; default = new Gee.HashMap<string, string> (); }
+    public Serialize.Dict<string> cookies { get; set; default = new Serialize.Dict<string> (); }
 }
 
 const string EXPECTED_JSON = """{
@@ -161,7 +161,7 @@ public int main (string[] args) {
 
             Content content = { X_WWW_FORM_URLENCODED };
 
-            var dict = new Gee.HashMap<string, string> ();
+            var dict = new Serialize.Dict<string> ();
             dict["custname"] = "Rirusha";
             dict["custtel"] = "666666";
             dict["custemail"] = "rirusha@altlinux.org";
@@ -215,7 +215,7 @@ public int main (string[] args) {
 
             Content content = { X_WWW_FORM_URLENCODED };
 
-            var dict = new Gee.HashMap<string, string> ();
+            var dict = new Serialize.Dict<string> ();
             dict["custname"] = "Rirusha";
             dict["custtel"] = "666666";
             dict["custemail"] = "rirusha@altlinux.org";
