@@ -47,18 +47,7 @@ public sealed class ApiBase.Session : Soup.Session {
     construct {
         var logger = new Soup.Logger (BODY);
 
-        logger.set_printer ((logger, level, direction, data) => {
-            switch (direction) {
-                case '<':
-                case '>':
-                    debug ("%c: %s", direction, data);
-                    break;
-
-                default:
-                    debug ("");
-                    break;
-            }
-        });
+        logger.set_printer (soup_logger_printer);
 
         add_feature (logger);
     }

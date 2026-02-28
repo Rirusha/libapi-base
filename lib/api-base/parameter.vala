@@ -27,4 +27,8 @@ public struct ApiBase.Param {
             Uri.escape_string (value)
         );
     }
+
+    internal static inline bool equal_name (Param? element1, Param? element2) {
+        return str_equal (element1.name, element2.name);
+    }
 }

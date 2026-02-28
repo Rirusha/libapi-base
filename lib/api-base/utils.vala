@@ -57,4 +57,17 @@ namespace ApiBase {
                 return new BadStatusCodeError.UNKNOWN (status_code.to_string () + ": " + error_response);
         }
     }
+
+    void soup_logger_printer (Soup.Logger logger, Soup.LoggerLogLevel level, char direction, string data) {
+        switch (direction) {
+            case '<':
+            case '>':
+                debug ("%c: %s", direction, data);
+                break;
+
+            default:
+                debug ("");
+                break;
+        }
+    }
 }

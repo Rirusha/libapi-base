@@ -32,34 +32,11 @@ public class ApiBase.Request : Object {
 
     Soup.Message message;
 
-    Gee.HashSet<Header?> headers = new Gee.HashSet<Header?> (
-        (el) => {
-            return str_hash (el.name);
-        },
-        (el1, el2) => {
-            return str_equal (el1.name, el2.name);
-        }
-    );
+    Gee.ArrayList<Header?> headers = new Gee.ArrayList<Header?> (Header.equal_name);
 
-    Gee.HashSet<Param?> parameters = new Gee.HashSet<Param?> (
-        (el) => {
-            return str_hash (el.name);
-        },
-        (el1, el2) => {
-            return str_equal (el1.name, el2.name);
-        }
-    );
+    Gee.ArrayList<Param?> parameters = new Gee.ArrayList<Param?> (Param.equal_name);
 
-    Gee.HashSet<string> _presets = new Gee.HashSet<string> ();
-    public string[] presets {
-        owned get {
-            return _presets.to_array ();
-        }
-        set {
-            _presets.clear ();
-            _presets.add_all_array (value);
-        }
-    }
+    public string[] presets { get; set; default = {}; }
 
     Content? content = null;
 
@@ -106,17 +83,6 @@ public class ApiBase.Request : Object {
         this (HttpMethod.CONNECT, uri);
     }
 
-    construct {
-        headers = new Gee.HashSet<Header?> (
-            (el) => {
-                return str_hash (el.name);
-            },
-            (el1, el2) => {
-                return str_equal (el1.name, el2.name);
-            }
-        );
-    }
-
     /**
      * Add header with header object
      *
@@ -134,6 +100,7 @@ public class ApiBase.Request : Object {
         if (header in headers && !replace) {
             return;
         }
+        headers.remove (header);
         headers.add (header);
     }
 
@@ -164,6 +131,7 @@ public class ApiBase.Request : Object {
     void add_param_struct (Param parameter) {
         assert (message == null);
 
+        parameters.remove (parameter);
         parameters.add (parameter);
     }
 
@@ -243,12 +211,13 @@ public class ApiBase.Request : Object {
     }
 
     string form_paramed_uri () {
-        var final_parameters = new Serialize.Array<string> ();
-        final_parameters.add_all_iterator (parameters.map<string> ((el) => {
-            return el.to_string ();
-        }));
+        var final_params = new string[parameters.size];
 
-        var new_uri = "%s?%s".printf (uri, string.joinv ("&", final_parameters.to_array ()));
+        for (var i = 0; i < parameters.size; i++) {
+            final_params[i] = parameters[i].to_string ();
+        }
+
+        var new_uri = "%s?%s".printf (uri, string.joinv ("&", final_params));
 
         return new_uri;
     }

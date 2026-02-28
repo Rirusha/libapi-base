@@ -20,4 +20,8 @@ public struct ApiBase.Header {
 
     public string name;
     public string value;
+
+    internal static inline bool equal_name (Header? element1, Header? element2) {
+        return str_equal (element1.name, element2.name);
+    }
 }
