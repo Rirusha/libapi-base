@@ -24,6 +24,10 @@ public class Serialize.Array<T> : Gee.ArrayList<T>, CollectionFactory<T> {
         base (equal_func);
     }
 
+    public Array.wrap (owned T[] items, owned Gee.EqualDataFunc<G>? equal_func = null) {
+        base.wrap (items, equal_func);
+    }
+
     /**
      * Create new empty Array
      */
