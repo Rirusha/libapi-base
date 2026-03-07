@@ -126,7 +126,7 @@ namespace Serialize.JsonerDeserializeSync {
             var prop_name = property.get_nick ();
 
             if (props_data.has_key (prop_name)) {
-                warning ("Detected property collision: %s", prop_name);
+                warning ("Detected property collision: %s in '%s' object", prop_name, obj_type.name ());
             }
             props_data[prop_name] = property;
         }
