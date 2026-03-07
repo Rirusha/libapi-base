@@ -11,6 +11,8 @@ serialize_vapi_name = serialize_versioned_lib_name + '.vapi'
 serialize_gir_name = serialize_versioned_gir_name + '.gir'
 serialize_typelib_name = serialize_versioned_gir_name + '.typelib'
 
+serialize_build_dir = meson.current_build_dir()
+
 serialize_deps_pkgs = [
   'json-glib-1.0',
   'gee-0.8',
