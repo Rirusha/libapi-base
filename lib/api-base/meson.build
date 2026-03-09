@@ -51,6 +51,7 @@ api_base_lib = shared_library(
   vala_vapi: api_base_vapi_name,
   vala_gir: api_base_gir_name,
   version: libversion,
+  c_args: '-DG_LOG_DOMAIN="@0@"'.format(api_base_name),
   install: true,
   install_dir: [ true, true, true, true ],
 )

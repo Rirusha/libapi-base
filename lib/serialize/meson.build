@@ -65,6 +65,7 @@ serialize_lib = shared_library(
   vala_vapi: serialize_vapi_name,
   vala_gir: serialize_gir_name,
   version: libversion,
+  c_args: '-DG_LOG_DOMAIN="@0@"'.format(serialize_name),
   install: true,
   install_dir: [ true, true, true, true ],
 )
