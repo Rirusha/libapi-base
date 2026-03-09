@@ -133,16 +133,39 @@ namespace Serialize.JsonerDeserializeSync {
 
         var unknown_fields = new Array<string> ();
 
+        if (Environment.get_variable ("API_BASE_UNKNOWN_PROPS") != null) {
+            var members = node.get_object ().get_members ();
+
+            var kebabbed_members = new Gee.HashSet<string> ();
+            foreach (var member_name in members) {
+                kebabbed_members.add (Convert.cany2kebab (member_name, self.settings.names_case));
+            }
+
+            foreach (var prop in properties) {
+                if (!(prop.name in kebabbed_members)) {
+                    warning (
+                        "The json object does not have field '%s' that present in '%s' as property",
+                        prop.name,
+                        obj_type.name ()
+                    );
+                }
+            }
+        }
+
         foreach (var member_name in node.get_object ().get_members ()) {
             var kebabbed_member_name = Convert.cany2kebab (member_name, self.settings.names_case);
+
+            var sub_node = node.get_object ().get_member (member_name);
 
             if (!props_data.has_key (kebabbed_member_name)) {
                 if (Environment.get_variable ("API_BASE_UNKNOWN_FIELDS") != null) {
                     warning (
-                        "The object '%s' does not have a property '%s' corresponding to the json field '%s'",
+                        "The object '%s' does not have a property '%s' corresponding to the json field '%s' with type '%s':\n%s",
                         obj_type.name (),
                         kebabbed_member_name,
-                        member_name
+                        member_name,
+                        sub_node.get_node_type ().to_string (),
+                        Json.to_string (sub_node, true)
                     );
                 }
 
@@ -153,8 +176,6 @@ namespace Serialize.JsonerDeserializeSync {
             var property = props_data[kebabbed_member_name];
 
             Type prop_type = property.value_type;
-
-            var sub_node = node.get_object ().get_member (member_name);
 
             switch (sub_node.get_node_type ()) {
                 case Json.NodeType.ARRAY:
