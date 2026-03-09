@@ -177,6 +177,9 @@ public sealed class ApiBase.Session : Soup.Session {
         fill_request_presets (request);
 
         var message = request.form_message ();
+        if (message == null) {
+            throw new SoupError.INTERNAL ("Bad message");
+        }
 
         try {
             bytes = send_and_read (message, cancellable);
@@ -211,6 +214,9 @@ public sealed class ApiBase.Session : Soup.Session {
         fill_request_presets (request);
 
         var message = request.form_message ();
+        if (message == null) {
+            throw new SoupError.INTERNAL ("Bad message");
+        }
 
         try {
             bytes = yield send_and_read_async (message, priority, cancellable);
@@ -235,8 +241,13 @@ public sealed class ApiBase.Session : Soup.Session {
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
     ) throws SoupError {
+        var message = request.form_message ();
+        if (message == null) {
+            throw new SoupError.INTERNAL ("Bad message");
+        }
+
         try {
-            return yield base.websocket_connect_async (request.form_message (), origin, protocols, priority, cancellable);
+            return yield base.websocket_connect_async (message, origin, protocols, priority, cancellable);
         } catch (Error e) {
             throw new SoupError.INTERNAL (e.message);
         }

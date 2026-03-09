@@ -211,7 +211,7 @@ public class ApiBase.Request : Object {
      * @return  Response body
      */
     [Version (since = "5.0")]
-    public Soup.Message form_message () {
+    public Soup.Message? form_message () {
         if (message != null) {
             return message;
         }
@@ -227,7 +227,8 @@ public class ApiBase.Request : Object {
         message = new Soup.Message (method.to_string (), new_uri);
 
         if (message == null) {
-            error ("Can't form %s message with '%s'", method.to_string (), new_uri);
+            warning ("Can't form %s message with '%s'", method.to_string (), new_uri);
+            return null;
         }
 
         if (content != null) {
