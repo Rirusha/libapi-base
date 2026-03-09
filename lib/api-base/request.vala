@@ -226,6 +226,10 @@ public class ApiBase.Request : Object {
 
         message = new Soup.Message (method.to_string (), new_uri);
 
+        if (message == null) {
+            error ("Can't form %s message with '%s'", method.to_string (), new_uri);
+        }
+
         if (content != null) {
             message.set_request_body_from_bytes (
                 content.content_type.to_string (),
