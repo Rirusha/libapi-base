@@ -194,7 +194,12 @@ namespace Serialize.JsonerSerializeSync {
                     var arr_pointer = prop_val.get_boxed ();
                     char **arr = (char **) arr_pointer;
 
-                    serialize_array_strv (builder, arr);
+                    if (arr == null) {
+                        builder.begin_array ();
+                        builder.end_array ();
+                    } else {
+                        serialize_array_strv (builder, arr);
+                    }
 
                 }else if (val_type == typeof (Array)) {
                     var array = (Array) prop_val.get_object ();
