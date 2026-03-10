@@ -45,7 +45,6 @@ namespace Serialize.JsonerSerializeSync {
     static void serialize_array (
         Json.Builder builder,
         Array array,
-        Type element_type,
         Serialize.Settings settings
     ) {
         builder.begin_array ();
@@ -57,10 +56,22 @@ namespace Serialize.JsonerSerializeSync {
         builder.end_array ();
     }
 
+    static void serialize_array_strv (
+        Json.Builder builder,
+        char **str_array
+    ) {
+        builder.begin_array ();
+
+        for (int i = 0; str_array[i] != null; i++) {
+            builder.add_string_value ((string) str_array[i]);
+        }
+
+        builder.end_array ();
+    }
+
     static void serialize_dict (
         Json.Builder builder,
         Dict dict,
-        Type element_type,
         Serialize.Settings settings,
         bool new_object = true
     ) {
@@ -105,6 +116,7 @@ namespace Serialize.JsonerSerializeSync {
 
             if (settings.ignore_default && property.value_defaults (prop_val)) {
                 continue;
+
             }
 
             builder.set_member_name (Convert.kebab2any (prop_name, settings.names_case));
@@ -113,7 +125,7 @@ namespace Serialize.JsonerSerializeSync {
 
         if (obj is HasFallback) {
             var fallback = (HasFallback) obj;
-            serialize_dict (builder, fallback.serialize_fallback, typeof (Value?), settings, false);
+            serialize_dict (builder, fallback.serialize_fallback, settings, false);
         }
 
         builder.end_object ();
@@ -176,11 +188,17 @@ namespace Serialize.JsonerSerializeSync {
 
                 } else if (val_type == typeof (Dict)) {
                     var dict = (Dict) prop_val.get_object ();
-                    serialize_dict (builder, dict, dict.element_type, settings);
+                    serialize_dict (builder, dict, settings);
 
-                } else if (val_type == typeof (Array)) {
+                } else if (val_type == typeof (string[])) {
+                    var arr_pointer = prop_val.get_boxed ();
+                    char **arr = (char **) arr_pointer;
+
+                    serialize_array_strv (builder, arr);
+
+                }else if (val_type == typeof (Array)) {
                     var array = (Array) prop_val.get_object ();
-                    serialize_array (builder, array, array.element_type, settings);
+                    serialize_array (builder, array, settings);
 
                 } else if (prop_val.type ().is_object ()) {
                     serialize_object (builder, prop_val.get_object (), settings);

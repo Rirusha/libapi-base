@@ -179,30 +179,52 @@ namespace Serialize.JsonerDeserializeSync {
 
             switch (sub_node.get_node_type ()) {
                 case Json.NodeType.ARRAY:
-                    var array_val = Value (prop_type);
-                    obj.get_property (property.name, ref array_val);
-                    Array array = (Array) array_val.get_object ();
+                    if (prop_type == typeof (string[])) {
+                        var jarr = sub_node.get_array ();
+                        string[] arr = new string[jarr.get_length ()];
+                        jarr.foreach_element ((array, index, element_node) => {
+                            arr[index] = element_node.get_string ();
+                        });
 
-                    CollectionFactory[] carr = {};
-                    var complex_col_obj = obj as HasComplexCollections;
-                    if (complex_col_obj != null) {
-                        carr = complex_col_obj.collection_factories (property.name);
+                        obj.set_property (
+                            property.name,
+                            arr
+                        );
+
+                    } else if (prop_type == typeof (Array)) {
+                        var array_val = Value (prop_type);
+                        obj.get_property (property.name, ref array_val);
+                        Array array = (Array) array_val.get_object ();
+
+                        CollectionFactory[] carr = {};
+                        var complex_col_obj = obj as HasComplexCollections;
+                        if (complex_col_obj != null) {
+                            carr = complex_col_obj.collection_factories (property.name);
+                        }
+
+                        assert (array != null || carr.length != 0);
+
+                        if (carr.length != 0) {
+                            assert (carr[0] is Array);
+                            array = (Array) carr[0].build ();
+                        }
+
+                        carr = carr[1:carr.length];
+
+                        deserialize_array_into (self, array, carr, sub_node);
+                        obj.set_property (
+                            property.name,
+                            array
+                        );
+
+                    } else {
+                        warning (
+                            "Can't deserialize array '%s' of '%s::%s'",
+                            Json.to_string (sub_node, false),
+                            obj_type.name (),
+                            property.name
+                        );
                     }
-
-                    assert (array != null || carr.length != 0);
-
-                    if (carr.length != 0) {
-                        assert (carr[0] is Array);
-                        array = (Array) carr[0].build ();
-                    }
-
-                    carr = carr[1:carr.length];
-
-                    deserialize_array_into (self, array, carr, sub_node);
-                    obj.set_property (
-                        property.name,
-                        array
-                    );
                     break;
 
                 case Json.NodeType.OBJECT:
