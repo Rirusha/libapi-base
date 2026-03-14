@@ -141,11 +141,11 @@ namespace Serialize.JsonerDeserializeSync {
                 kebabbed_members.add (Convert.cany2kebab (member_name, self.settings.names_case));
             }
 
-            foreach (var prop in properties) {
-                if (!(prop.name in kebabbed_members)) {
+            foreach (var prop_name in props_data.keys) {
+                if (!(prop_name in kebabbed_members)) {
                     warning (
                         "The json object does not have field '%s' that present in '%s' as property",
-                        prop.name,
+                        prop_name,
                         obj_type.name ()
                     );
                 }
