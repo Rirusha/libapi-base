@@ -64,8 +64,8 @@ serialize_lib = library(
   vala_header: serialize_header_name,
   vala_vapi: serialize_vapi_name,
   vala_gir: serialize_gir_name,
-  version: libversion,
-  soversion: libversion,
+  version: soversion,
+  soversion: soversion,
   c_args: '-DG_LOG_DOMAIN="@0@"'.format(serialize_name),
   install: true,
   install_dir: [ true, true, true, true ],
@@ -113,6 +113,6 @@ pkgconfig.generate(
   requires: serialize_dependencies,
   subdirs: [ serialize_versioned_lib_name ],
   description: 'Base objects for API libraries',
-  version: libversion,
+  version: meson.project_version(),
   url: 'https://gitlab.gnome.org/Rirusha/libapi-base',
 )

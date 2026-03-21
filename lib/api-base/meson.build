@@ -43,14 +43,15 @@ api_base_sources = [
   api_base_vala_sources,
 ]
 
-api_base_lib = shared_library(
+api_base_lib = library(
   api_base_versioned_name,
   api_base_sources,
   dependencies: api_base_dependencies,
   vala_header: api_base_header_name,
   vala_vapi: api_base_vapi_name,
   vala_gir: api_base_gir_name,
-  version: libversion,
+  version: soversion,
+  soversion: soversion,
   c_args: '-DG_LOG_DOMAIN="@0@"'.format(api_base_name),
   install: true,
   install_dir: [ true, true, true, true ],
@@ -99,6 +100,6 @@ pkgconfig.generate(
   requires: api_base_dependencies,
   subdirs: [ api_base_versioned_lib_name ],
   description: 'Base objects for API libraries',
-  version: libversion,
+  version: meson.project_version(),
   url: 'https://gitlab.gnome.org/Rirusha/libapi-base',
 )
