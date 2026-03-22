@@ -1,11 +1,17 @@
 serialize_name = 'serialize'
+serialize_gir_name = 'Serialize'
 
 serialize_versioned_name = serialize_name + '-' + api_version
 serialize_versioned_lib_name = 'lib' + serialize_name + '-' + api_version
+serialize_versioned_gir_name = serialize_gir_name + '-' + api_version
 
 serialize_deps_name = serialize_versioned_lib_name + '.deps'
 serialize_header_name = serialize_versioned_lib_name + '.h'
 serialize_vapi_name = serialize_versioned_lib_name + '.vapi'
+serialize_gir_name = serialize_versioned_gir_name + '.gir'
+serialize_typelib_name = serialize_versioned_gir_name + '.typelib'
+
+serialize_build_dir = meson.current_build_dir()
 
 serialize_deps_pkgs = [
   'json-glib-1.0',
@@ -57,9 +63,12 @@ serialize_lib = library(
   dependencies: serialize_dependencies,
   vala_header: serialize_header_name,
   vala_vapi: serialize_vapi_name,
-  version: libversion,
+  vala_gir: serialize_gir_name,
+  version: soversion,
+  soversion: soversion,
+  c_args: '-DG_LOG_DOMAIN="@0@"'.format(serialize_name),
   install: true,
-  install_dir: [ true, true, true ],
+  install_dir: [ true, true, true, true ],
 )
 
 serialize_lib_dep = declare_dependency(
@@ -79,12 +88,31 @@ configure_file(
   install_dir: get_option('datadir') / 'vala' / 'vapi',
 )
 
+if get_option('introspection')
+  g_ir_compiler = find_program('g-ir-compiler')
+  custom_target(
+    'typelib',
+    command: [
+      g_ir_compiler,
+      '--shared-library', '@PLAINNAME@',
+      '--output', '@OUTPUT@',
+      '--includedir', gee_girdir,
+      meson.current_build_dir() / serialize_gir_name,
+    ],
+    input: serialize_lib,
+    output: serialize_typelib_name,
+    depends: serialize_lib,
+    install: true,
+    install_dir: get_option('libdir') / 'girepository-1.0',
+  )
+endif
+
 pkgconfig.generate(
   serialize_lib,
   name: serialize_versioned_lib_name,
   requires: serialize_dependencies,
   subdirs: [ serialize_versioned_lib_name ],
   description: 'Base objects for API libraries',
-  version: libversion,
+  version: meson.project_version(),
   url: 'https://gitlab.gnome.org/Rirusha/libapi-base',
 )

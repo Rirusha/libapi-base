@@ -20,8 +20,12 @@
 
 public class Serialize.Array<T> : Gee.ArrayList<T>, CollectionFactory<T> {
 
-    public Array (owned Gee.EqualDataFunc<G>? equal_func = null) {
+    public Array (Gee.EqualDataFunc<G>? equal_func = null) {
         base (equal_func);
+    }
+
+    public Array.wrap (owned T[] items, Gee.EqualDataFunc<G>? equal_func = null) {
+        base.wrap (items, equal_func);
     }
 
     /**

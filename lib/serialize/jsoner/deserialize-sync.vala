@@ -126,23 +126,46 @@ namespace Serialize.JsonerDeserializeSync {
             var prop_name = property.get_nick ();
 
             if (props_data.has_key (prop_name)) {
-                warning ("Detected property collision: %s", prop_name);
+                warning ("Detected property collision: %s in '%s' object", prop_name, obj_type.name ());
             }
             props_data[prop_name] = property;
         }
 
         var unknown_fields = new Array<string> ();
 
+        if (Environment.get_variable ("API_BASE_UNKNOWN_PROPS") != null) {
+            var members = node.get_object ().get_members ();
+
+            var kebabbed_members = new Gee.HashSet<string> ();
+            foreach (var member_name in members) {
+                kebabbed_members.add (Convert.cany2kebab (member_name, self.settings.names_case));
+            }
+
+            foreach (var prop_name in props_data.keys) {
+                if (!(prop_name in kebabbed_members)) {
+                    warning (
+                        "The json object does not have field '%s' that present in '%s' as property",
+                        prop_name,
+                        obj_type.name ()
+                    );
+                }
+            }
+        }
+
         foreach (var member_name in node.get_object ().get_members ()) {
             var kebabbed_member_name = Convert.cany2kebab (member_name, self.settings.names_case);
+
+            var sub_node = node.get_object ().get_member (member_name);
 
             if (!props_data.has_key (kebabbed_member_name)) {
                 if (Environment.get_variable ("API_BASE_UNKNOWN_FIELDS") != null) {
                     warning (
-                        "The object '%s' does not have a property '%s' corresponding to the json field '%s'",
+                        "The object '%s' does not have a property '%s' corresponding to the json field '%s' with type '%s':\n%s",
                         obj_type.name (),
                         kebabbed_member_name,
-                        member_name
+                        member_name,
+                        sub_node.get_node_type ().to_string (),
+                        Json.to_string (sub_node, true)
                     );
                 }
 
@@ -154,34 +177,54 @@ namespace Serialize.JsonerDeserializeSync {
 
             Type prop_type = property.value_type;
 
-            var sub_node = node.get_object ().get_member (member_name);
-
             switch (sub_node.get_node_type ()) {
                 case Json.NodeType.ARRAY:
-                    var array_val = Value (prop_type);
-                    obj.get_property (property.name, ref array_val);
-                    Array array = (Array) array_val.get_object ();
+                    if (prop_type == typeof (string[])) {
+                        var jarr = sub_node.get_array ();
+                        string[] arr = new string[jarr.get_length ()];
+                        jarr.foreach_element ((array, index, element_node) => {
+                            arr[index] = element_node.get_string ();
+                        });
 
-                    CollectionFactory[] carr = {};
-                    var complex_col_obj = obj as HasComplexCollections;
-                    if (complex_col_obj != null) {
-                        carr = complex_col_obj.collection_factories (property.name);
+                        obj.set_property (
+                            property.name,
+                            arr
+                        );
+
+                    } else if (prop_type == typeof (Array)) {
+                        var array_val = Value (prop_type);
+                        obj.get_property (property.name, ref array_val);
+                        Array array = (Array) array_val.get_object ();
+
+                        CollectionFactory[] carr = {};
+                        var complex_col_obj = obj as HasComplexCollections;
+                        if (complex_col_obj != null) {
+                            carr = complex_col_obj.collection_factories (property.name);
+                        }
+
+                        assert (array != null || carr.length != 0);
+
+                        if (carr.length != 0) {
+                            assert (carr[0] is Array);
+                            array = (Array) carr[0].build ();
+                        }
+
+                        carr = carr[1:carr.length];
+
+                        deserialize_array_into (self, array, carr, sub_node);
+                        obj.set_property (
+                            property.name,
+                            array
+                        );
+
+                    } else {
+                        warning (
+                            "Can't deserialize array '%s' of '%s::%s'",
+                            Json.to_string (sub_node, false),
+                            obj_type.name (),
+                            property.name
+                        );
                     }
-
-                    assert (array != null || carr.length != 0);
-
-                    if (carr.length != 0) {
-                        assert (carr[0] is Array);
-                        array = (Array) carr[0].build ();
-                    }
-
-                    carr = carr[1:carr.length];
-
-                    deserialize_array_into (self, array, carr, sub_node);
-                    obj.set_property (
-                        property.name,
-                        array
-                    );
                     break;
 
                 case Json.NodeType.OBJECT:

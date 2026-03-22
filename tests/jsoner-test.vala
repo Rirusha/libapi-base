@@ -91,6 +91,10 @@ public class TestObjectArrayString : DataObject {
     public Serialize.Array<string> value { get; set; default = new Serialize.Array<string> (); }
 }
 
+public class TestObjectArrayStringStrv : DataObject {
+    public string[] value { get; set; }
+}
+
 public class TestObjectDictString : DataObject {
     public Serialize.Dict<string> value { get; set; default = new Serialize.Dict<string> (); }
 }
@@ -389,6 +393,48 @@ public int main (string[] args) {
         }
     });
 
+    Test.add_func ("/jsoner/serialize/array/string/strv", () => {
+        var test_object = new TestObjectArrayStringStrv ();
+        test_object.value = {
+            "everything that lives is designed to end",
+            "we are perpetually trapped in a neverending spyral of life and death",
+            "is this a curse?",
+            "or some kind of punishment?",
+            "i often thinking about the god who blessed us with this cryptic puzzle",
+            "and wonder if we'll ever have a chance to kill him"
+        };
+
+        string expectation = "{\"value\":[\"everything that lives is designed to end\",\"we are perpetually trapped in a neverending spyral of life and death\",\"is this a curse?\",\"or some kind of punishment?\",\"i often thinking about the god who blessed us with this cryptic puzzle\",\"and wonder if we'll ever have a chance to kill him\"]}";
+        string result = Jsoner.serialize (test_object);
+
+        if (result != expectation) {
+            Test.fail_printf (result + " != " + expectation);
+        }
+    });
+
+    Test.add_func ("/jsoner/serialize/array/string/strv/empty", () => {
+        var test_object = new TestObjectArrayStringStrv ();
+        test_object.value = {};
+
+        string expectation = "{\"value\":[]}";
+        string result = Jsoner.serialize (test_object);
+
+        if (result != expectation) {
+            Test.fail_printf (result + " != " + expectation);
+        }
+    });
+
+    Test.add_func ("/jsoner/serialize/array/string/strv/non-present", () => {
+        var test_object = new TestObjectArrayStringStrv ();
+
+        string expectation = "{\"value\":[]}";
+        string result = Jsoner.serialize (test_object);
+
+        if (result != expectation) {
+            Test.fail_printf (result + " != " + expectation);
+        }
+    });
+
     Test.add_func ("/jsoner/serialize/dict/string", () => {
         var expected_json = "{\"value\":{\"kekw\":\"yes\",\"kek\":\"no\"}}";
 
@@ -660,6 +706,45 @@ public int main (string[] args) {
 
             if (result.value[0] != "kekw" || result.value[1] != "yes" || result.value[2] != "no") {
                 Test.fail_printf (string.joinv (", ", result.value.to_array ()) + " != kekw, yes, no");
+            }
+        } catch (JsonError e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
+    Test.add_func ("/jsoner/deserialize/array/string/strv", () => {
+        try {
+            var jsoner = new Jsoner ("{\"value\":[\"kekw\",\"yes\",\"no\"]}");
+            var result = jsoner.deserialize_object<TestObjectArrayStringStrv> ();
+
+            if (result.value[0] != "kekw" || result.value[1] != "yes" || result.value[2] != "no") {
+                Test.fail_printf (string.joinv (", ", result.value) + " != kekw, yes, no");
+            }
+        } catch (JsonError e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
+    Test.add_func ("/jsoner/deserialize/array/string/strv/empty", () => {
+        try {
+            var jsoner = new Jsoner ("{\"value\":[]}");
+            var result = jsoner.deserialize_object<TestObjectArrayStringStrv> ();
+
+            if (result.value.length != 0) {
+                Test.fail_printf (string.joinv (", ", result.value) + " != ");
+            }
+        } catch (JsonError e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
+    Test.add_func ("/jsoner/deserialize/array/string/strv/not-present", () => {
+        try {
+            var jsoner = new Jsoner ("{}");
+            var result = jsoner.deserialize_object<TestObjectArrayStringStrv> ();
+
+            if (result.value.length != 0) {
+                Test.fail_printf (string.joinv (", ", result.value) + " != ");
             }
         } catch (JsonError e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);

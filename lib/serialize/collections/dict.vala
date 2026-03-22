@@ -20,7 +20,7 @@
 
 public class Serialize.Dict<T> : Gee.HashMap<string, T>, CollectionFactory<T> {
 
-    public Dict (owned Gee.EqualDataFunc<V>? value_equal_func = null) {
+    public Dict (Gee.EqualDataFunc<V>? value_equal_func = null) {
         base (null, null, value_equal_func);
     }
 
