@@ -75,6 +75,7 @@ Requires: %sname%api_version = %EVR
 
 %prep
 %setup
+%autopatch -p1
 
 %build
 %meson -Drun_net_tests=false
