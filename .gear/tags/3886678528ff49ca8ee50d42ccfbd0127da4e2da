@@ -1,0 +1,10 @@
+object d2406debbf733ce7754af15194dce33ac714f82c
+type commit
+tag v7.2
+tagger Gitea <gitea@fake.local> 1774215270 +0300
+
+Release 7.2
+
+- Returned typelib and gir
+- Added API_BASE_UNKNOWN_PROPS
+- Added `string[]` property support
