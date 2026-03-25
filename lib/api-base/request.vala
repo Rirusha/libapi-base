@@ -187,7 +187,6 @@ public class ApiBase.Request : Object {
     [Version (since = "6.0")]
     public void add_content (Content content) {
         assert (message == null);
-        assert (method == HttpMethod.POST || method == HttpMethod.PUT || method == HttpMethod.PATCH || method == HttpMethod.DELETE);
 
         this.content = content;
     }
