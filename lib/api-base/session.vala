@@ -39,22 +39,24 @@ public sealed class ApiBase.Session : Soup.Session {
     HashTable<string, Array<Header>> presets_table = new HashTable<string, Array<Header>> (str_hash, str_equal);
 
     construct {
-        var logger = new Soup.Logger (BODY);
+        if (Environment.get_variable ("API_BASE_SOUP_TRACE") != null) {
+            var logger = new Soup.Logger (BODY);
 
-        logger.set_printer ((logger, level, direction, data) => {
-            switch (direction) {
-                case '<':
-                case '>':
-                    debug ("%c: %s", direction, data);
-                    break;
+            logger.set_printer ((logger, level, direction, data) => {
+                switch (direction) {
+                    case '<':
+                    case '>':
+                        debug ("%c: %s", direction, data);
+                        break;
 
-                default:
-                    debug ("");
-                    break;
-            }
-        });
+                    default:
+                        debug ("");
+                        break;
+                }
+            });
 
-        add_feature (logger);
+            add_feature (logger);
+        }
     }
 
     /**
