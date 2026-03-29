@@ -1,3 +1,23 @@
+/*
+ * Copyright (C) 2026 Vladimir Romanov <rirusha@altlinux.org>
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see
+ * <https://www.gnu.org/licenses/gpl-3.0-standalone.html>.
+ * 
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 // ind-check=skip-file
 // vala-lint=skip-file
 
@@ -33,7 +53,7 @@ const string EXPECTED_JSON = """{
     "title": "Sample Slide Show"
   }
 }
-""";
+"""; 
 
 const string EXPECTED_ROBOTS = """User-agent: *
 Disallow: /deny""";
@@ -58,8 +78,24 @@ public int main (string[] args) {
 
     Test.add_func ("/soup-wrapper/get", () => {
         try {
+            var session = new Session () {
+                base_url = "https://httpbin.org"
+            };
+            var request = new Request.GET ("/get");
+            session.exec (request);
+
+        } catch (Error e) {
+            Test.fail_printf ("Error: \n%s", e.message);
+        }
+    });
+
+    Test.add_func ("/soup-wrapper/get/base-url", () => {
+        try {
+            var session = new Session () {
+                base_url = "gsdgsdgdnsjkgnwenvkuesbvur"
+            };
             var request = new Request.GET ("https://httpbin.org/get");
-            request.simple_exec ();
+            session.exec (request);
 
         } catch (Error e) {
             Test.fail_printf ("Error: \n%s", e.message);

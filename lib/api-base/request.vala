@@ -30,6 +30,8 @@ public class ApiBase.Request : Object {
 
     public string uri { get; construct; }
 
+    public int port { get; set; default = -1; }
+
     Soup.Message message;
 
     Gee.HashSet<Header?> headers = new Gee.HashSet<Header?> (
@@ -210,18 +212,46 @@ public class ApiBase.Request : Object {
      * @return  Response body
      */
     [Version (since = "5.0")]
-    public Soup.Message? form_message () {
+    public Soup.Message? form_message (string? base_url = null) {
         if (message != null) {
             return message;
         }
 
-        string new_uri;
+        string scheme;
+        string? host;
+        string path;
 
-        if (parameters.size != 0) {
-            new_uri = form_paramed_uri ();
-        } else {
-            new_uri = uri;
+        try {
+            if (Uri.peek_scheme (uri) == null && base_url != null) {
+                var base_url_obj = Uri.parse (base_url, NONE);
+                with (base_url_obj) {
+                    scheme = get_scheme ();
+                    host = get_host ();
+                    path = Path.build_filename (get_path (), uri);
+                }
+            } else {
+                var cur_uri_obj = Uri.parse (uri, NONE);
+                with (cur_uri_obj) {
+                    scheme = get_scheme ();
+                    host = get_host ();
+                    path = get_path ();
+                }
+            }
+        } catch (UriError e) {
+            warning ("Can't create Soup.Message: %s", e.message);
+            return null;
         }
+
+        var new_uri = Uri.join (
+            NONE,
+            scheme,
+            null,
+            host,
+            port,
+            path,
+            get_query (),
+            null
+        );
 
         message = new Soup.Message (method.to_string (), new_uri);
 
@@ -246,15 +276,17 @@ public class ApiBase.Request : Object {
         return message;
     }
 
-    string form_paramed_uri () {
+    string? get_query () {
+        if (parameters.size == 0) {
+            return null;
+        }
+
         var final_parameters = new Serialize.Array<string> ();
         final_parameters.add_all_iterator (parameters.map<string> ((el) => {
             return el.to_string ();
         }));
 
-        var new_uri = "%s?%s".printf (uri, string.joinv ("&", final_parameters.to_array ()));
-
-        return new_uri;
+        return string.joinv ("&", final_parameters.to_array ());
     }
 
     /**

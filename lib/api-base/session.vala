@@ -34,6 +34,8 @@ public sealed class ApiBase.Session : Soup.Session {
      */
     public string? cookies_file_path { get; private set; }
 
+    public string? base_url { get; set; }
+
     HashTable<string, Array<Header>> presets_table = new HashTable<string, Array<Header>> (str_hash, str_equal);
 
     /**
@@ -176,7 +178,7 @@ public sealed class ApiBase.Session : Soup.Session {
 
         fill_request_presets (request);
 
-        var message = request.form_message ();
+        var message = request.form_message (base_url);
         if (message == null) {
             throw new SoupError.INTERNAL ("Bad message");
         }
@@ -213,7 +215,7 @@ public sealed class ApiBase.Session : Soup.Session {
 
         fill_request_presets (request);
 
-        var message = request.form_message ();
+        var message = request.form_message (base_url);
         if (message == null) {
             throw new SoupError.INTERNAL ("Bad message");
         }
@@ -241,7 +243,7 @@ public sealed class ApiBase.Session : Soup.Session {
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
     ) throws SoupError {
-        var message = request.form_message ();
+        var message = request.form_message (base_url);
         if (message == null) {
             throw new SoupError.INTERNAL ("Bad message");
         }
