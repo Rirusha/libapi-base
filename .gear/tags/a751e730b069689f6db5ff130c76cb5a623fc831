@@ -1,0 +1,9 @@
+object 167bc895ff50b5d343e8a0d8faaeabf0cad7c5ec
+type commit
+tag v7.3
+tagger Gitea <gitea@fake.local> 1774745562 +0300
+
+Release 7.3
+
+- Removed assert on wrong request type in `add_content`.
+- Fixed Critical on `HasFallback` serialization.
