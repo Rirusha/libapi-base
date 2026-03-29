@@ -409,7 +409,7 @@ namespace Serialize.Convert {
 
         if (source_value.holds (Type.STRING)) {
             if (target_value.holds (Type.ENUM)) {
-                target_value.set_enum (Enum.get_by_nick_gtype (target_value.type (), source_value.get_string ()));
+                target_value.set_enum (Enum.get_by_nick_gtype (target_value.type (), source_value.get_string ().down ()));
                 return true;
 
             } else if (target_value.holds (Type.INT64)) {
