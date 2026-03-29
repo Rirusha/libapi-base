@@ -203,7 +203,7 @@ public class ApiBase.Request : Object {
      * Get formed message object
      * @return  Response body
      */
-    [Version (since = "5.0", deprecated = true, deprecated_sinc = "7.4")]
+    [Version (since = "5.0", deprecated = true, deprecated_since = "7.4")]
     public Soup.Message? form_message (string? base_url = null) {
         init_message (base_url);
         return message;
