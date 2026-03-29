@@ -78,9 +78,21 @@ public int main (string[] args) {
 
     Test.add_func ("/soup-wrapper/get", () => {
         try {
-            var session = new Session () {
-                base_url = "https://httpbin.org"
-            };
+            var session = new Session ();
+            session.add_base_url ("https://httpbin.org");
+            var request = new Request.GET ("/get");
+            session.exec (request);
+
+        } catch (Error e) {
+            Test.fail_printf ("Error: \n%s", e.message);
+        }
+    });
+
+    Test.add_func ("/soup-wrapper/get/base-urls", () => {
+        try {
+            var session = new Session ();
+            session.add_base_url ("https://httpbin.com");
+            session.add_base_url ("https://httpbin.org");
             var request = new Request.GET ("/get");
             session.exec (request);
 
@@ -91,9 +103,8 @@ public int main (string[] args) {
 
     Test.add_func ("/soup-wrapper/get/base-url", () => {
         try {
-            var session = new Session () {
-                base_url = "gsdgsdgdnsjkgnwenvkuesbvur"
-            };
+            var session = new Session ();
+            session.add_base_url ("gsdgsdgdnsjkgnwenvkuesbvur");
             var request = new Request.GET ("https://httpbin.org/get");
             session.exec (request);
 

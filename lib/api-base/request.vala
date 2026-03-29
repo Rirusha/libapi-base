@@ -32,7 +32,7 @@ public class ApiBase.Request : Object {
 
     public int port { get; set; default = -1; }
 
-    Soup.Message message;
+    internal Soup.Message? message { get; private set; }
 
     Gee.HashSet<Header?> headers = new Gee.HashSet<Header?> (
         (el) => {
@@ -131,8 +131,6 @@ public class ApiBase.Request : Object {
     }
 
     void add_header_struct (Header header, bool replace = true) {
-        assert (message == null);
-
         if (header in headers && !replace) {
             return;
         }
@@ -164,8 +162,6 @@ public class ApiBase.Request : Object {
     }
 
     void add_param_struct (Param parameter) {
-        assert (message == null);
-
         parameters.add (parameter);
     }
 
@@ -188,8 +184,6 @@ public class ApiBase.Request : Object {
      */
     [Version (since = "6.0")]
     public void add_content (Content content) {
-        assert (message == null);
-
         this.content = content;
     }
 
@@ -202,20 +196,21 @@ public class ApiBase.Request : Object {
      */
     [Version (since = "3.0")]
     public Soup.Status get_status_code () {
-        assert (message != null);
-
-        return message.get_status ();
+        return message?.get_status ();
     }
 
     /**
      * Get formed message object
      * @return  Response body
      */
-    [Version (since = "5.0")]
+    [Version (since = "5.0", deprecated = true, deprecated_sinc = "7.4")]
     public Soup.Message? form_message (string? base_url = null) {
-        if (message != null) {
-            return message;
-        }
+        init_message (base_url);
+        return message;
+    }
+
+    internal void init_message (string? base_url = null) {
+        message = null;
 
         string scheme;
         string? host;
@@ -239,7 +234,7 @@ public class ApiBase.Request : Object {
             }
         } catch (UriError e) {
             warning ("Can't create Soup.Message: %s", e.message);
-            return null;
+            return;
         }
 
         var new_uri = Uri.join (
@@ -257,7 +252,7 @@ public class ApiBase.Request : Object {
 
         if (message == null) {
             warning ("Can't form %s message with '%s'", method.to_string (), new_uri);
-            return null;
+            return;
         }
 
         if (content != null) {
@@ -272,8 +267,6 @@ public class ApiBase.Request : Object {
                 message.request_headers.append (header.name, header.value);
             }
         }
-
-        return message;
     }
 
     string? get_query () {

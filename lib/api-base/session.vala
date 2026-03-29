@@ -34,17 +34,9 @@ public sealed class ApiBase.Session : Soup.Session {
      */
     public string? cookies_file_path { get; private set; }
 
-    public string? base_url { get; set; }
+    Urls base_urls = new Urls ();
 
     HashTable<string, Array<Header>> presets_table = new HashTable<string, Array<Header>> (str_hash, str_equal);
-
-    /**
-     * @param user_agent    Session user agent
-     * @param timeout       Session timeout
-     */
-    public Session () {
-        Object ();
-    }
 
     construct {
         var logger = new Soup.Logger (BODY);
@@ -163,6 +155,14 @@ public sealed class ApiBase.Session : Soup.Session {
         throw get_error (status_code, error_message);
     }
 
+    public void add_base_url (string base_url) {
+        base_urls.add (base_url);
+    }
+
+    public void remove_base_url (string base_url) {
+        base_urls.remove (base_url);
+    }
+
     /**
      * Synchronously execute the {@link Request}
      *
@@ -178,25 +178,55 @@ public sealed class ApiBase.Session : Soup.Session {
 
         fill_request_presets (request);
 
-        var message = request.form_message (base_url);
-        if (message == null) {
-            throw new SoupError.INTERNAL ("Bad message");
+        string?[] trys = { null };
+        if (base_urls.size > 0) {
+            trys = base_urls.to_array ();
         }
 
-        try {
-            bytes = send_and_read (message, cancellable);
+        foreach (var base_url in trys) {
+            request.init_message (base_url);
+            var message = request.message;
 
-        } catch (Error e) {
-            if (e is IOError.CANCELLED) {
-                throw new SoupError.CANCELLED (e.message);
-            } else {
-                throw new SoupError.INTERNAL ("%s %s: %s".printf (message.method, message.uri.to_string (), e.message));
+            debug ("Exec %s", message.uri.to_string ());
+
+            if (message == null) {
+                throw new SoupError.INTERNAL ("Bad message");
+            }
+
+            try {
+                try {
+                    bytes = send_and_read (message, cancellable);
+
+                } catch (Error e) {
+                    if (e is IOError.CANCELLED) {
+                        throw new SoupError.CANCELLED (e.message);
+                    } else {
+                        throw new SoupError.INTERNAL ("%s %s (%s): %s".printf (
+                            message.method,
+                            message.uri.to_string (),
+                            message.status_code.to_string (),
+                            e.message
+                        ));
+                    }
+                }
+
+                check_status_code (request.get_status_code (), bytes);
+
+                if (base_url != null) {
+                    base_urls.raise (base_url);
+                    debug ("Exec with %s success, raise it", base_url);
+                }
+                return bytes;
+            } catch (BadStatusCodeError e) {
+                if (base_url == trys[trys.length - 1]) {
+                    throw e;
+                } else {
+                    debug ("Exec with %s failed, try next", base_url);
+                }
             }
         }
 
-        check_status_code (request.get_status_code (), bytes);
-
-        return bytes;
+        return null;
     }
 
     /**
@@ -215,25 +245,50 @@ public sealed class ApiBase.Session : Soup.Session {
 
         fill_request_presets (request);
 
-        var message = request.form_message (base_url);
-        if (message == null) {
-            throw new SoupError.INTERNAL ("Bad message");
+        string?[] trys = { null };
+        if (base_urls.size > 0) {
+            trys = base_urls.to_array ();
         }
 
-        try {
-            bytes = yield send_and_read_async (message, priority, cancellable);
+        foreach (var base_url in trys) {
+            request.init_message (base_url);
+            var message = request.message;
 
-        } catch (Error e) {
-            if (e is IOError.CANCELLED) {
-                throw new SoupError.CANCELLED (e.message);
-            } else {
-                throw new SoupError.INTERNAL ("%s %s: %s".printf (message.method, message.uri.to_string (), e.message));
+            debug ("Exec %s", message.uri.to_string ());
+
+            if (message == null) {
+                throw new SoupError.INTERNAL ("Bad message");
+            }
+
+            try {
+                try {
+                    bytes = yield send_and_read_async (message, priority, cancellable);
+
+                } catch (Error e) {
+                    if (e is IOError.CANCELLED) {
+                        throw new SoupError.CANCELLED (e.message);
+                    } else {
+                        throw new SoupError.INTERNAL ("%s %s: %s".printf (message.method, message.uri.to_string (), e.message));
+                    }
+                }
+
+                check_status_code (request.get_status_code (), bytes);
+
+                if (base_url != null) {
+                    base_urls.raise (base_url);
+                    debug ("Exec with %s success, raise it", base_url);
+                }
+                return bytes;
+            } catch (BadStatusCodeError e) {
+                if (base_url == trys[trys.length - 1]) {
+                    throw e;
+                } else {
+                    debug ("Exec with %s failed, try next", base_url);
+                }
             }
         }
 
-        check_status_code (request.get_status_code (), bytes);
-
-        return bytes;
+        return null;
     }
 
     public new async Soup.WebsocketConnection websocket_connect_async (
@@ -243,7 +298,13 @@ public sealed class ApiBase.Session : Soup.Session {
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
     ) throws SoupError {
-        var message = request.form_message (base_url);
+        string? base_url = base_urls.first ();
+        if (base_urls.size > 1) {
+            warning ("Websockets don't support base urls iteration");
+        }
+
+        request.init_message (base_url);
+        var message = request.message;
         if (message == null) {
             throw new SoupError.INTERNAL ("Bad message");
         }
