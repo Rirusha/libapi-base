@@ -44,13 +44,18 @@ internal sealed class ApiBase.Urls : Object {
         return real.to_array ().copy ();
     }
 
-    public void raise (string uri) {
+    public bool raise (string uri) {
         if (!(uri in real)) {
-            return;
+            return false;
+        }
+
+        if (real[0] == uri) {
+            return false;
         }
 
         remove (uri);
         real.insert (0, uri);
+        return true;
     }
 
     public string? first () {

@@ -256,7 +256,8 @@ public sealed class ApiBase.Session : Soup.Session {
             request.init_message (base_url);
             var message = request.message;
 
-            debug ("Exec %s", message.uri.to_string ());
+            var exec_uri = message.uri.to_string ();
+            debug ("Exec %s", exec_uri);
 
             if (message == null) {
                 throw new SoupError.INTERNAL ("Bad message");
@@ -276,16 +277,19 @@ public sealed class ApiBase.Session : Soup.Session {
 
                 check_status_code (request.get_status_code (), bytes);
 
+                debug ("Exec %s success", exec_uri);
                 if (base_url != null) {
-                    base_urls.raise (base_url);
-                    debug ("Exec with %s success, raise it", base_url);
+                    if (base_urls.raise (base_url)) {
+                        debug ("%s good, raise it", base_url);
+                    }
                 }
                 return bytes;
             } catch (BadStatusCodeError e) {
+                debug ("Exec %s failed", exec_uri);
                 if (base_url == trys[trys.length - 1]) {
                     throw e;
                 } else {
-                    debug ("Exec with %s failed, try next", base_url);
+                    debug ("%s bad, try next", base_url);
                 }
             }
         }
