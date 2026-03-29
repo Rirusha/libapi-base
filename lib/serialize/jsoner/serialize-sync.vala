@@ -125,7 +125,11 @@ namespace Serialize.JsonerSerializeSync {
 
         if (obj is HasFallback) {
             var fallback = (HasFallback) obj;
-            serialize_dict (builder, fallback.serialize_fallback, settings, false);
+            var fallback_dict = fallback.serialize_fallback;
+            if (fallback_dict == null) {
+                fallback_dict = new Dict<Value?> ();
+            }
+            serialize_dict (builder, fallback_dict, settings, false);
         }
 
         builder.end_object ();
