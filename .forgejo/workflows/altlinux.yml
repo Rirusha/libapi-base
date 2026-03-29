@@ -4,8 +4,8 @@ on:
   pull_request:
   workflow_dispatch:
   push:
-    branches:
-      - 'altlinux'
+    tags:
+      - '*-alt*'
 
 jobs:
   build-altlinux:
