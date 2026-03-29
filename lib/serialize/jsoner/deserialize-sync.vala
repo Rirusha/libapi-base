@@ -142,7 +142,7 @@ namespace Serialize.JsonerDeserializeSync {
             }
 
             foreach (var prop_name in props_data.keys) {
-                if (!(prop_name in kebabbed_members)) {
+                if (!(prop_name in kebabbed_members) && prop_name != HasFallback.FALLBACK_PROPERTY_NAME) {
                     warning (
                         "The json object does not have field '%s' that present in '%s' as property",
                         prop_name,
