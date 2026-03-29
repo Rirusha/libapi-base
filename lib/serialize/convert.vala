@@ -437,7 +437,7 @@ namespace Serialize.Convert {
                     return true;
                 }
             } else if (target_value.holds (typeof (DateTime))) {
-                var dt = new DateTime.from_iso8601 (source_value.get_string (), null);
+                var dt = new DateTime.from_iso8601 (source_value.get_string (), new TimeZone.utc ());
                 if (dt != null) {
                     target_value.set_boxed (dt);
                     return true;
