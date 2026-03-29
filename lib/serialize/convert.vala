@@ -451,6 +451,14 @@ namespace Serialize.Convert {
                     }
                 }
             }
+        } else if (source_value.holds (Type.INT64)) {
+            if (target_value.holds (typeof (DateTime))) {
+                var dt = new DateTime.from_unix_utc (source_value.get_int64 ());
+                if (dt != null) {
+                    target_value.set_boxed (dt);
+                    return true;
+                }
+            }
         }
 
         if (source_value.transform (ref target_value)) {
