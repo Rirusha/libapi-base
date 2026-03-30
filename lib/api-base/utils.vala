@@ -87,6 +87,8 @@ namespace ApiBase {
                 return new BadStatusCodeError.SERVICE_UNAVAILABLE (error_response);
             case Soup.Status.GATEWAY_TIMEOUT:
                 return new BadStatusCodeError.GATEWAY_TIMEOUT (error_response);
+            case 522:
+                return new BadStatusCodeError.CONNECTION_TIMED_OUT (error_response);
             default:
                 return new BadStatusCodeError.UNKNOWN (status_code.to_string () + ": " + error_response);
         }

@@ -88,6 +88,19 @@ public int main (string[] args) {
         }
     });
 
+    Test.add_func ("/soup-wrapper/get/error", () => {
+        try {
+            var session = new Session ();
+            session.add_base_url ("https://httpbin.com");
+            var request = new Request.GET ("/get");
+            session.exec (request);
+            Test.fail_printf ("No Error");
+
+        } catch (Error e) {
+            debug ("%s: %s", e.domain.to_string (), e.message);
+        }
+    });
+
     Test.add_func ("/soup-wrapper/get/base-urls", () => {
         try {
             var session = new Session ();
