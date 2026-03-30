@@ -50,5 +50,7 @@ public errordomain ApiBase.BadStatusCodeError {
     SERVICE_UNAVAILABLE = 503,
     GATEWAY_TIMEOUT = 504,
 
+    CONNECTION_TIMED_OUT = 522,
+
     UNKNOWN = 0
 }
