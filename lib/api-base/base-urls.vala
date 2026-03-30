@@ -20,12 +20,24 @@
 
 internal sealed class ApiBase.Urls : Object {
 
-    Gee.ArrayList<string> real = new Gee.ArrayList<string> ();
+    Gee.ArrayList<string?> real = new Gee.ArrayList<string> ();
 
     public int size {
         get {
             return real.size;
         }
+    }
+
+    public Urls.take (owned string?[] urls) {
+        this.real.add_all_array (urls);
+    }
+
+    public Urls.null () {
+        this.real.add_all_array ({ null });
+    }
+
+    public new string @get (int index) {
+        return real[index];
     }
 
     public void add (string url) {
@@ -40,8 +52,11 @@ internal sealed class ApiBase.Urls : Object {
         real.remove (url);
     }
 
-    public string[] to_array () {
-        return real.to_array ().copy ();
+    public Urls copy () {
+        if (size == 0) {
+            return new Urls.null ();
+        }
+        return new Urls.take (real.to_array ());
     }
 
     public bool raise (string uri) {

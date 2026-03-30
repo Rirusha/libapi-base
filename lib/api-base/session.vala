@@ -180,20 +180,21 @@ public sealed class ApiBase.Session : Soup.Session {
 
         fill_request_presets (request);
 
-        string?[] trys = { null };
-        if (base_urls.size > 0) {
-            trys = base_urls.to_array ();
-        }
+        var trys = base_urls.copy ();
+
+        Error? err = null;
+        ExecDebug debug_handler = {};
 
         foreach (var base_url in trys) {
             request.init_message (base_url);
             var message = request.message;
 
-            debug ("Exec %s", message.uri.to_string ());
-
             if (message == null) {
                 throw new SoupError.INTERNAL ("Bad message");
             }
+
+            debug_handler = { base_url, message.uri.to_string () };
+            debug_handler.pre ();
 
             try {
                 try {
@@ -214,20 +215,16 @@ public sealed class ApiBase.Session : Soup.Session {
 
                 check_status_code (request.get_status_code (), bytes);
 
-                if (base_url != null) {
-                    base_urls.raise (base_url);
-                    debug ("Exec with %s success, raise it", base_url);
-                }
+                debug_handler.success (base_urls.raise);
                 return bytes;
-            } catch (BadStatusCodeError e) {
-                if (base_url == trys[trys.length - 1]) {
-                    throw e;
-                } else {
-                    debug ("Exec with %s failed, try next", base_url);
-                }
+            } catch (Error e) {
+                err = e;
+                debug_handler.failed ();
             }
         }
 
+        throw_error (err);
+        debug_handler.post ();
         return null;
     }
 
@@ -247,21 +244,21 @@ public sealed class ApiBase.Session : Soup.Session {
 
         fill_request_presets (request);
 
-        string?[] trys = { null };
-        if (base_urls.size > 0) {
-            trys = base_urls.to_array ();
-        }
+        var trys = base_urls.copy ();
+
+        Error? err = null;
+        ExecDebug debug_handler = {};
 
         foreach (var base_url in trys) {
             request.init_message (base_url);
             var message = request.message;
 
-            var exec_uri = message.uri.to_string ();
-            debug ("Exec %s", exec_uri);
-
             if (message == null) {
                 throw new SoupError.INTERNAL ("Bad message");
             }
+
+            debug_handler = { base_url, message.uri.to_string () };
+            debug_handler.pre ();
 
             try {
                 try {
@@ -271,30 +268,38 @@ public sealed class ApiBase.Session : Soup.Session {
                     if (e is IOError.CANCELLED) {
                         throw new SoupError.CANCELLED (e.message);
                     } else {
-                        throw new SoupError.INTERNAL ("%s %s: %s".printf (message.method, message.uri.to_string (), e.message));
+                        throw new SoupError.INTERNAL ("%s %s (%s): %s".printf (
+                            message.method,
+                            message.uri.to_string (),
+                            message.status_code.to_string (),
+                            e.message
+                        ));
                     }
                 }
 
                 check_status_code (request.get_status_code (), bytes);
 
-                debug ("Exec %s success", exec_uri);
-                if (base_url != null) {
-                    if (base_urls.raise (base_url)) {
-                        debug ("%s good, raise it", base_url);
-                    }
-                }
+                debug_handler.success (base_urls.raise);
                 return bytes;
-            } catch (BadStatusCodeError e) {
-                debug ("Exec %s failed", exec_uri);
-                if (base_url == trys[trys.length - 1]) {
-                    throw e;
-                } else {
-                    debug ("%s bad, try next", base_url);
-                }
+            } catch (Error e) {
+                err = e;
+                debug_handler.failed ();
             }
         }
 
+        throw_error (err);
+        debug_handler.post ();
         return null;
+    }
+
+    void throw_error (Error err) throws SoupError, BadStatusCodeError {
+        if (err is BadStatusCodeError) {
+            throw (BadStatusCodeError) err;
+        } else if (err is SoupError) {
+            throw (SoupError) err;
+        } else {
+            assert_not_reached ();
+        }
     }
 
     public new async Soup.WebsocketConnection websocket_connect_async (
