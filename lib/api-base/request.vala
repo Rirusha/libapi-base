@@ -282,7 +282,9 @@ public class ApiBase.Request : Object {
         string error_message = "No error message";
         var out_stream = new MemoryOutputStream.resizable ();
         if (out_stream.splice (error_stream, CLOSE_TARGET | CLOSE_SOURCE, null) != -1) {
-            error_message = (string) (out_stream.steal_as_bytes ().get_data ()) ?? "";
+            var bytes = out_stream.steal_as_bytes ();
+            error_message = (string) bytes.get_data ();
+            error_message = error_message ?? "";
         }
 
         throw get_error (status_code, error_message);
