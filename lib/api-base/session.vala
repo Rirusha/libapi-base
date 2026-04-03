@@ -165,6 +165,8 @@ public sealed class ApiBase.Session : Soup.Session {
             throw new SoupError.INTERNAL (e.message);
         } catch (TlsError e) {
             throw new SoupError.INTERNAL (e.message);
+        } catch (ResolverError e) {
+            throw new SoupError.INTERNAL (e.message);
         }
     }
 
@@ -188,6 +190,8 @@ public sealed class ApiBase.Session : Soup.Session {
             throw new SoupError.INTERNAL (e.message);
         } catch (TlsError e) {
             throw new SoupError.INTERNAL (e.message);
+        } catch (ResolverError e) {
+            throw new SoupError.INTERNAL (e.message);
         }
     }
 
@@ -203,7 +207,7 @@ public sealed class ApiBase.Session : Soup.Session {
     public new InputStream? send (
         Request request,
         Cancellable? cancellable = null
-    ) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError {
+    ) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
         Error? err = null;
 
         foreach (var base_url in base_urls.copy ()) {
@@ -251,7 +255,7 @@ public sealed class ApiBase.Session : Soup.Session {
     public new Bytes? send_and_read (
         Request request,
         Cancellable? cancellable = null
-    ) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError {
+    ) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
         Bytes? bytes = null;
         var out_stream = new MemoryOutputStream.resizable ();
 
@@ -278,7 +282,7 @@ public sealed class ApiBase.Session : Soup.Session {
         OutputStream out_stream,
         OutputStreamSpliceFlags flags,
         Cancellable? cancellable = null
-    ) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError, IOError {
+    ) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
         var stream = send (request, cancellable);
         if (stream == null) {
             return -1;
@@ -299,7 +303,7 @@ public sealed class ApiBase.Session : Soup.Session {
         Request request,
         int io_priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError {
+    ) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
         Error? err = null;
 
         foreach (var base_url in base_urls.copy ()) {
@@ -348,7 +352,7 @@ public sealed class ApiBase.Session : Soup.Session {
         Request request,
         int io_priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError {
+    ) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
         Bytes? bytes = null;
         var out_stream = new MemoryOutputStream.resizable ();
 
@@ -376,7 +380,7 @@ public sealed class ApiBase.Session : Soup.Session {
         OutputStreamSpliceFlags flags,
         int io_priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError, IOError {
+    ) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
         var stream = yield send_async (request, io_priority, cancellable);
         if (stream == null) {
             return -1;
@@ -420,7 +424,7 @@ public sealed class ApiBase.Session : Soup.Session {
         }
     }
 
-    void detect_error (Error e) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError, IOError {
+    void detect_error (Error e) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
         if (e is Soup.SessionError) {
             throw (Soup.SessionError) e;
         } else if (e is IOError) {
@@ -429,7 +433,10 @@ public sealed class ApiBase.Session : Soup.Session {
             throw (BadStatusCodeError) e;
         } else if (e is IOError) {
             throw (IOError) e;
+        } else if (e is ResolverError) {
+            throw (ResolverError) e;
         } else {
+            message (e.domain.to_string ());
             assert_not_reached ();
         }
     }

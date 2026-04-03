@@ -352,7 +352,7 @@ public class ApiBase.Request : Object {
     [Version (since = "7.4")]
     public InputStream? simple_send (
         Cancellable? cancellable = null
-    ) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError {
+    ) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
         var soup_wrapper = new Session ();
         return soup_wrapper.send (this, cancellable);
     }
@@ -368,7 +368,7 @@ public class ApiBase.Request : Object {
     [Version (since = "7.4")]
     public GLib.Bytes? simple_send_and_read (
         Cancellable? cancellable = null
-    ) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError {
+    ) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
         var soup_wrapper = new Session ();
         return soup_wrapper.send_and_read (this, cancellable);
     }
@@ -385,7 +385,7 @@ public class ApiBase.Request : Object {
     public async InputStream? simple_send_async (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError {
+    ) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
         var soup_wrapper = new Session ();
         return yield soup_wrapper.send_async (this, priority, cancellable);
     }
@@ -402,7 +402,7 @@ public class ApiBase.Request : Object {
     public async GLib.Bytes? simple_send_and_read_async (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError {
+    ) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
         var soup_wrapper = new Session ();
         return yield soup_wrapper.send_and_read_async (this, priority, cancellable);
     }
