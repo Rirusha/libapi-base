@@ -252,11 +252,14 @@ public int main (string[] args) {
     });
 
     Test.add_func ("/jsoner/deserialize/big", () => {
-        var res = resources_lookup_data ("/test-data/big.json", ResourceLookupFlags.NONE);
-        var jsoner = new Jsoner.from_bytes (res);
-        var result = jsoner.deserialize ();
-
-        Jsoner.serialize (result);
+        try {
+            var res = resources_lookup_data ("/test-data/big.json", ResourceLookupFlags.NONE);
+            var jsoner = new Jsoner.from_bytes (res);
+            var result = jsoner.deserialize ();
+            Jsoner.serialize (result);
+        } catch (Error e) {
+            Test.fail_printf (e.message);
+        }
     });
 
     Test.add_func ("/jsoner/serialize/values2", () => {
