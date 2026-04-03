@@ -195,7 +195,7 @@ public class ApiBase.Request : Object {
      * @return  Status
      */
     [Version (since = "3.0")]
-    public Soup.Status get_status_code () {
+    public Soup.Status? get_status_code () {
         return message?.get_status ();
     }
 
@@ -269,6 +269,37 @@ public class ApiBase.Request : Object {
         }
     }
 
+    internal void check_status_code (
+        InputStream? error_stream,
+        Cancellable? cancellable = null
+    ) throws IOError, BadStatusCodeError {
+        var status_code = get_status_code ();
+        if (status_code == Soup.Status.OK || status_code == null) {
+            return;
+        }
+
+        if (error_stream == null) {
+            return;
+        }
+
+        string error_message = "No error message";
+        var out_stream = new MemoryOutputStream.resizable ();
+        if (out_stream.splice (error_stream, CLOSE_TARGET | CLOSE_SOURCE, null) != -1) {
+            error_message = (string) (out_stream.steal_as_bytes ().get_data ()) ?? "";
+        }
+
+        throw get_error (status_code, error_message);
+    }
+
+    internal void peak_presets_from (Session session) {
+        foreach (var preset_name in presets) {
+            Array<Header> headers = session.presets_table.get (preset_name);
+            if (headers != null) {
+                add_headers ((Header[]) headers.data, false);
+            }
+        }
+    }
+
     string? get_query () {
         if (parameters.size == 0) {
             return null;
@@ -288,7 +319,7 @@ public class ApiBase.Request : Object {
      * @throws SoupError            Internal error from libsoup
      * @throws BadStatusCodeError   Bad status code from request
      */
-    [Version (since = "3.0")]
+    [Version (since = "3.0", deprecated = true, deprecated_since = "7.4", replacement = "simple_send_and_read")]
     public GLib.Bytes simple_exec (
         Cancellable? cancellable = null
     ) throws SoupError, BadStatusCodeError {
@@ -302,12 +333,78 @@ public class ApiBase.Request : Object {
      * @throws SoupError            Internal error from libsoup
      * @throws BadStatusCodeError   Bad status code from request
      */
-    [Version (since = "3.0")]
+    [Version (since = "3.0", deprecated = true, deprecated_since = "7.4", replacement = "simple_send_and_read_async")]
     public async GLib.Bytes simple_exec_async (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
     ) throws SoupError, BadStatusCodeError {
         var soup_wrapper = new Session ();
         return yield soup_wrapper.exec_async (this, priority, cancellable);
+    }
+
+    /**
+     * Simple request send.
+     *
+     * @throws {@link Soup.SessionError}    Session error from libsoup
+     * @throws {@link IOError}              Error from reading stream or reqeust cancellation
+     * @throws {@link TlsError}             An error code from a TLS-related routine.
+     * @throws {@link BadStatusCodeError}   Bad status code
+     */
+    [Version (since = "7.4")]
+    public InputStream? simple_send (
+        Cancellable? cancellable = null
+    ) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError {
+        var soup_wrapper = new Session ();
+        return soup_wrapper.send (this, cancellable);
+    }
+
+    /**
+     * Simple send and read.
+     *
+     * @throws {@link Soup.SessionError}    Session error from libsoup
+     * @throws {@link IOError}              Error from reading stream or reqeust cancellation
+     * @throws {@link TlsError}             An error code from a TLS-related routine.
+     * @throws {@link BadStatusCodeError}   Bad status code
+     */
+    [Version (since = "7.4")]
+    public GLib.Bytes? simple_send_and_read (
+        Cancellable? cancellable = null
+    ) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError {
+        var soup_wrapper = new Session ();
+        return soup_wrapper.send_and_read (this, cancellable);
+    }
+
+    /**
+     * Asynchronious version of {@link simple_send}.
+     *
+     * @throws {@link Soup.SessionError}    Session error from libsoup
+     * @throws {@link IOError}              Error from reading stream or reqeust cancellation
+     * @throws {@link TlsError}             An error code from a TLS-related routine.
+     * @throws {@link BadStatusCodeError}   Bad status code
+     */
+    [Version (since = "7.4")]
+    public async InputStream? simple_send_async (
+        int priority = Priority.DEFAULT,
+        Cancellable? cancellable = null
+    ) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError {
+        var soup_wrapper = new Session ();
+        return yield soup_wrapper.send_async (this, priority, cancellable);
+    }
+
+    /**
+     * Asynchronious version of {@link simple_send_and_read}.
+     *
+     * @throws {@link Soup.SessionError}    Session error from libsoup
+     * @throws {@link IOError}              Error from reading stream or reqeust cancellation
+     * @throws {@link TlsError}             An error code from a TLS-related routine.
+     * @throws {@link BadStatusCodeError}   Bad status code
+     */
+    [Version (since = "7.4")]
+    public async GLib.Bytes? simple_send_and_read_async (
+        int priority = Priority.DEFAULT,
+        Cancellable? cancellable = null
+    ) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError {
+        var soup_wrapper = new Session ();
+        return yield soup_wrapper.send_and_read_async (this, priority, cancellable);
     }
 }

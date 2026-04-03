@@ -21,7 +21,7 @@
 /**
  * Error from libsoup
  */
-[Version (since = "3.0")]
+[Version (since = "3.0", deprecated = true, deprecated_since = "7.4")]
 public errordomain ApiBase.SoupError {
     INTERNAL,
     CANCELLED;

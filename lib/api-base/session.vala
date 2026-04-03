@@ -36,7 +36,7 @@ public sealed class ApiBase.Session : Soup.Session {
 
     Urls base_urls = new Urls ();
 
-    HashTable<string, Array<Header>> presets_table = new HashTable<string, Array<Header>> (str_hash, str_equal);
+    internal HashTable<string, Array<Header>> presets_table = new HashTable<string, Array<Header>> (str_hash, str_equal);
 
     construct {
         if (Environment.get_variable ("API_BASE_SOUP_TRACE") != null) {
@@ -138,25 +138,6 @@ public sealed class ApiBase.Session : Soup.Session {
         }
     }
 
-    void fill_request_presets (Request request) {
-        foreach (var preset_name in request.presets) {
-            Array<Header> headers = presets_table.get (preset_name);
-            if (headers != null) {
-                request.add_headers ((Header[]) headers.data, false);
-            }
-        }
-    }
-
-    void check_status_code (Soup.Status status_code, Bytes? bytes) throws SoupError, BadStatusCodeError {
-        if (status_code == Soup.Status.OK) {
-            return;
-        }
-
-        string error_message = (string) (bytes.get_data ()) ?? "";
-
-        throw get_error (status_code, error_message);
-    }
-
     public void add_base_url (string base_url) {
         base_urls.add (base_url);
     }
@@ -171,61 +152,12 @@ public sealed class ApiBase.Session : Soup.Session {
      * @throws SoupError            Internal error from libsoup
      * @throws BadStatusCodeError   Bad status code from request
      */
-    [Version (since = "3.0")]
+    [Version (since = "3.0", deprecated = true, deprecated_since = "7.4", replacement = "send_and_read")]
     public GLib.Bytes? exec (
         Request request,
         Cancellable? cancellable = null
     ) throws SoupError, BadStatusCodeError {
-        GLib.Bytes? bytes = null;
-
-        fill_request_presets (request);
-
-        var trys = base_urls.copy ();
-
-        Error? err = null;
-        ExecDebug debug_handler = {};
-
-        foreach (var base_url in trys) {
-            request.init_message (base_url);
-            var message = request.message;
-
-            if (message == null) {
-                throw new SoupError.INTERNAL ("Bad message");
-            }
-
-            debug_handler = { base_url, message.uri.to_string () };
-            debug_handler.pre ();
-
-            try {
-                try {
-                    bytes = send_and_read (message, cancellable);
-
-                } catch (Error e) {
-                    if (e is IOError.CANCELLED) {
-                        throw new SoupError.CANCELLED (e.message);
-                    } else {
-                        throw new SoupError.INTERNAL ("%s %s (%s): %s".printf (
-                            message.method,
-                            message.uri.to_string (),
-                            message.status_code.to_string (),
-                            e.message
-                        ));
-                    }
-                }
-
-                check_status_code (request.get_status_code (), bytes);
-
-                debug_handler.success (base_urls.raise);
-                return bytes;
-            } catch (Error e) {
-                err = e;
-                debug_handler.failed ();
-            }
-        }
-
-        throw_error (err);
-        debug_handler.post ();
-        return null;
+        return send_and_read (request, cancellable);
     }
 
     /**
@@ -234,69 +166,253 @@ public sealed class ApiBase.Session : Soup.Session {
      * @throws SoupError            Internal error from libsoup
      * @throws BadStatusCodeError   Bad status code from request
      */
-    [Version (since = "3.0")]
+    [Version (since = "3.0", deprecated = true, deprecated_since = "7.4", replacement = "send_and_read_async")]
     public async GLib.Bytes? exec_async (
         Request request,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
     ) throws SoupError, BadStatusCodeError {
-        GLib.Bytes? bytes = null;
+        return yield send_and_read_async (request, priority, cancellable);
+    }
 
-        fill_request_presets (request);
-
-        var trys = base_urls.copy ();
-
+    /**
+     * Send {@link Request}.
+     *
+     * @throws {@link Soup.SessionError}    Session error from libsoup
+     * @throws {@link IOError}              Error from reading stream or reqeust cancellation
+     * @throws {@link TlsError}             An error code from a TLS-related routine.
+     * @throws {@link BadStatusCodeError}   Bad status code
+     */
+    [Version (since = "7.4")]
+    public new InputStream? send (
+        Request request,
+        Cancellable? cancellable = null
+    ) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError {
         Error? err = null;
-        ExecDebug debug_handler = {};
 
-        foreach (var base_url in trys) {
-            request.init_message (base_url);
-            var message = request.message;
+        foreach (var base_url in base_urls.copy ()) {
+            InputStream? input_stream = null;
+
+            var message = get_message (request, base_url);
 
             if (message == null) {
-                throw new SoupError.INTERNAL ("Bad message");
+                return null;
             }
 
-            debug_handler = { base_url, message.uri.to_string () };
-            debug_handler.pre ();
+            var send_uri = message.uri.to_string ();
+            debug_pre (send_uri);
 
             try {
-                try {
-                    bytes = yield send_and_read_async (message, priority, cancellable);
+                input_stream = base.send (message, cancellable);
 
-                } catch (Error e) {
-                    if (e is IOError.CANCELLED) {
-                        throw new SoupError.CANCELLED (e.message);
-                    } else {
-                        throw new SoupError.INTERNAL ("%s %s (%s): %s".printf (
-                            message.method,
-                            message.uri.to_string (),
-                            message.status_code.to_string (),
-                            e.message
-                        ));
-                    }
-                }
+                request.check_status_code (input_stream, cancellable);
+                debug_success (send_uri, base_url);
 
-                check_status_code (request.get_status_code (), bytes);
-
-                debug_handler.success (base_urls.raise);
-                return bytes;
+                return input_stream;
             } catch (Error e) {
+                if (e is IOError) {
+                    throw (IOError) e;
+                }
                 err = e;
-                debug_handler.failed ();
+                debug_failed (send_uri, base_url);
             }
         }
 
-        throw_error (err);
-        debug_handler.post ();
+        detect_error (err);
+        debug_post ();
         return null;
     }
 
-    void throw_error (Error err) throws SoupError, BadStatusCodeError {
-        if (err is BadStatusCodeError) {
-            throw (BadStatusCodeError) err;
-        } else if (err is SoupError) {
-            throw (SoupError) err;
+    /**
+     * Send and read to bytes {@link Request}.
+     *
+     * @throws {@link Soup.SessionError}    Session error from libsoup
+     * @throws {@link IOError}              Error from reading stream or reqeust cancellation
+     * @throws {@link TlsError}             An error code from a TLS-related routine.
+     * @throws {@link BadStatusCodeError}   Bad status code
+     */
+    [Version (since = "7.4")]
+    public new Bytes? send_and_read (
+        Request request,
+        Cancellable? cancellable = null
+    ) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError {
+        Bytes? bytes = null;
+        var out_stream = new MemoryOutputStream.resizable ();
+
+        try {
+            if (send_and_splice (request, out_stream, CLOSE_TARGET | CLOSE_SOURCE, cancellable) != -1) {
+                bytes = out_stream.steal_as_bytes ();
+            }
+        } catch (IOError e) {}
+
+        return bytes;
+    }
+
+    /**
+     * Send and splice to stream {@link Request}.
+     *
+     * @throws {@link Soup.SessionError}    Session error from libsoup
+     * @throws {@link IOError}              Error from reading stream or reqeust cancellation
+     * @throws {@link TlsError}             An error code from a TLS-related routine.
+     * @throws {@link BadStatusCodeError}   Bad status code
+     */
+    [Version (since = "7.4")]
+    public new ssize_t send_and_splice (
+        Request request,
+        OutputStream out_stream,
+        OutputStreamSpliceFlags flags,
+        Cancellable? cancellable = null
+    ) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError, IOError {
+        var stream = send (request, cancellable);
+        if (stream == null) {
+            return -1;
+        }
+        return out_stream.splice (stream, flags, cancellable);
+    }
+
+    /**
+     * Asynchronious version of {@link send}.
+     *
+     * @throws {@link Soup.SessionError}    Session error from libsoup
+     * @throws {@link IOError}              Error from reading stream or reqeust cancellation
+     * @throws {@link TlsError}             An error code from a TLS-related routine.
+     * @throws {@link BadStatusCodeError}   Bad status code
+     */
+    [Version (since = "7.4")]
+    public async new InputStream? send_async (
+        Request request,
+        int io_priority = Priority.DEFAULT,
+        Cancellable? cancellable = null
+    ) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError {
+        Error? err = null;
+
+        foreach (var base_url in base_urls.copy ()) {
+            InputStream? input_stream = null;
+
+            var message = get_message (request, base_url);
+
+            if (message == null) {
+                return null;
+            }
+
+            var send_uri = message.uri.to_string ();
+            debug_pre (send_uri);
+
+            try {
+                input_stream = yield base.send_async (message, io_priority, cancellable);
+
+                request.check_status_code (input_stream, cancellable);
+                debug_success (send_uri, base_url);
+
+                return input_stream;
+            } catch (Error e) {
+                if (e is IOError) {
+                    throw (IOError) e;
+                }
+                err = e;
+                debug_failed (send_uri, base_url);
+            }
+        }
+
+        detect_error (err);
+        debug_post ();
+        return null;
+    }
+
+    /**
+     * Asynchronious version of {@link send_and_read}.
+     *
+     * @throws {@link Soup.SessionError}    Session error from libsoup
+     * @throws {@link IOError}              Error from reading stream or reqeust cancellation
+     * @throws {@link TlsError}             An error code from a TLS-related routine.
+     * @throws {@link BadStatusCodeError}   Bad status code
+     */
+    [Version (since = "7.4")]
+    public async new Bytes? send_and_read_async (
+        Request request,
+        int io_priority = Priority.DEFAULT,
+        Cancellable? cancellable = null
+    ) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError {
+        Bytes? bytes = null;
+        var out_stream = new MemoryOutputStream.resizable ();
+
+        try {
+            if ((yield send_and_splice_async (request, out_stream, CLOSE_TARGET | CLOSE_SOURCE, io_priority, cancellable)) != -1) {
+                bytes = out_stream.steal_as_bytes ();
+            }
+        } catch (IOError e) {}
+
+        return bytes;
+    }
+
+    /**
+     * Asynchronious version of {@link send_and_splice}.
+     *
+     * @throws {@link Soup.SessionError}    Session error from libsoup
+     * @throws {@link IOError}              Error from reading stream or reqeust cancellation
+     * @throws {@link TlsError}             An error code from a TLS-related routine.
+     * @throws {@link BadStatusCodeError}   Bad status code
+     */
+    [Version (since = "7.4")]
+    public async new ssize_t send_and_splice_async (
+        Request request,
+        OutputStream out_stream,
+        OutputStreamSpliceFlags flags,
+        int io_priority = Priority.DEFAULT,
+        Cancellable? cancellable = null
+    ) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError, IOError {
+        var stream = yield send_async (request, io_priority, cancellable);
+        if (stream == null) {
+            return -1;
+        }
+        return yield out_stream.splice_async (stream, flags, io_priority, cancellable);
+    }
+
+    Soup.Message? get_message (Request request, string? base_url = null) {
+        request.peak_presets_from (this);
+        request.init_message (base_url);
+
+        return request.message;
+    }
+
+    [Diagnostics]
+    inline void debug_pre (string uri) {
+        debug ("Send %s", uri);
+    }
+
+    [Diagnostics]
+    inline void debug_post () {
+        debug ("No next");
+    }
+
+    [Diagnostics]
+    inline void debug_success (string uri, string? base_url = null) {
+        debug ("Exec %s success", uri);
+        if (base_url != null) {
+            if (base_urls.raise (base_url)) {
+                debug ("%s good, raise it", base_url);
+            }
+        }
+    }
+
+    [Diagnostics]
+    inline void debug_failed (string uri, string? base_url = null) {
+        if (base_url != null) {
+            debug ("Exec %s failed, %s bad, try next", uri, base_url);
+        } else {
+            debug ("Exec %s failed", uri);
+        }
+    }
+
+    void detect_error (Error e) throws Soup.SessionError, IOError, TlsError, BadStatusCodeError, IOError {
+        if (e is Soup.SessionError) {
+            throw (Soup.SessionError) e;
+        } else if (e is IOError) {
+            throw (IOError) e;
+        } else if (e is BadStatusCodeError) {
+            throw (BadStatusCodeError) e;
+        } else if (e is IOError) {
+            throw (IOError) e;
         } else {
             assert_not_reached ();
         }

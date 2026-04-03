@@ -19,40 +19,6 @@
 
 namespace ApiBase {
 
-    internal delegate bool RaiseFund (string base_urls);
-
-    internal struct ExecDebug {
-        public string? base_url;
-        public string exec_uri;
-
-        public inline void pre () {
-            debug ("Exec %s", exec_uri);
-        }
-
-        public inline void success (RaiseFund func) {
-            debug ("Exec %s success", exec_uri);
-            if (base_url != null) {
-                if (func (base_url)) {
-                    debug ("%s good, raise it", base_url);
-                }
-            }
-        }
-
-        public inline void failed () {
-            if (base_url != null) {
-                debug ("Exec %s failed, %s bad, try next", exec_uri, base_url);
-            } else {
-                debug ("Exec %s failed", exec_uri);
-            }
-        }
-
-        public inline void post () {
-            if (base_url != null) {
-                debug ("No next");
-            }
-        }
-    }
-
     internal BadStatusCodeError get_error (Soup.Status status_code, string error_response) {
         switch (status_code) {
             case Soup.Status.BAD_REQUEST:

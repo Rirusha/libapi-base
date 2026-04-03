@@ -81,7 +81,7 @@ public int main (string[] args) {
             var session = new Session ();
             session.add_base_url ("https://httpbin.org");
             var request = new Request.GET ("/get");
-            session.exec (request);
+            session.send_and_read (request);
 
         } catch (Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
@@ -93,7 +93,7 @@ public int main (string[] args) {
             var session = new Session ();
             session.add_base_url ("https://httpbin.com");
             var request = new Request.GET ("/get");
-            session.exec (request);
+            session.send_and_read (request);
             Test.fail_printf ("No Error");
 
         } catch (Error e) {
@@ -107,7 +107,7 @@ public int main (string[] args) {
             session.add_base_url ("https://httpbin.com");
             session.add_base_url ("https://httpbin.org");
             var request = new Request.GET ("/get");
-            session.exec (request);
+            session.send_and_read (request);
 
         } catch (Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
@@ -119,7 +119,7 @@ public int main (string[] args) {
             var session = new Session ();
             session.add_base_url ("gsdgsdgdnsjkgnwenvkuesbvur");
             var request = new Request.GET ("https://httpbin.org/get");
-            session.exec (request);
+            session.send_and_read (request);
 
         } catch (Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
@@ -130,7 +130,7 @@ public int main (string[] args) {
         try {
             var soup_wrapper = new Session () { user_agent = USER_AGENT };
             var request = new Request.GET ("https://httpbin.org/json");
-            var response = (string) (soup_wrapper.exec (request).get_data ());
+            var response = (string) (soup_wrapper.send_and_read (request).get_data ());
 
             if (response.strip () != EXPECTED_JSON.strip ()) {
                 Test.fail_printf ("Wrong result: \n%s", response);
@@ -143,7 +143,7 @@ public int main (string[] args) {
     Test.add_func ("/soup-wrapper/delete", () => {
         try {
             var request = new Request.DELETE ("https://httpbin.org/delete");
-            request.simple_exec ();
+            request.simple_send_and_read ();
 
         } catch (Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
@@ -153,7 +153,7 @@ public int main (string[] args) {
     Test.add_func ("/soup-wrapper/patch", () => {
         try {
             var request = new Request.PATCH ("https://httpbin.org/patch");
-            request.simple_exec ();
+            request.simple_send_and_read ();
 
         } catch (Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
@@ -163,7 +163,7 @@ public int main (string[] args) {
     Test.add_func ("/soup-wrapper/post", () => {
         try {
             var request = new Request.POST ("https://httpbin.org/post");
-            request.simple_exec ();
+            request.simple_send_and_read ();
 
         } catch (Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
@@ -173,7 +173,7 @@ public int main (string[] args) {
     Test.add_func ("/soup-wrapper/put", () => {
         try {
             var request = new Request.PUT ("https://httpbin.org/put");
-            request.simple_exec ();
+            request.simple_send_and_read ();
 
         } catch (Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
@@ -183,7 +183,7 @@ public int main (string[] args) {
     Test.add_func ("/soup-wrapper/error-status", () => {
         try {
             var request = new Request.GET ("https://httpbin.org/status/500");
-            request.simple_exec ();
+            request.simple_send_and_read ();
 
         } catch (BadStatusCodeError e) {
             if (e is BadStatusCodeError.INTERNAL_SERVER_ERROR) {
@@ -200,7 +200,7 @@ public int main (string[] args) {
             var soup_wrapper = new Session () { user_agent = USER_AGENT };
             var request = new Request.GET ("https://httpbin.org/user-agent");
 
-            var respone = soup_wrapper.exec (request);
+            var respone = soup_wrapper.send_and_read (request);
 
             var jsoner = new Jsoner.from_bytes (respone);
 
@@ -231,7 +231,7 @@ public int main (string[] args) {
 
             content.set_dict (dict);
             request.add_content (content);
-            var response = (string) (request.simple_exec ().get_data ());
+            var response = (string) (request.simple_send_and_read ().get_data ());
 
             if (!(response.strip ().has_prefix (EXPECTED_CONTENT_START))) {
                 Test.fail ();
@@ -258,7 +258,7 @@ public int main (string[] args) {
 
             content.set_datalist (datalist);
             request.add_content (content);
-            var response = (string) (request.simple_exec ().get_data ());
+            var response = (string) (request.simple_send_and_read ().get_data ());
 
             if (!(response.strip ().has_prefix (EXPECTED_CONTENT_START))) {
                 Test.fail ();
@@ -285,7 +285,7 @@ public int main (string[] args) {
 
             content.set_dict (dict);
             request.add_content (content);
-            var response = (string) (request.simple_exec ().get_data ());
+            var response = (string) (request.simple_send_and_read ().get_data ());
 
             if (!(response.strip ().has_prefix (EXPECTED_CONTENT_START))) {
                 Test.fail ();
@@ -312,7 +312,7 @@ public int main (string[] args) {
 
             content.set_datalist (datalist);
             request.add_content (content);
-            var response = (string) (request.simple_exec ().get_data ());
+            var response = (string) (request.simple_send_and_read ().get_data ());
 
             if (!(response.strip ().has_prefix (EXPECTED_CONTENT_START))) {
                 Test.fail ();
@@ -328,7 +328,7 @@ public int main (string[] args) {
             var request = new Request.GET ("https://httpbin.org/robots.txt");
             request.add_header ("accept", "text/plain");
 
-            var response = (string) (request.simple_exec ().get_data ());
+            var response = (string) (request.simple_send_and_read ().get_data ());
 
             if (!(response.strip () == EXPECTED_ROBOTS)) {
                 Test.fail ();
@@ -349,7 +349,7 @@ public int main (string[] args) {
             var request = new Request.GET ("https://httpbin.org/robots.txt");
             request.add_header ("accept", "text/plain");
 
-            var response = (string) (session.exec (request).get_data ());
+            var response = (string) (session.send_and_read (request).get_data ());
 
             if (!(response.strip () == EXPECTED_ROBOTS)) {
                 Test.fail ();
