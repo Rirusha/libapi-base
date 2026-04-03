@@ -185,11 +185,11 @@ public int main (string[] args) {
             var request = new Request.GET ("https://httpbin.org/status/500");
             request.simple_send_and_read ();
 
-        } catch (BadStatusCodeError e) {
-            if (e is BadStatusCodeError.INTERNAL_SERVER_ERROR) {
+        } catch (BadStatusCodeError status_code) {
+            if (status_code.code == 500) {
                 return;
             }
-            Test.fail_printf ("Error: \n%s", e.message);
+            Test.fail_printf ("Error: \n%s", status_code.message);
         } catch (Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
         }
