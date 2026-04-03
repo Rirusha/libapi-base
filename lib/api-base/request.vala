@@ -219,18 +219,15 @@ public class ApiBase.Request : Object {
         try {
             if (Uri.peek_scheme (uri) == null && base_url != null) {
                 var base_url_obj = Uri.parse (base_url, NONE);
-                with (base_url_obj) {
-                    scheme = get_scheme ();
-                    host = get_host ();
-                    path = Path.build_filename (get_path (), uri);
-                }
+                scheme = base_url_obj.get_scheme ();
+                host = base_url_obj.get_host ();
+                path = Path.build_filename (base_url_obj.get_path (), uri);
+
             } else {
                 var cur_uri_obj = Uri.parse (uri, NONE);
-                with (cur_uri_obj) {
-                    scheme = get_scheme ();
-                    host = get_host ();
-                    path = get_path ();
-                }
+                scheme = cur_uri_obj.get_scheme ();
+                host = cur_uri_obj.get_host ();
+                path = cur_uri_obj.get_path ();
             }
         } catch (UriError e) {
             warning ("Can't create Soup.Message: %s", e.message);

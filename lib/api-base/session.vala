@@ -157,7 +157,15 @@ public sealed class ApiBase.Session : Soup.Session {
         Request request,
         Cancellable? cancellable = null
     ) throws SoupError, BadStatusCodeError {
-        return send_and_read (request, cancellable);
+        try {
+            return send_and_read (request, cancellable);
+        } catch (Soup.SessionError e) {
+            throw new SoupError.INTERNAL (e.message);
+        } catch (IOError e) {
+            throw new SoupError.INTERNAL (e.message);
+        } catch (TlsError e) {
+            throw new SoupError.INTERNAL (e.message);
+        }
     }
 
     /**
@@ -172,7 +180,15 @@ public sealed class ApiBase.Session : Soup.Session {
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
     ) throws SoupError, BadStatusCodeError {
-        return yield send_and_read_async (request, priority, cancellable);
+        try {
+            return yield send_and_read_async (request, priority, cancellable);
+        } catch (Soup.SessionError e) {
+            throw new SoupError.INTERNAL (e.message);
+        } catch (IOError e) {
+            throw new SoupError.INTERNAL (e.message);
+        } catch (TlsError e) {
+            throw new SoupError.INTERNAL (e.message);
+        }
     }
 
     /**
