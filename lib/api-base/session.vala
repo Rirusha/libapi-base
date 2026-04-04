@@ -66,11 +66,11 @@ public sealed class ApiBase.Session : Soup.Session {
         switch (direction) {
             case '<':
             case '>':
-                d = "%c: %s".printf (direction, data);
+                d = "%c: %s\n".printf (direction, data);
                 break;
 
             default:
-                d = "";
+                d = "\n";
                 break;
         }
 
@@ -81,7 +81,7 @@ public sealed class ApiBase.Session : Soup.Session {
                 warning ("Can't write to trace file: %s", e.message);
             }
         } else {
-            stdout.printf ("%s\n", d);
+            stdout.printf (d);
         }
     }
 
