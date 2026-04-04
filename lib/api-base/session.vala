@@ -38,24 +38,50 @@ public sealed class ApiBase.Session : Soup.Session {
 
     internal HashTable<string, Array<Header>> presets_table = new HashTable<string, Array<Header>> (str_hash, str_equal);
 
+    FileIOStream trace_file_stream;
+
     construct {
-        if (Environment.get_variable ("API_BASE_SOUP_TRACE") != null) {
-            var logger = new Soup.Logger (BODY);
-
-            logger.set_printer ((logger, level, direction, data) => {
-                switch (direction) {
-                    case '<':
-                    case '>':
-                        debug ("%c: %s", direction, data);
-                        break;
-
-                    default:
-                        debug ("");
-                        break;
+        var trace_filename = Environment.get_variable ("API_BASE_SOUP_TRACE_FILENAME");
+        if (trace_filename != null) {
+            if (trace_filename != "stdout") {
+                try {
+                    var f = File.new_for_path (trace_filename);
+                    if (!f.query_exists ()) {
+                        trace_file_stream = f.create_readwrite (GLib.FileCreateFlags.REPLACE_DESTINATION);
+                    }
+                } catch (Error e) {
+                    error ("Can't create %s: %s", trace_filename, e.message);
                 }
-            });
+            }
 
+            var logger = new Soup.Logger (BODY);
+            logger.set_printer (log_printer);
             add_feature (logger);
+        }
+    }
+
+    void log_printer (Soup.Logger logger, Soup.LoggerLogLevel level, char direction, string data) {
+        string d;
+
+        switch (direction) {
+            case '<':
+            case '>':
+                d = "%c: %s".printf (direction, data);
+                break;
+
+            default:
+                d = "";
+                break;
+        }
+
+        if (trace_file_stream != null) {
+            try {
+                trace_file_stream.output_stream.write (d.data);
+            } catch (Error e) {
+                warning ("Can't write to trace file: %s", e.message);
+            }
+        } else {
+            stdout.printf ("%s\n", d);
         }
     }
 
