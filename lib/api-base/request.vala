@@ -344,10 +344,11 @@ public class ApiBase.Request : Object {
     /**
      * Simple request send.
      *
-     * @throws {@link Soup.SessionError}    Session error from libsoup
-     * @throws {@link IOError}              Error from reading stream or reqeust cancellation
-     * @throws {@link TlsError}             An error code from a TLS-related routine.
-     * @throws {@link BadStatusCodeError}   Bad status code
+     * @throws Soup.SessionError    Session error from libsoup
+     * @throws IOError              Error from reading stream or reqeust cancellation
+     * @throws ResolverError         An error code from a Resolver routine
+     * @throws TlsError             An error code from a TLS-related routine
+     * @throws BadStatusCodeError   Bad status code
      */
     [Version (since = "7.4")]
     public InputStream? simple_send (
@@ -360,10 +361,11 @@ public class ApiBase.Request : Object {
     /**
      * Simple send and read.
      *
-     * @throws {@link Soup.SessionError}    Session error from libsoup
-     * @throws {@link IOError}              Error from reading stream or reqeust cancellation
-     * @throws {@link TlsError}             An error code from a TLS-related routine.
-     * @throws {@link BadStatusCodeError}   Bad status code
+     * @throws Soup.SessionError    Session error from libsoup
+     * @throws IOError              Error from reading stream or reqeust cancellation
+     * @throws ResolverError         An error code from a Resolver routine
+     * @throws TlsError             An error code from a TLS-related routine
+     * @throws BadStatusCodeError   Bad status code
      */
     [Version (since = "7.4")]
     public GLib.Bytes? simple_send_and_read (
@@ -376,10 +378,11 @@ public class ApiBase.Request : Object {
     /**
      * Asynchronious version of {@link simple_send}.
      *
-     * @throws {@link Soup.SessionError}    Session error from libsoup
-     * @throws {@link IOError}              Error from reading stream or reqeust cancellation
-     * @throws {@link TlsError}             An error code from a TLS-related routine.
-     * @throws {@link BadStatusCodeError}   Bad status code
+     * @throws Soup.SessionError    Session error from libsoup
+     * @throws IOError              Error from reading stream or reqeust cancellation
+     * @throws ResolverError         An error code from a Resolver routine
+     * @throws TlsError             An error code from a TLS-related routine
+     * @throws BadStatusCodeError   Bad status code
      */
     [Version (since = "7.4")]
     public async InputStream? simple_send_async (
@@ -393,10 +396,11 @@ public class ApiBase.Request : Object {
     /**
      * Asynchronious version of {@link simple_send_and_read}.
      *
-     * @throws {@link Soup.SessionError}    Session error from libsoup
-     * @throws {@link IOError}              Error from reading stream or reqeust cancellation
-     * @throws {@link TlsError}             An error code from a TLS-related routine.
-     * @throws {@link BadStatusCodeError}   Bad status code
+     * @throws Soup.SessionError    Session error from libsoup
+     * @throws IOError              Error from reading stream or reqeust cancellation
+     * @throws ResolverError         An error code from a Resolver routine
+     * @throws TlsError             An error code from a TLS-related routine
+     * @throws BadStatusCodeError   Bad status code
      */
     [Version (since = "7.4")]
     public async GLib.Bytes? simple_send_and_read_async (

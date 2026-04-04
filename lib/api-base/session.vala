@@ -198,10 +198,11 @@ public sealed class ApiBase.Session : Soup.Session {
     /**
      * Send {@link Request}.
      *
-     * @throws {@link Soup.SessionError}    Session error from libsoup
-     * @throws {@link IOError}              Error from reading stream or reqeust cancellation
-     * @throws {@link TlsError}             An error code from a TLS-related routine.
-     * @throws {@link BadStatusCodeError}   Bad status code
+     * @throws Soup.SessionError    Session error from libsoup
+     * @throws IOError              Error from reading stream or reqeust cancellation
+     * @throws ResolverError         An error code from a Resolver routine
+     * @throws TlsError             An error code from a TLS-related routine
+     * @throws BadStatusCodeError   Bad status code
      */
     [Version (since = "7.4")]
     public new InputStream? send (
@@ -246,10 +247,11 @@ public sealed class ApiBase.Session : Soup.Session {
     /**
      * Send and read to bytes {@link Request}.
      *
-     * @throws {@link Soup.SessionError}    Session error from libsoup
-     * @throws {@link IOError}              Error from reading stream or reqeust cancellation
-     * @throws {@link TlsError}             An error code from a TLS-related routine.
-     * @throws {@link BadStatusCodeError}   Bad status code
+     * @throws Soup.SessionError    Session error from libsoup
+     * @throws IOError              Error from reading stream or reqeust cancellation
+     * @throws ResolverError         An error code from a Resolver routine
+     * @throws TlsError             An error code from a TLS-related routine
+     * @throws BadStatusCodeError   Bad status code
      */
     [Version (since = "7.4")]
     public new Bytes? send_and_read (
@@ -271,10 +273,11 @@ public sealed class ApiBase.Session : Soup.Session {
     /**
      * Send and splice to stream {@link Request}.
      *
-     * @throws {@link Soup.SessionError}    Session error from libsoup
-     * @throws {@link IOError}              Error from reading stream or reqeust cancellation
-     * @throws {@link TlsError}             An error code from a TLS-related routine.
-     * @throws {@link BadStatusCodeError}   Bad status code
+     * @throws Soup.SessionError    Session error from libsoup
+     * @throws IOError              Error from reading stream or reqeust cancellation
+     * @throws ResolverError         An error code from a Resolver routine
+     * @throws TlsError             An error code from a TLS-related routine
+     * @throws BadStatusCodeError   Bad status code
      */
     [Version (since = "7.4")]
     public new ssize_t send_and_splice (
@@ -293,10 +296,11 @@ public sealed class ApiBase.Session : Soup.Session {
     /**
      * Asynchronious version of {@link send}.
      *
-     * @throws {@link Soup.SessionError}    Session error from libsoup
-     * @throws {@link IOError}              Error from reading stream or reqeust cancellation
-     * @throws {@link TlsError}             An error code from a TLS-related routine.
-     * @throws {@link BadStatusCodeError}   Bad status code
+     * @throws Soup.SessionError    Session error from libsoup
+     * @throws IOError              Error from reading stream or reqeust cancellation
+     * @throws ResolverError         An error code from a Resolver routine
+     * @throws TlsError             An error code from a TLS-related routine
+     * @throws BadStatusCodeError   Bad status code
      */
     [Version (since = "7.4")]
     public async new InputStream? send_async (
@@ -342,10 +346,11 @@ public sealed class ApiBase.Session : Soup.Session {
     /**
      * Asynchronious version of {@link send_and_read}.
      *
-     * @throws {@link Soup.SessionError}    Session error from libsoup
-     * @throws {@link IOError}              Error from reading stream or reqeust cancellation
-     * @throws {@link TlsError}             An error code from a TLS-related routine.
-     * @throws {@link BadStatusCodeError}   Bad status code
+     * @throws Soup.SessionError    Session error from libsoup
+     * @throws IOError              Error from reading stream or reqeust cancellation
+     * @throws ResolverError         An error code from a Resolver routine
+     * @throws TlsError             An error code from a TLS-related routine
+     * @throws BadStatusCodeError   Bad status code
      */
     [Version (since = "7.4")]
     public async new Bytes? send_and_read_async (
@@ -368,10 +373,11 @@ public sealed class ApiBase.Session : Soup.Session {
     /**
      * Asynchronious version of {@link send_and_splice}.
      *
-     * @throws {@link Soup.SessionError}    Session error from libsoup
-     * @throws {@link IOError}              Error from reading stream or reqeust cancellation
-     * @throws {@link TlsError}             An error code from a TLS-related routine.
-     * @throws {@link BadStatusCodeError}   Bad status code
+     * @throws Soup.SessionError    Session error from libsoup
+     * @throws IOError              Error from reading stream or reqeust cancellation
+     * @throws ResolverError         An error code from a Resolver routine
+     * @throws TlsError             An error code from a TLS-related routine
+     * @throws BadStatusCodeError   Bad status code
      */
     [Version (since = "7.4")]
     public async new ssize_t send_and_splice_async (
