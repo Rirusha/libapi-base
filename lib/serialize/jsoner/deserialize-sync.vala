@@ -133,7 +133,7 @@ namespace Serialize.JsonerDeserializeSync {
 
         var unknown_fields = new Array<string> ();
 
-        if (Environment.get_variable ("API_BASE_UNKNOWN_PROPS") != null) {
+        if (Environment.get_variable ("SERIALIZE_UNKNOWN_PROPS") != null) {
             var members = node.get_object ().get_members ();
 
             var kebabbed_members = new Gee.HashSet<string> ();
@@ -158,7 +158,7 @@ namespace Serialize.JsonerDeserializeSync {
             var sub_node = node.get_object ().get_member (member_name);
 
             if (!props_data.has_key (kebabbed_member_name)) {
-                if (Environment.get_variable ("API_BASE_UNKNOWN_FIELDS") != null) {
+                if (Environment.get_variable ("SERIALIZE_UNKNOWN_FIELDS") != null) {
                     warning (
                         "The object '%s' does not have a property '%s' corresponding to the json field '%s' with type '%s':\n%s",
                         obj_type.name (),

@@ -32,6 +32,14 @@ ninja -C _build
 ninja -C _build test
 ```
 
+## Debug
+
+There is env vars that can be useed:
+
+- `API_BASE_SOUP_TRACE_FILENAME`: Filename in which will be printed soupe trace. Can be used with `stdout` to print in stdout
+- `SERIALIZE_UNKNOWN_PROPS`: Print warnings if json object has field but lang object doesn't
+- `SERIALIZE_UNKNOWN_FIELDS`: Print warnings if lang object has field but json object doesn't
+
 ## Documentation
 
 [Documentation here](https://rirusha.altlinux.team/libapi-base/)
