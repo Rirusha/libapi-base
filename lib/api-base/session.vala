@@ -186,13 +186,7 @@ public sealed class ApiBase.Session : Soup.Session {
     ) throws SoupError, BadStatusCodeError {
         try {
             return send_and_read (request, cancellable);
-        } catch (Soup.SessionError e) {
-            throw new SoupError.INTERNAL (e.message);
-        } catch (IOError e) {
-            throw new SoupError.INTERNAL (e.message);
-        } catch (TlsError e) {
-            throw new SoupError.INTERNAL (e.message);
-        } catch (ResolverError e) {
+        } catch (Error e) {
             throw new SoupError.INTERNAL (e.message);
         }
     }
@@ -211,13 +205,7 @@ public sealed class ApiBase.Session : Soup.Session {
     ) throws SoupError, BadStatusCodeError {
         try {
             return yield send_and_read_async (request, priority, cancellable);
-        } catch (Soup.SessionError e) {
-            throw new SoupError.INTERNAL (e.message);
-        } catch (IOError e) {
-            throw new SoupError.INTERNAL (e.message);
-        } catch (TlsError e) {
-            throw new SoupError.INTERNAL (e.message);
-        } catch (ResolverError e) {
+        } catch (Error e) {
             throw new SoupError.INTERNAL (e.message);
         }
     }
@@ -225,17 +213,15 @@ public sealed class ApiBase.Session : Soup.Session {
     /**
      * Send {@link Request}.
      *
-     * @throws Soup.SessionError    Session error from libsoup
-     * @throws IOError              Error from reading stream or reqeust cancellation
-     * @throws ResolverError         An error code from a Resolver routine
-     * @throws TlsError             An error code from a TLS-related routine
      * @throws BadStatusCodeError   Bad status code
+     * @throws IOError              Error from reading stream or request cancellation
+     * @throws Error                Soup.SessionError | ResolverError | TlsError errors
      */
     [Version (since = "7.4")]
     public new InputStream? send (
         Request request,
         Cancellable? cancellable = null
-    ) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
+    ) throws BadStatusCodeError, IOError, Error {
         Error? err = null;
 
         foreach (var base_url in base_urls.copy ()) {
@@ -258,33 +244,27 @@ public sealed class ApiBase.Session : Soup.Session {
 
                 return input_stream;
             } catch (Error e) {
-                if (e is IOError) {
-                    throw (IOError) e;
-                }
                 err = e;
                 debug_failed (send_uri, base_url);
             }
         }
 
-        detect_error (err);
         debug_post ();
-        return null;
+        throw err;
     }
 
     /**
      * Send and read to bytes {@link Request}.
      *
-     * @throws Soup.SessionError    Session error from libsoup
-     * @throws IOError              Error from reading stream or reqeust cancellation
-     * @throws ResolverError         An error code from a Resolver routine
-     * @throws TlsError             An error code from a TLS-related routine
      * @throws BadStatusCodeError   Bad status code
+     * @throws IOError              Error from reading stream or request cancellation
+     * @throws Error                Soup.SessionError | ResolverError | TlsError errors
      */
     [Version (since = "7.4")]
     public new Bytes? send_and_read (
         Request request,
         Cancellable? cancellable = null
-    ) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
+    ) throws BadStatusCodeError, IOError, Error {
         Bytes? bytes = null;
         var out_stream = new MemoryOutputStream.resizable ();
 
@@ -300,11 +280,9 @@ public sealed class ApiBase.Session : Soup.Session {
     /**
      * Send and splice to stream {@link Request}.
      *
-     * @throws Soup.SessionError    Session error from libsoup
-     * @throws IOError              Error from reading stream or reqeust cancellation
-     * @throws ResolverError         An error code from a Resolver routine
-     * @throws TlsError             An error code from a TLS-related routine
      * @throws BadStatusCodeError   Bad status code
+     * @throws IOError              Error from reading stream or request cancellation
+     * @throws Error                Soup.SessionError | ResolverError | TlsError errors
      */
     [Version (since = "7.4")]
     public new ssize_t send_and_splice (
@@ -312,7 +290,7 @@ public sealed class ApiBase.Session : Soup.Session {
         OutputStream out_stream,
         OutputStreamSpliceFlags flags,
         Cancellable? cancellable = null
-    ) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
+    ) throws BadStatusCodeError, IOError, Error {
         var stream = send (request, cancellable);
         if (stream == null) {
             return -1;
@@ -323,18 +301,16 @@ public sealed class ApiBase.Session : Soup.Session {
     /**
      * Asynchronious version of {@link send}.
      *
-     * @throws Soup.SessionError    Session error from libsoup
-     * @throws IOError              Error from reading stream or reqeust cancellation
-     * @throws ResolverError         An error code from a Resolver routine
-     * @throws TlsError             An error code from a TLS-related routine
      * @throws BadStatusCodeError   Bad status code
+     * @throws IOError              Error from reading stream or request cancellation
+     * @throws Error                Soup.SessionError | ResolverError | TlsError errors
      */
     [Version (since = "7.4")]
     public async new InputStream? send_async (
         Request request,
         int io_priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
+    ) throws BadStatusCodeError, IOError, Error {
         Error? err = null;
 
         foreach (var base_url in base_urls.copy ()) {
@@ -357,34 +333,28 @@ public sealed class ApiBase.Session : Soup.Session {
 
                 return input_stream;
             } catch (Error e) {
-                if (e is IOError) {
-                    throw (IOError) e;
-                }
                 err = e;
                 debug_failed (send_uri, base_url);
             }
         }
 
-        detect_error (err);
         debug_post ();
-        return null;
+        throw err;
     }
 
     /**
      * Asynchronious version of {@link send_and_read}.
      *
-     * @throws Soup.SessionError    Session error from libsoup
-     * @throws IOError              Error from reading stream or reqeust cancellation
-     * @throws ResolverError         An error code from a Resolver routine
-     * @throws TlsError             An error code from a TLS-related routine
      * @throws BadStatusCodeError   Bad status code
+     * @throws IOError              Error from reading stream or request cancellation
+     * @throws Error                Soup.SessionError | ResolverError | TlsError errors
      */
     [Version (since = "7.4")]
     public async new Bytes? send_and_read_async (
         Request request,
         int io_priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
+    ) throws BadStatusCodeError, IOError, Error {
         Bytes? bytes = null;
         var out_stream = new MemoryOutputStream.resizable ();
 
@@ -400,11 +370,9 @@ public sealed class ApiBase.Session : Soup.Session {
     /**
      * Asynchronious version of {@link send_and_splice}.
      *
-     * @throws Soup.SessionError    Session error from libsoup
-     * @throws IOError              Error from reading stream or reqeust cancellation
-     * @throws ResolverError         An error code from a Resolver routine
-     * @throws TlsError             An error code from a TLS-related routine
      * @throws BadStatusCodeError   Bad status code
+     * @throws IOError              Error from reading stream or request cancellation
+     * @throws Error                Soup.SessionError | ResolverError | TlsError errors
      */
     [Version (since = "7.4")]
     public async new ssize_t send_and_splice_async (
@@ -413,7 +381,7 @@ public sealed class ApiBase.Session : Soup.Session {
         OutputStreamSpliceFlags flags,
         int io_priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
+    ) throws BadStatusCodeError, IOError, Error {
         var stream = yield send_async (request, io_priority, cancellable);
         if (stream == null) {
             return -1;
@@ -457,30 +425,13 @@ public sealed class ApiBase.Session : Soup.Session {
         }
     }
 
-    void detect_error (Error e) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
-        if (e is Soup.SessionError) {
-            throw (Soup.SessionError) e;
-        } else if (e is IOError) {
-            throw (IOError) e;
-        } else if (e is BadStatusCodeError) {
-            throw (BadStatusCodeError) e;
-        } else if (e is IOError) {
-            throw (IOError) e;
-        } else if (e is ResolverError) {
-            throw (ResolverError) e;
-        } else {
-            message (e.domain.to_string ());
-            assert_not_reached ();
-        }
-    }
-
-    public new async Soup.WebsocketConnection websocket_connect_async (
+    public new async Soup.WebsocketConnection? websocket_connect_async (
         Request request,
         string? origin,
         string[]? protocols,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws SoupError {
+    ) throws Error {
         string? base_url = base_urls.first ();
         if (base_urls.size > 1) {
             warning ("Websockets don't support base urls iteration");
@@ -488,14 +439,11 @@ public sealed class ApiBase.Session : Soup.Session {
 
         request.init_message (base_url);
         var message = request.message;
+
         if (message == null) {
-            throw new SoupError.INTERNAL ("Bad message");
+            return null;
         }
 
-        try {
-            return yield base.websocket_connect_async (message, origin, protocols, priority, cancellable);
-        } catch (Error e) {
-            throw new SoupError.INTERNAL (e.message);
-        }
+        return yield base.websocket_connect_async (message, origin, protocols, priority, cancellable);
     }
 }

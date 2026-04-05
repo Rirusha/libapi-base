@@ -344,16 +344,14 @@ public class ApiBase.Request : Object {
     /**
      * Simple request send.
      *
-     * @throws Soup.SessionError    Session error from libsoup
-     * @throws IOError              Error from reading stream or reqeust cancellation
-     * @throws ResolverError         An error code from a Resolver routine
-     * @throws TlsError             An error code from a TLS-related routine
      * @throws BadStatusCodeError   Bad status code
+     * @throws IOError              Error from reading stream or request cancellation
+     * @throws Error                Soup.SessionError | ResolverError | TlsError errors
      */
     [Version (since = "7.4")]
     public InputStream? simple_send (
         Cancellable? cancellable = null
-    ) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
+    ) throws BadStatusCodeError, IOError, Error {
         var soup_wrapper = new Session ();
         return soup_wrapper.send (this, cancellable);
     }
@@ -361,16 +359,14 @@ public class ApiBase.Request : Object {
     /**
      * Simple send and read.
      *
-     * @throws Soup.SessionError    Session error from libsoup
-     * @throws IOError              Error from reading stream or reqeust cancellation
-     * @throws ResolverError         An error code from a Resolver routine
-     * @throws TlsError             An error code from a TLS-related routine
      * @throws BadStatusCodeError   Bad status code
+     * @throws IOError              Error from reading stream or request cancellation
+     * @throws Error                Soup.SessionError | ResolverError | TlsError errors
      */
     [Version (since = "7.4")]
     public GLib.Bytes? simple_send_and_read (
         Cancellable? cancellable = null
-    ) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
+    ) throws BadStatusCodeError, IOError, Error {
         var soup_wrapper = new Session ();
         return soup_wrapper.send_and_read (this, cancellable);
     }
@@ -378,17 +374,15 @@ public class ApiBase.Request : Object {
     /**
      * Asynchronious version of {@link simple_send}.
      *
-     * @throws Soup.SessionError    Session error from libsoup
-     * @throws IOError              Error from reading stream or reqeust cancellation
-     * @throws ResolverError         An error code from a Resolver routine
-     * @throws TlsError             An error code from a TLS-related routine
      * @throws BadStatusCodeError   Bad status code
+     * @throws IOError              Error from reading stream or request cancellation
+     * @throws Error                Soup.SessionError | ResolverError | TlsError errors
      */
     [Version (since = "7.4")]
     public async InputStream? simple_send_async (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
+    ) throws BadStatusCodeError, IOError, Error {
         var soup_wrapper = new Session ();
         return yield soup_wrapper.send_async (this, priority, cancellable);
     }
@@ -396,17 +390,15 @@ public class ApiBase.Request : Object {
     /**
      * Asynchronious version of {@link simple_send_and_read}.
      *
-     * @throws Soup.SessionError    Session error from libsoup
-     * @throws IOError              Error from reading stream or reqeust cancellation
-     * @throws ResolverError         An error code from a Resolver routine
-     * @throws TlsError             An error code from a TLS-related routine
      * @throws BadStatusCodeError   Bad status code
+     * @throws IOError              Error from reading stream or request cancellation
+     * @throws Error                Soup.SessionError | ResolverError | TlsError errors
      */
     [Version (since = "7.4")]
     public async GLib.Bytes? simple_send_and_read_async (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws Soup.SessionError, IOError, TlsError, ResolverError, BadStatusCodeError {
+    ) throws BadStatusCodeError, IOError, Error {
         var soup_wrapper = new Session ();
         return yield soup_wrapper.send_and_read_async (this, priority, cancellable);
     }
