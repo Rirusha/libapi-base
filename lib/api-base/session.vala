@@ -46,9 +46,10 @@ public sealed class ApiBase.Session : Soup.Session {
             if (trace_filename != "stdout") {
                 try {
                     var f = File.new_for_path (trace_filename);
-                    if (!f.query_exists ()) {
-                        trace_file_stream = f.create_readwrite (GLib.FileCreateFlags.REPLACE_DESTINATION);
+                    if (f.query_exists ()) {
+                        f.delete ();
                     }
+                    trace_file_stream = f.create_readwrite (GLib.FileCreateFlags.REPLACE_DESTINATION);
                 } catch (Error e) {
                     error ("Can't create %s: %s", trace_filename, e.message);
                 }
