@@ -30,7 +30,7 @@ namespace Serialize {
         if (Serialize.settings == null) {
             Serialize.settings = new Serialize.Settings ();
         }
-        return Serialize.settings;
+        return Serialize.settings.copy ();
     }
 }
 
@@ -55,4 +55,15 @@ public sealed class Serialize.Settings : Object {
     public bool pretty { get; set; default = false; }
 
     public bool ignore_default { get; set; default = false; }
+
+    public Settings copy () {
+        return new Settings () {
+            enum_serialize_method = enum_serialize_method,
+            enum_serialize_case = enum_serialize_case,
+            date_time_serialize_method = date_time_serialize_method,
+            names_case = names_case,
+            pretty = pretty,
+            ignore_default = ignore_default
+        };
+    }
 }
