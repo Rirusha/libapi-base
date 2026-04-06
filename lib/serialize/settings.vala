@@ -49,15 +49,15 @@ namespace Serialize {
  *
  * {@link Serialize.Settings.enum_serialize_method}: {@link Serialize.EnumSerializeMethod.INT}
  *
- * {@link Serialize.Settings.enum_serialize_case}: {@link Serialize.EnumSerializeMethod.INT}
+ * {@link Serialize.Settings.enum_serialize_case}: {@link Serialize.Case.AUTO}
  *
- * {@link Serialize.Settings.date_time_serialize_method}: {@link Serialize.EnumSerializeMethod.INT}
+ * {@link Serialize.Settings.date_time_serialize_method}: {@link Serialize.DateTimeSerializeMethod.ISO8601}
  *
- * {@link Serialize.Settings.names_case}: {@link Serialize.EnumSerializeMethod.INT}
+ * {@link Serialize.Settings.names_case}: {@link Serialize.Case.AUTO}
  *
- * {@link Serialize.Settings.pretty}: {@link Serialize.EnumSerializeMethod.INT}
+ * {@link Serialize.Settings.pretty}: false
  *
- * {@link Serialize.Settings.ignore_default}: {@link Serialize.EnumSerializeMethod.INT}
+ * {@link Serialize.Settings.ignore_default}: false
  */
 [Version (since = "7.0")]
 public sealed class Serialize.Settings : Object {
