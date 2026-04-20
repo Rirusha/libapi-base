@@ -30,7 +30,9 @@ public class ApiBase.Request : Object {
 
     public string uri { get; construct; }
 
-    Soup.Message message;
+    public int port { get; set; default = -1; }
+
+    internal Soup.Message? message { get; private set; }
 
     Gee.ArrayList<Header?> headers = new Gee.ArrayList<Header?> (Header.equal_name);
 
@@ -95,8 +97,6 @@ public class ApiBase.Request : Object {
     }
 
     void add_header_struct (Header header, bool replace = true) {
-        assert (message == null);
-
         if (header in headers && !replace) {
             return;
         }
@@ -129,9 +129,6 @@ public class ApiBase.Request : Object {
     }
 
     void add_param_struct (Param parameter) {
-        assert (message == null);
-
-        parameters.remove (parameter);
         parameters.add (parameter);
     }
 
@@ -154,8 +151,6 @@ public class ApiBase.Request : Object {
      */
     [Version (since = "6.0")]
     public void add_content (Content content) {
-        assert (message == null);
-
         this.content = content;
     }
 
@@ -167,35 +162,61 @@ public class ApiBase.Request : Object {
      * @return  Status
      */
     [Version (since = "3.0")]
-    public Soup.Status get_status_code () {
-        assert (message != null);
-
-        return message.get_status ();
+    public Soup.Status? get_status_code () {
+        return message?.get_status ();
     }
 
     /**
      * Get formed message object
      * @return  Response body
      */
-    [Version (since = "5.0")]
-    public Soup.Message? form_message () {
-        if (message != null) {
-            return message;
+    [Version (since = "5.0", deprecated = true, deprecated_since = "7.4")]
+    public Soup.Message? form_message (string? base_url = null) {
+        init_message (base_url);
+        return message;
+    }
+
+    internal void init_message (string? base_url = null) {
+        message = null;
+
+        string scheme;
+        string? host;
+        string path;
+
+        try {
+            if (Uri.peek_scheme (uri) == null && base_url != null) {
+                var base_url_obj = Uri.parse (base_url, NONE);
+                scheme = base_url_obj.get_scheme ();
+                host = base_url_obj.get_host ();
+                path = Path.build_filename (base_url_obj.get_path (), uri);
+
+            } else {
+                var cur_uri_obj = Uri.parse (uri, NONE);
+                scheme = cur_uri_obj.get_scheme ();
+                host = cur_uri_obj.get_host ();
+                path = cur_uri_obj.get_path ();
+            }
+        } catch (UriError e) {
+            warning ("Can't create Soup.Message: %s", e.message);
+            return;
         }
 
-        string new_uri;
-
-        if (parameters.size != 0) {
-            new_uri = form_paramed_uri ();
-        } else {
-            new_uri = uri;
-        }
+        var new_uri = Uri.join (
+            NONE,
+            scheme,
+            null,
+            host,
+            port,
+            path,
+            get_query (),
+            null
+        );
 
         message = new Soup.Message (method.to_string (), new_uri);
 
         if (message == null) {
             warning ("Can't form %s message with '%s'", method.to_string (), new_uri);
-            return null;
+            return;
         }
 
         if (content != null) {
@@ -210,20 +231,52 @@ public class ApiBase.Request : Object {
                 message.request_headers.append (header.name, header.value);
             }
         }
-
-        return message;
     }
 
-    string form_paramed_uri () {
-        var final_params = new string[parameters.size];
-
-        for (var i = 0; i < parameters.size; i++) {
-            final_params[i] = parameters[i].to_string ();
+    internal void check_status_code (
+        InputStream? error_stream,
+        Cancellable? cancellable = null
+    ) throws IOError, BadStatusCodeError {
+        var status_code = get_status_code ();
+        if (status_code == Soup.Status.OK || status_code == null) {
+            return;
         }
 
-        var new_uri = "%s?%s".printf (uri, string.joinv ("&", final_params));
+        if (error_stream == null) {
+            return;
+        }
 
-        return new_uri;
+        string error_message = "No error message";
+        var out_stream = new MemoryOutputStream.resizable ();
+        if (out_stream.splice (error_stream, CLOSE_TARGET | CLOSE_SOURCE, null) != -1) {
+            var bytes = out_stream.steal_as_bytes ();
+            error_message = (string) bytes.get_data ();
+            error_message = error_message ?? "";
+        }
+
+        throw get_error (status_code, error_message);
+    }
+
+    internal void peak_presets_from (Session session) {
+        foreach (var preset_name in presets) {
+            Array<Header> headers = session.presets_table.get (preset_name);
+            if (headers != null) {
+                add_headers ((Header[]) headers.data, false);
+            }
+        }
+    }
+
+    string? get_query () {
+        if (parameters.size == 0) {
+            return null;
+        }
+
+        var final_parameters = new Serialize.Array<string> ();
+        final_parameters.add_all_iterator (parameters.map<string> ((el) => {
+            return el.to_string ();
+        }));
+
+        return string.joinv ("&", final_parameters.to_array ());
     }
 
     /**
@@ -232,7 +285,7 @@ public class ApiBase.Request : Object {
      * @throws SoupError            Internal error from libsoup
      * @throws BadStatusCodeError   Bad status code from request
      */
-    [Version (since = "3.0")]
+    [Version (since = "3.0", deprecated = true, deprecated_since = "7.4", replacement = "simple_send_and_read")]
     public GLib.Bytes simple_exec (
         Cancellable? cancellable = null
     ) throws SoupError, BadStatusCodeError {
@@ -246,12 +299,74 @@ public class ApiBase.Request : Object {
      * @throws SoupError            Internal error from libsoup
      * @throws BadStatusCodeError   Bad status code from request
      */
-    [Version (since = "3.0")]
+    [Version (since = "3.0", deprecated = true, deprecated_since = "7.4", replacement = "simple_send_and_read_async")]
     public async GLib.Bytes simple_exec_async (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
     ) throws SoupError, BadStatusCodeError {
         var soup_wrapper = new Session ();
         return yield soup_wrapper.exec_async (this, priority, cancellable);
+    }
+
+    /**
+     * Simple request send.
+     *
+     * @throws BadStatusCodeError   Bad status code
+     * @throws IOError              Error from reading stream or request cancellation
+     * @throws Error                Soup.SessionError | ResolverError | TlsError errors
+     */
+    [Version (since = "7.4")]
+    public InputStream? simple_send (
+        Cancellable? cancellable = null
+    ) throws BadStatusCodeError, IOError, Error {
+        var soup_wrapper = new Session ();
+        return soup_wrapper.send (this, cancellable);
+    }
+
+    /**
+     * Simple send and read.
+     *
+     * @throws BadStatusCodeError   Bad status code
+     * @throws IOError              Error from reading stream or request cancellation
+     * @throws Error                Soup.SessionError | ResolverError | TlsError errors
+     */
+    [Version (since = "7.4")]
+    public GLib.Bytes? simple_send_and_read (
+        Cancellable? cancellable = null
+    ) throws BadStatusCodeError, IOError, Error {
+        var soup_wrapper = new Session ();
+        return soup_wrapper.send_and_read (this, cancellable);
+    }
+
+    /**
+     * Asynchronious version of {@link simple_send}.
+     *
+     * @throws BadStatusCodeError   Bad status code
+     * @throws IOError              Error from reading stream or request cancellation
+     * @throws Error                Soup.SessionError | ResolverError | TlsError errors
+     */
+    [Version (since = "7.4")]
+    public async InputStream? simple_send_async (
+        int priority = Priority.DEFAULT,
+        Cancellable? cancellable = null
+    ) throws BadStatusCodeError, IOError, Error {
+        var soup_wrapper = new Session ();
+        return yield soup_wrapper.send_async (this, priority, cancellable);
+    }
+
+    /**
+     * Asynchronious version of {@link simple_send_and_read}.
+     *
+     * @throws BadStatusCodeError   Bad status code
+     * @throws IOError              Error from reading stream or request cancellation
+     * @throws Error                Soup.SessionError | ResolverError | TlsError errors
+     */
+    [Version (since = "7.4")]
+    public async GLib.Bytes? simple_send_and_read_async (
+        int priority = Priority.DEFAULT,
+        Cancellable? cancellable = null
+    ) throws BadStatusCodeError, IOError, Error {
+        var soup_wrapper = new Session ();
+        return yield soup_wrapper.send_and_read_async (this, priority, cancellable);
     }
 }

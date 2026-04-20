@@ -409,7 +409,7 @@ namespace Serialize.Convert {
 
         if (source_value.holds (Type.STRING)) {
             if (target_value.holds (Type.ENUM)) {
-                target_value.set_enum (Enum.get_by_nick_gtype (target_value.type (), source_value.get_string ()));
+                target_value.set_enum (Enum.get_by_nick_gtype (target_value.type (), source_value.get_string ().down ()));
                 return true;
 
             } else if (target_value.holds (Type.INT64)) {
@@ -437,7 +437,7 @@ namespace Serialize.Convert {
                     return true;
                 }
             } else if (target_value.holds (typeof (DateTime))) {
-                var dt = new DateTime.from_iso8601 (source_value.get_string (), null);
+                var dt = new DateTime.from_iso8601 (source_value.get_string (), new TimeZone.utc ());
                 if (dt != null) {
                     target_value.set_boxed (dt);
                     return true;
@@ -449,6 +449,14 @@ namespace Serialize.Convert {
                         target_value.set_boxed (dt);
                         return true;
                     }
+                }
+            }
+        } else if (source_value.holds (Type.INT64)) {
+            if (target_value.holds (typeof (DateTime))) {
+                var dt = new DateTime.from_unix_utc (source_value.get_int64 ());
+                if (dt != null) {
+                    target_value.set_boxed (dt);
+                    return true;
                 }
             }
         }

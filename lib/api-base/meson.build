@@ -28,6 +28,7 @@ api_base_vapi_sources = files(
 )
 
 api_base_vala_sources = files(
+  'base-urls.vala',
   'content.vala',
   'enums.vala',
   'errors.vala',
