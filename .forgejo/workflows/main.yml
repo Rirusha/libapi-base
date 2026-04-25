@@ -8,28 +8,6 @@ on:
       - 'main'
 
 jobs:
-  check-abi:
-    name: Check ABI
-    runs-on: als-tiny
-    container:
-      image: registry.altlinux.org/sisyphus/base:latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          fetch-tags: true
-
-      - name: Install tools
-        run: |
-          apt-get update
-          apt-get install -y git meson vala "pkgconfig(json-glib-1.0)" "gir(Json)=1.0" "pkgconfig(gee-0.8)" "gir(Gee)=0.8" "pkgconfig(gio-2.0)" "pkgconfig(libsoup-3.0)" "gir(Soup)=3.0" "pkgconfig(json-glib-1.0)" "gobject-introspection-devel" valadoc /usr/bin/gtkdoc-scan /usr/bin/abidiff
-
-      - name: Check ABI
-        run: |
-          .forgejo/check-abi $(git tag -l --sort=-creatordate | head -n 1) $(git rev-parse HEAD)
-
   lint-vala:
     name: Check vala files
     runs-on: als-tiny
@@ -47,17 +25,23 @@ jobs:
     name: Test Build
     runs-on: als-tiny
     needs:
-      - check-abi
       - lint-vala
 
     steps:
       - name: Install libs on container
         run: |
           apt-get update
-          apt-get install -y git meson vala "pkgconfig(json-glib-1.0)" "gir(Json)=1.0" "pkgconfig(gee-0.8)" "gir(Gee)=0.8" "pkgconfig(gio-2.0)" "pkgconfig(libsoup-3.0)" "gir(Soup)=3.0" "pkgconfig(json-glib-1.0)" "gobject-introspection-devel" valadoc /usr/bin/gtkdoc-scan
+          apt-get install -y git meson vala "pkgconfig(json-glib-1.0)" "gir(Json)=1.0" "pkgconfig(gee-0.8)" "gir(Gee)=0.8" "pkgconfig(gio-2.0)" "pkgconfig(libsoup-3.0)" "gir(Soup)=3.0" "pkgconfig(json-glib-1.0)" "gobject-introspection-devel" valadoc /usr/bin/gtkdoc-scan /usr/bin/abidiff
 
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Check ABI
+        run: |
+          .forgejo/check-abi $(git tag -l --sort=-creatordate | head -n 1) $(git rev-parse HEAD)
 
       - name: Setup
         run: meson setup _build -Ddocumentation=true
