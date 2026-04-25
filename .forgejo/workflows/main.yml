@@ -8,6 +8,23 @@ on:
       - 'main'
 
 jobs:
+  check-abi:
+    name: Check ABI
+    runs-on: als-tiny
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          apt-get update
+          apt-get install -y git meson /usr/bin/abidiff
+
+      - name: Check ABI
+        run: |
+          .forgejo/check-abi $(git tag -l --sort=-creatordate | head -n 1) $(git rev-parse HEAD)
+
   lint-vala:
     name: Check vala files
     runs-on: als-tiny
@@ -25,6 +42,7 @@ jobs:
     name: Test Build
     runs-on: als-tiny
     needs:
+      - check-abi
       - lint-vala
       - checkers
 
@@ -33,7 +51,7 @@ jobs:
         run: |
           apt-get update
           apt-get install -y git meson vala "pkgconfig(json-glib-1.0)" "gir(Json)=1.0" "pkgconfig(gee-0.8)" "gir(Gee)=0.8" "pkgconfig(gio-2.0)" "pkgconfig(libsoup-3.0)" "gir(Soup)=3.0" "pkgconfig(json-glib-1.0)" "gobject-introspection-devel" valadoc /usr/bin/gtkdoc-scan
-          
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
