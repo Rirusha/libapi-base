@@ -11,6 +11,8 @@ jobs:
   check-abi:
     name: Check ABI
     runs-on: als-tiny
+    container:
+      image: registry.altlinux.org/sisyphus/base:latest
 
     steps:
       - name: Checkout repository
