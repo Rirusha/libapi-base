@@ -24,6 +24,8 @@ jobs:
   test-build:
     name: Test Build
     runs-on: als-tiny
+    container:
+      image: altlinux.space/actions/runner/containers:sisyphus
     needs:
       - lint-vala
 
