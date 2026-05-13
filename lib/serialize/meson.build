@@ -41,7 +41,7 @@ serialize_vala_sources = files(
   'object-helpers/data-object.vala',
   'object-helpers/has-complex-collections.vala',
   'object-helpers/has-fallback.vala',
-  'object-helpers/type-famaly.vala',
+  'object-helpers/type-family.vala',
 
   'collection-factory.vala',
   'convert.vala',
