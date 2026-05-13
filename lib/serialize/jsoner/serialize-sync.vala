@@ -168,7 +168,9 @@ namespace Serialize.JsonerSerializeSync {
 
             default:
                 // Get actual type if value is object
-                var val_type = prop_val.type ().is_object () ? prop_val.get_object ()?.get_type () ?? prop_val.type () : prop_val.type ();
+                var val_type = prop_val.type ().is_object () ?
+                    prop_val.get_object ()?.get_type () ?? prop_val.type () :
+                    prop_val.type ();
 
                 if (val_type.is_enum ()) {
                     switch (settings.enum_serialize_method) {
@@ -176,7 +178,9 @@ namespace Serialize.JsonerSerializeSync {
                             builder.add_int_value (prop_val.get_enum ());
                             break;
                         case STRING:
-                            builder.add_string_value (Enum.get_nick_gtype (val_type, prop_val.get_enum (), settings.enum_serialize_case));
+                            builder.add_string_value (
+                                Enum.get_nick_gtype (val_type, prop_val.get_enum (), settings.enum_serialize_case)
+                            );
                             break;
                     }
 

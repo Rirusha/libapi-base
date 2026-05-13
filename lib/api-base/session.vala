@@ -36,7 +36,8 @@ public sealed class ApiBase.Session : Soup.Session {
 
     Urls base_urls = new Urls ();
 
-    internal HashTable<string, Array<Header>> presets_table = new HashTable<string, Array<Header>> (str_hash, str_equal);
+    internal HashTable<string, Array<Header>> presets_table =
+        new HashTable<string, Array<Header>> (str_hash, str_equal);
 
     FileIOStream trace_file_stream;
 
@@ -359,7 +360,9 @@ public sealed class ApiBase.Session : Soup.Session {
         var out_stream = new MemoryOutputStream.resizable ();
 
         try {
-            if ((yield send_and_splice_async (request, out_stream, CLOSE_TARGET | CLOSE_SOURCE, io_priority, cancellable)) != -1) {
+            if ((yield send_and_splice_async (
+                request, out_stream, CLOSE_TARGET | CLOSE_SOURCE, io_priority, cancellable
+            )) != -1) {
                 bytes = out_stream.steal_as_bytes ();
             }
         } catch (IOError e) {}

@@ -170,7 +170,9 @@ public class Serialize.Array<T> : Gee.ArrayList<T>, CollectionFactory<T> {
         } else if (element_type.is_object ()) {
             add_object (value.get_object ());
 
-        } else if (element_type in SUPPORTED_BASE_TYPES || element_type == typeof (DateTime) || element_type.is_enum ()) {
+        } else if (element_type in SUPPORTED_BASE_TYPES ||
+                   element_type == typeof (DateTime) ||
+                   element_type.is_enum ()) {
             add_base (value);
         }
     }

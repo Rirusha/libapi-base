@@ -160,7 +160,7 @@ namespace Serialize.JsonerDeserializeSync {
             if (!props_data.has_key (kebabbed_member_name)) {
                 if (Environment.get_variable ("SERIALIZE_UNKNOWN_FIELDS") != null) {
                     warning (
-                        "The object '%s' does not have a property '%s' corresponding to the json field '%s' with type '%s':\n%s",
+                        "The object '%s' does not have a property '%s' corresponding to the json field '%s' with type '%s':\n%s",  // vala-lint=line-length
                         obj_type.name (),
                         kebabbed_member_name,
                         member_name,
@@ -334,7 +334,12 @@ namespace Serialize.JsonerDeserializeSync {
             foreach (var sub_node in jarray.get_elements ()) {
                 var arr_obj = (Array) collection_factory.build ();
                 try {
-                    deserialize_array_into (self, arr_obj, collection_hierarchy[1:collection_hierarchy.length], sub_node);
+                    deserialize_array_into (
+                        self,
+                        arr_obj,
+                        collection_hierarchy[1:collection_hierarchy.length],
+                        sub_node
+                    );
 
                     array.add_array (arr_obj);
                 } catch (JsonError e) {}
@@ -348,7 +353,12 @@ namespace Serialize.JsonerDeserializeSync {
             foreach (var sub_node in jarray.get_elements ()) {
                 var dict_obj = (Dict) collection_factory.build ();
                 try {
-                    deserialize_dict_into (self, dict_obj, collection_hierarchy[1:collection_hierarchy.length], sub_node);
+                    deserialize_dict_into (
+                        self,
+                        dict_obj,
+                        collection_hierarchy[1:collection_hierarchy.length],
+                        sub_node
+                    );
 
                     array.add_dict (dict_obj);
                 } catch (JsonError e) {}
@@ -434,7 +444,12 @@ namespace Serialize.JsonerDeserializeSync {
                 var sub_node = jobject.get_member (member_name);
 
                 try {
-                    deserialize_array_into (self, arr_obj, collection_hierarchy[1:collection_hierarchy.length], sub_node);
+                    deserialize_array_into (
+                        self,
+                        arr_obj,
+                        collection_hierarchy[1:collection_hierarchy.length],
+                        sub_node
+                    );
 
                     dict.set_array (member_name, arr_obj);
                 } catch (JsonError e) {}
@@ -450,7 +465,12 @@ namespace Serialize.JsonerDeserializeSync {
                 var sub_node = jobject.get_member (member_name);
 
                 try {
-                    deserialize_dict_into (self, dict_obj, collection_hierarchy[1:collection_hierarchy.length], sub_node);
+                    deserialize_dict_into (
+                        self,
+                        dict_obj,
+                        collection_hierarchy[1:collection_hierarchy.length],
+                        sub_node
+                    );
 
                     dict.set_dict (member_name, dict_obj);
                 } catch (JsonError e) {}

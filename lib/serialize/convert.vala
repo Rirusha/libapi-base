@@ -402,14 +402,18 @@ namespace Serialize.Convert {
         //  Auto transformation between enums and strings is not what we want
         if (source_value.holds (Type.ENUM)) {
             if (target_value.holds (Type.STRING)) {
-                target_value.set_string (Enum.get_nick_gtype (source_value.type (), source_value.get_enum (), Case.SNAKE));
+                target_value.set_string (
+                    Enum.get_nick_gtype (source_value.type (), source_value.get_enum (), Case.SNAKE)
+                );
                 return true;
             }
         }
 
         if (source_value.holds (Type.STRING)) {
             if (target_value.holds (Type.ENUM)) {
-                target_value.set_enum (Enum.get_by_nick_gtype (target_value.type (), source_value.get_string ().down ()));
+                target_value.set_enum (
+                    Enum.get_by_nick_gtype (target_value.type (), source_value.get_string ().down ())
+                );
                 return true;
 
             } else if (target_value.holds (Type.INT64)) {
