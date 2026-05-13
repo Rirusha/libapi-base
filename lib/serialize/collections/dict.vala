@@ -147,8 +147,10 @@ public class Serialize.Dict<T> : Gee.HashMap<string, T>, CollectionFactory<T> {
         }
     }
 
-    //  TODO: doc
-    //  Also check types and print warning
+    /**
+     * Set value to this. Value should hold {@link element_type}.
+     */
+    [Version (since = "7.0")]
     public void set_value (string key, Value value) {
         if (value_type == typeof (Array)) {
             if (value.type () != typeof (Array)) {
