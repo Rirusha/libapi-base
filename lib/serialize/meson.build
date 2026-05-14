@@ -35,6 +35,7 @@ serialize_vala_sources = files(
 
   'jsoner/deserialize-async.vala',
   'jsoner/deserialize-sync.vala',
+  'jsoner/errors.vala',
   'jsoner/serialize-async.vala',
   'jsoner/serialize-sync.vala',
 
@@ -46,7 +47,6 @@ serialize_vala_sources = files(
   'collection-factory.vala',
   'convert.vala',
   'enums.vala',
-  'errors.vala',
   'jsoner.vala',
   'settings.vala',
   'utils.vala',
