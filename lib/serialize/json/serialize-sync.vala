@@ -17,9 +17,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-namespace Serialize.JsonerSerializeSync {
+namespace Serialize.JsonSerializeSync {
 
-    internal static string serialize (
+    string serialize (
         Object obj,
         Serialize.Settings? settings
     ) {
@@ -42,7 +42,7 @@ namespace Serialize.JsonerSerializeSync {
         return res;
     }
 
-    static void serialize_array (
+    void serialize_array (
         Json.Builder builder,
         Array array,
         Serialize.Settings settings
@@ -56,7 +56,7 @@ namespace Serialize.JsonerSerializeSync {
         builder.end_array ();
     }
 
-    static void serialize_array_strv (
+    void serialize_array_strv (
         Json.Builder builder,
         char **str_array
     ) {
@@ -69,7 +69,7 @@ namespace Serialize.JsonerSerializeSync {
         builder.end_array ();
     }
 
-    static void serialize_dict (
+    void serialize_dict (
         Json.Builder builder,
         Dict dict,
         Serialize.Settings settings,
@@ -89,7 +89,7 @@ namespace Serialize.JsonerSerializeSync {
         }
     }
 
-    static void serialize_object (
+    void serialize_object (
         Json.Builder builder,
         Object? obj,
         Serialize.Settings settings
@@ -135,7 +135,7 @@ namespace Serialize.JsonerSerializeSync {
         builder.end_object ();
     }
 
-    static void serialize_value (Json.Builder builder, Value? prop_val, Settings settings) {
+    void serialize_value (Json.Builder builder, Value? prop_val, Settings settings) {
         if (prop_val == null) {
             builder.add_null_value ();
             return;

@@ -43,3 +43,29 @@ public errordomain Serialize.JsonError {
      */
     NO_MEMBER;
 }
+
+/**
+ * Error from de/serialize
+ */
+[Version (since = "7.5")]
+public errordomain Serialize.Error {
+    /**
+     * Input string is empty
+     */
+    EMPTY,
+
+    /**
+     * Input string is invalid
+     */
+    INVALID,
+
+    /**
+     * Try to deserislize wrong type
+     */
+    WRONG_TYPE,
+
+    /**
+     * Try to 'step' non existing members
+     */
+    NO_MEMBER;
+}
