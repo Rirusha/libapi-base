@@ -83,7 +83,7 @@ public int main (string[] args) {
             var request = new Request.GET ("/get");
             session.send_and_read (request);
 
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
         }
     });
@@ -96,7 +96,7 @@ public int main (string[] args) {
             session.send_and_read (request);
             Test.fail_printf ("No Error");
 
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             debug ("%s: %s", e.domain.to_string (), e.message);
         }
     });
@@ -109,7 +109,7 @@ public int main (string[] args) {
             var request = new Request.GET ("/get");
             session.send_and_read (request);
 
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
         }
     });
@@ -121,7 +121,7 @@ public int main (string[] args) {
             var request = new Request.GET ("https://httpbin.org/get");
             session.send_and_read (request);
 
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
         }
     });
@@ -135,7 +135,7 @@ public int main (string[] args) {
             if (response.strip () != EXPECTED_JSON.strip ()) {
                 Test.fail_printf ("Wrong result: \n%s", response);
             }
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
         }
     });
@@ -145,7 +145,7 @@ public int main (string[] args) {
             var request = new Request.DELETE ("https://httpbin.org/delete");
             request.simple_send_and_read ();
 
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
         }
     });
@@ -155,7 +155,7 @@ public int main (string[] args) {
             var request = new Request.PATCH ("https://httpbin.org/patch");
             request.simple_send_and_read ();
 
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
         }
     });
@@ -165,7 +165,7 @@ public int main (string[] args) {
             var request = new Request.POST ("https://httpbin.org/post");
             request.simple_send_and_read ();
 
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
         }
     });
@@ -175,7 +175,7 @@ public int main (string[] args) {
             var request = new Request.PUT ("https://httpbin.org/put");
             request.simple_send_and_read ();
 
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
         }
     });
@@ -190,7 +190,7 @@ public int main (string[] args) {
                 return;
             }
             Test.fail_printf ("Error: \n%s", status_code.message);
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
         }
     });
@@ -202,7 +202,7 @@ public int main (string[] args) {
 
             var respone = soup_wrapper.send_and_read (request);
 
-            var jsoner = new Jsoner.from_bytes (respone);
+            var jsoner = new JsonWorker.from_bytes (respone);
 
             var obj = jsoner.deserialize_object<UserAgentInfo> ();
 
@@ -210,7 +210,7 @@ public int main (string[] args) {
                 Test.fail ();
             }
 
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
         }
     });
@@ -237,7 +237,7 @@ public int main (string[] args) {
                 Test.fail ();
             }
 
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
         }
     });
@@ -264,7 +264,7 @@ public int main (string[] args) {
                 Test.fail ();
             }
 
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
         }
     });
@@ -291,7 +291,7 @@ public int main (string[] args) {
                 Test.fail ();
             }
 
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
         }
     });
@@ -318,7 +318,7 @@ public int main (string[] args) {
                 Test.fail ();
             }
 
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
         }
     });
@@ -334,7 +334,7 @@ public int main (string[] args) {
                 Test.fail ();
             }
 
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
         }
     });
@@ -355,7 +355,7 @@ public int main (string[] args) {
                 Test.fail ();
             }
 
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             Test.fail_printf ("Error: \n%s", e.message);
         }
     });

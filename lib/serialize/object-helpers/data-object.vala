@@ -40,7 +40,7 @@ public abstract class Serialize.DataObject : Object {
      *
      * @throws JsonError    Error with json or sub_members
      */
-    [Version (since = "7.0")]
+    [Version (since = "7.0", deprecated = true, deprecated_since = "7.5")]
     public void fill_from_json (
         string json,
         string[]? sub_members = null,

@@ -17,74 +17,60 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-namespace Serialize.JsonerDeserializeSync {
+namespace Serialize.JsonDeserializeSync {
 
-    internal void check_node_type (Json.Node node, Json.NodeType node_type) throws JsonError {
+    void check_node_type (Json.Node node, Json.NodeType node_type) throws Serialize.Error {
         if (node.get_node_type () != node_type) {
-            throw new JsonError.WRONG_TYPE ("Wrong node type: expected '%s', got '%s'",
+            throw new Serialize.Error.WRONG_TYPE ("Wrong node type: expected '%s', got '%s'",
                 node_type.to_string (),
                 node.get_node_type ().to_string ()
             );
         }
     }
 
-    internal static Dict<Value?> simple_deserialize (
+    Dict<Value?> simple_deserialize (
         string json,
         string[]? sub_members,
         Serialize.Settings? settings = null
-    ) throws JsonError {
-        var jsoner = new Jsoner (json, sub_members, settings);
+    ) throws Serialize.Error {
+        var jsoner = new JsonWorker (json, sub_members, settings);
         return jsoner.deserialize ();
     }
 
-    internal static T simple_from_json<T> (
+    T simple_from_json<T> (
         string json,
         string[]? sub_members,
         Serialize.Settings? settings = null
-    ) throws JsonError {
-        var jsoner = new Jsoner (json, sub_members, settings);
+    ) throws Serialize.Error {
+        var jsoner = new JsonWorker (json, sub_members, settings);
         return jsoner.deserialize_object<T> ();
     }
 
-    internal static Array<T> simple_array_from_json<T> (
+    Array<T> simple_array_from_json<T> (
         string json,
         string[]? sub_members = null,
         Serialize.Settings? settings = null,
         CollectionFactory[] collection_hierarchy = {}
-    ) throws JsonError {
-        var jsoner = new Jsoner (json, sub_members, settings);
+    ) throws Serialize.Error {
+        var jsoner = new JsonWorker (json, sub_members, settings);
         return jsoner.deserialize_array<T> (collection_hierarchy);
     }
 
-    internal static Dict<T> simple_dict_from_json<T> (
+    Dict<T> simple_dict_from_json<T> (
         string json,
         string[]? sub_members = null,
         Serialize.Settings? settings = null,
         CollectionFactory[] collection_hierarchy = {}
-    ) throws JsonError {
-        var jsoner = new Jsoner (json, sub_members, settings);
+    ) throws Serialize.Error {
+        var jsoner = new JsonWorker (json, sub_members, settings);
         return jsoner.deserialize_dict<T> (collection_hierarchy);
     }
 
-    internal Dict<Value?> deserialize (
-        Jsoner self
-    ) throws JsonError {
-        var dict = new Dict<Value?> ();
-        deserialize_dict_into (self, dict, {});
-        return dict;
-    }
-
-    internal T deserialize_object<T> (
-        Jsoner self
-    ) throws JsonError {
-        return deserialize_object_by_type (self, typeof (T));
-    }
-
-    internal Object deserialize_object_by_type (
-        Jsoner self,
+    Object deserialize_object_by_type (
+        JsonWorker self,
         GLib.Type obj_type,
         Json.Node? node = null
-    ) throws JsonError {
+    ) throws Serialize.Error {
         var obj = Object.new (obj_type);
         if (obj_type.is_a (typeof (TypeFamily))) {
             var actual_type = ((TypeFamily)obj).match_type (node ?? self.root);
@@ -100,11 +86,11 @@ namespace Serialize.JsonerDeserializeSync {
         return obj;
     }
 
-    internal void deserialize_object_into (
-        Jsoner self,
+    void deserialize_object_into (
+        JsonWorker self,
         Object obj,
         Json.Node? node = null
-    ) throws JsonError {
+    ) throws Serialize.Error {
         if (node == null) {
             node = self.root;
         }
@@ -289,10 +275,10 @@ namespace Serialize.JsonerDeserializeSync {
         obj.thaw_notify ();
     }
 
-    internal Value deserialize_value (
-        Jsoner self,
+    Value deserialize_value (
+        JsonWorker self,
         Json.Node? node = null
-    ) throws JsonError {
+    ) throws Serialize.Error {
         if (node == null) {
             node = self.root;
         }
@@ -302,21 +288,12 @@ namespace Serialize.JsonerDeserializeSync {
         return node.get_value ();
     }
 
-    internal Array<T> deserialize_array<T> (
-        Jsoner self,
-        CollectionFactory[] collection_hierarchy
-    ) throws JsonError {
-        var array = new Array<T> ();
-        deserialize_array_into (self, array, collection_hierarchy);
-        return array;
-    }
-
-    internal void deserialize_array_into (
-        Jsoner self,
+    void deserialize_array_into (
+        JsonWorker self,
         Array array,
         CollectionFactory[] collection_hierarchy,
         Json.Node? node = null
-    ) throws JsonError {
+    ) throws Serialize.Error {
         if (node == null) {
             node = self.root;
         }
@@ -342,7 +319,7 @@ namespace Serialize.JsonerDeserializeSync {
                     );
 
                     array.add_array (arr_obj);
-                } catch (JsonError e) {}
+                } catch (Serialize.Error e) {}
             }
 
         } else if (array.element_type == typeof (Dict)) {
@@ -361,14 +338,14 @@ namespace Serialize.JsonerDeserializeSync {
                     );
 
                     array.add_dict (dict_obj);
-                } catch (JsonError e) {}
+                } catch (Serialize.Error e) {}
             }
 
         } else if (array.element_type.is_object ()) {
             foreach (var sub_node in jarray.get_elements ()) {
                 try {
                     array.add_object (deserialize_object_by_type (self, array.element_type, sub_node));
-                } catch (JsonError e) {}
+                } catch (Serialize.Error e) {}
             }
 
         } else {
@@ -409,22 +386,13 @@ namespace Serialize.JsonerDeserializeSync {
         }
     }
 
-    internal Dict<T> deserialize_dict<T> (
-        Jsoner self,
-        CollectionFactory[] collection_hierarchy
-    ) throws JsonError {
-        var dict = new Dict<T> ();
-        deserialize_dict_into (self, dict, collection_hierarchy);
-        return dict;
-    }
-
-    internal void deserialize_dict_into (
-        Jsoner self,
+    void deserialize_dict_into (
+        JsonWorker self,
         Dict dict,
         CollectionFactory[] collection_hierarchy,
         Json.Node? node = null,
         Array<string>? fallback_whitelist = null
-    ) throws JsonError {
+    ) throws Serialize.Error {
         if (node == null) {
             node = self.root;
         }
@@ -452,7 +420,7 @@ namespace Serialize.JsonerDeserializeSync {
                     );
 
                     dict.set_array (member_name, arr_obj);
-                } catch (JsonError e) {}
+                } catch (Serialize.Error e) {}
             }
 
         } else if (dict.value_type == typeof (Dict)) {
@@ -473,7 +441,7 @@ namespace Serialize.JsonerDeserializeSync {
                     );
 
                     dict.set_dict (member_name, dict_obj);
-                } catch (JsonError e) {}
+                } catch (Serialize.Error e) {}
             }
 
         } else if (dict.value_type.is_object ()) {
@@ -486,7 +454,7 @@ namespace Serialize.JsonerDeserializeSync {
                         dict.value_type,
                         sub_node
                     ));
-                } catch (JsonError e) {}
+                } catch (Serialize.Error e) {}
             }
 
         } else {

@@ -37,7 +37,7 @@ public struct ApiBase.Content {
                 content = Soup.Form.encode_datalist (Serialize.Convert.dict2datalist<string> (dict));
                 break;
             case JSON:
-                content = Serialize.Jsoner.serialize (dict);
+                content = Serialize.JsonWorker.serialize (dict);
                 break;
             default:
                 assert_not_reached ();
@@ -54,7 +54,7 @@ public struct ApiBase.Content {
                 content = Soup.Form.encode_datalist (datalist);
                 break;
             case JSON:
-                content = Serialize.Jsoner.serialize (Serialize.Convert.datalist2dict<string> (datalist));
+                content = Serialize.JsonWorker.serialize (Serialize.Convert.datalist2dict<string> (datalist));
                 break;
             default:
                 assert_not_reached ();

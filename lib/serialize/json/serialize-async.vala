@@ -17,14 +17,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-namespace Serialize.JsonerSerializeAsync {
+namespace Serialize.JsonSerializeAsync {
 
-    internal static async string serialize (
+    async string serialize (
         Object obj,
         Serialize.Settings? settings
     ) {
         var thread = new Thread<string> (null, () => {
-            var result = JsonerSerializeSync.serialize (obj, settings);
+            var result = JsonSerializeSync.serialize (obj, settings);
 
             Idle.add (serialize.callback);
             return result;
