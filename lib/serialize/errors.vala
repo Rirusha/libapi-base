@@ -21,7 +21,7 @@
 /**
  * Error from libjson
  */
-[Version (since = "6.0")]
+[Version (since = "6.0", deprecated = true, deprecated_since = "7.5", replacement = "Serialize.Error")]
 public errordomain Serialize.JsonError {
     /**
      * Json string is empty

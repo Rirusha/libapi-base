@@ -36,7 +36,7 @@ public sealed class Serialize.JsonWorker : Worker {
      *
      * @throws Serialize.Error    Error with json or sub_members
      */
-    [Version (since = "6.0")]
+    [Version (since = "7.5")]
     public JsonWorker (
         string json_string,
         string[]? sub_members = null,
@@ -84,7 +84,7 @@ public sealed class Serialize.JsonWorker : Worker {
      *
      * @throws Serialize.Error    Error with json or sub_members
      */
-    [Version (since = "6.0")]
+    [Version (since = "7.5")]
     public JsonWorker.from_bytes (
         Bytes bytes,
         string[]? sub_members = null,
@@ -107,7 +107,7 @@ public sealed class Serialize.JsonWorker : Worker {
      *
      * @throws Serialize.Error    Error with json or sub_members
      */
-    [Version (since = "6.0")]
+    [Version (since = "7.5")]
     public JsonWorker.from_data (
         owned uint8[] data,
         string[]? sub_members = null,
@@ -150,7 +150,7 @@ public sealed class Serialize.JsonWorker : Worker {
      *
      * @return                  Json string
      */
-    [Version (since = "6.0")]
+    [Version (since = "7.5")]
     public static inline string serialize (
         Object obj,
         Serialize.Settings? settings = null
@@ -170,7 +170,7 @@ public sealed class Serialize.JsonWorker : Worker {
      *
      * @throws Serialize.Error        Error with json or sub_members
      */
-    [Version (since = "7.0")]
+    [Version (since = "7.5")]
     public static inline Dict<Value?> simple_deserialize (
         string json,
         string[]? sub_members = null,
@@ -193,7 +193,7 @@ public sealed class Serialize.JsonWorker : Worker {
      *
      * @throws Serialize.Error        Error with json or sub_members
      */
-    [Version (since = "6.0")]
+    [Version (since = "7.5")]
     public static inline T simple_from_json<T> (
         string json,
         string[]? sub_members = null,
@@ -218,7 +218,7 @@ public sealed class Serialize.JsonWorker : Worker {
      *
      * @throws Serialize.Error            Error with json or sub_members
      */
-    [Version (since = "6.0")]
+    [Version (since = "7.5")]
     public static inline Array<T> simple_array_from_json<T> (
         string json,
         string[]? sub_members = null,
@@ -244,7 +244,7 @@ public sealed class Serialize.JsonWorker : Worker {
      *
      * @throws Serialize.Error            Error with json or sub_members
      */
-    [Version (since = "6.0")]
+    [Version (since = "7.5")]
     public static inline Dict<T> simple_dict_from_json<T> (
         string json,
         string[]? sub_members = null,
@@ -254,7 +254,7 @@ public sealed class Serialize.JsonWorker : Worker {
         return JsonDeserializeSync.simple_dict_from_json<T> (json, sub_members, settings, collection_hierarchy);
     }
 
-    [Version (since = "6.0")]
+    [Version (since = "7.5")]
     public override inline Object deserialize_object_by_type (
         GLib.Type obj_type
     ) throws Serialize.Error {
@@ -268,12 +268,12 @@ public sealed class Serialize.JsonWorker : Worker {
         JsonDeserializeSync.deserialize_object_into (this, obj);
     }
 
-    [Version (since = "6.0")]
+    [Version (since = "7.5")]
     public override inline Value deserialize_value () throws Serialize.Error {
         return JsonDeserializeSync.deserialize_value (this);
     }
 
-    [Version (since = "6.0")]
+    [Version (since = "7.5")]
     public override inline void deserialize_array_into (
         Array array,
         CollectionFactory[] collection_hierarchy = {}
@@ -281,6 +281,7 @@ public sealed class Serialize.JsonWorker : Worker {
         JsonDeserializeSync.deserialize_array_into (this, array, collection_hierarchy);
     }
 
+    [Version (since = "7.5")]
     public override inline void deserialize_dict_into (
         Dict dict,
         CollectionFactory[] collection_hierarchy = {}
@@ -291,7 +292,7 @@ public sealed class Serialize.JsonWorker : Worker {
     /**
      * Asynchronous version of method {@link serialize}
      */
-    [Version (since = "6.0")]
+    [Version (since = "7.5")]
     public static inline async string serialize_async (
         Object obj,
         Serialize.Settings? settings = null
@@ -310,7 +311,7 @@ public sealed class Serialize.JsonWorker : Worker {
      *
      * @throws Serialize.Error        Error with json or sub_members
      */
-    [Version (since = "6.0")]
+    [Version (since = "7.5")]
     public async static inline T simple_from_json_async<T> (
         string json,
         string[]? sub_members = null,
@@ -330,7 +331,7 @@ public sealed class Serialize.JsonWorker : Worker {
      *
      * @throws Serialize.Error        Error with json or sub_members
      */
-    [Version (since = "6.0")]
+    [Version (since = "7.5")]
     public async static inline Array<T> simple_array_from_json_async<T> (
         string json,
         string[]? sub_members = null,
@@ -350,7 +351,7 @@ public sealed class Serialize.JsonWorker : Worker {
      *
      * @throws Serialize.Error        Error with json or sub_members
      */
-    [Version (since = "6.0")]
+    [Version (since = "7.5")]
     public async static inline Dict<T> simple_dict_from_json_async<T> (
         string json,
         string[]? sub_members = null,

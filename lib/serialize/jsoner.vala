@@ -20,7 +20,7 @@
 /**
  * Json helper for de/serialization
  */
-[Version (since = "6.0", deprecated = true, deprecated_since = "7.5")]
+[Version (since = "6.0", deprecated = true, deprecated_since = "7.5", replacement = "Serialize.JsonWorker")]
 public class Serialize.Jsoner : Object {
 
     /**
