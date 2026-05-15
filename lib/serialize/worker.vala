@@ -167,12 +167,13 @@ public abstract class Serialize.Worker : Object {
         });
 
         yield;
+        var result = thread.join ();
 
         if (error != null) {
             throw error;
         }
 
-        return thread.join ();
+        return result;
     }
 
     /**
@@ -200,12 +201,13 @@ public abstract class Serialize.Worker : Object {
         });
 
         yield;
+        var result = thread.join ();
 
         if (error != null) {
             throw error;
         }
 
-        return thread.join ();
+        return result;
     }
 
     /**
@@ -231,12 +233,11 @@ public abstract class Serialize.Worker : Object {
         });
 
         yield;
+        thread.join ();
 
         if (error != null) {
             throw error;
         }
-
-        thread.join ();
     }
 
     /**
@@ -267,12 +268,13 @@ public abstract class Serialize.Worker : Object {
         });
 
         yield;
+        var result = thread.join ();
 
         if (error != null) {
             throw error;
         }
 
-        return thread.join ();
+        return result;
     }
 
     /**
@@ -303,12 +305,11 @@ public abstract class Serialize.Worker : Object {
         });
 
         yield;
+        thread.join ();
 
         if (error != null) {
             throw error;
         }
-
-        thread.join ();
     }
 
     /**
@@ -339,12 +340,13 @@ public abstract class Serialize.Worker : Object {
         });
 
         yield;
+        var result = thread.join ();
 
         if (error != null) {
             throw error;
         }
 
-        return thread.join ();
+        return result;
     }
 
     /**
@@ -375,11 +377,10 @@ public abstract class Serialize.Worker : Object {
         });
 
         yield;
+        thread.join ();
 
         if (error != null) {
             throw error;
         }
-
-        thread.join ();
     }
 }

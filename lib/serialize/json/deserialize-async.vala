@@ -44,12 +44,13 @@ namespace Serialize.JsonDeserializeAsync {
         });
 
         yield;
+        var result = thread.join ();
 
         if (error != null) {
             throw error;
         }
 
-        return thread.join ();
+        return result;
     }
 
     async static Array<T> simple_array_from_json<T> (
@@ -77,12 +78,13 @@ namespace Serialize.JsonDeserializeAsync {
         });
 
         yield;
+        var result = thread.join ();
 
         if (error != null) {
             throw error;
         }
 
-        return thread.join ();
+        return result;
     }
 
     async static Dict<T> simple_dict_from_json<T> (
@@ -110,11 +112,12 @@ namespace Serialize.JsonDeserializeAsync {
         });
 
         yield;
+        var result = thread.join ();
 
         if (error != null) {
             throw error;
         }
 
-        return thread.join ();
+        return result;
     }
 }
