@@ -51,7 +51,7 @@ jobs:
       - name: Build
         run: meson compile -C _build
 
-      - name: Build
+      - name: Run tests
         run: meson test -C _build
 
       - name: Deploy pages
