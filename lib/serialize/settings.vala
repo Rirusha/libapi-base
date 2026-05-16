@@ -78,6 +78,16 @@ public sealed class Serialize.Settings : Object {
      */
     public DateTimeSerializeMethod date_time_serialize_method { get; set; default = ISO8601; }
 
+    /**
+     * Separator for lists in INI files
+     */
+    public char ini_list_separator { get; set; default = ';'; }
+
+    /**
+     * Names case for group names in ini
+     */
+    public Case ini_group_names_case { get; set; default = PASCAL; }
+
     public Case names_case { get; set; default = AUTO; }
 
     public bool pretty { get; set; default = false; }
@@ -91,7 +101,8 @@ public sealed class Serialize.Settings : Object {
             date_time_serialize_method = date_time_serialize_method,
             names_case = names_case,
             pretty = pretty,
-            ignore_default = ignore_default
+            ignore_default = ignore_default,
+            ini_list_separator = ini_list_separator
         };
     }
 }

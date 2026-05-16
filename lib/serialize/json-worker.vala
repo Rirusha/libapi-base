@@ -21,7 +21,7 @@
  * Json helper for de/serialization
  */
 [Version (since = "7.5")]
-public sealed class Serialize.JsonWorker : Worker {
+public sealed class Serialize.JsonWorker : Worker, ArraySupport, DictSupport, ValueSupport {
 
     internal Json.Node root { get; private set; }
 
@@ -176,7 +176,8 @@ public sealed class Serialize.JsonWorker : Worker {
         string[]? sub_members = null,
         Serialize.Settings? settings = null
     ) throws Serialize.Error {
-        return JsonDeserializeSync.simple_deserialize (json, sub_members, settings);
+        var jsoner = new JsonWorker (json, sub_members, settings);
+        return jsoner.deserialize ();
     }
 
     /**
@@ -199,7 +200,8 @@ public sealed class Serialize.JsonWorker : Worker {
         string[]? sub_members = null,
         Serialize.Settings? settings = null
     ) throws Serialize.Error {
-        return JsonDeserializeSync.simple_from_json<T> (json, sub_members, settings);
+        var jsoner = new JsonWorker (json, sub_members, settings);
+        return jsoner.deserialize_object<T> ();
     }
 
     /**
@@ -225,7 +227,8 @@ public sealed class Serialize.JsonWorker : Worker {
         Serialize.Settings? settings = null,
         CollectionFactory[] collection_hierarchy = {}
     ) throws Serialize.Error {
-        return JsonDeserializeSync.simple_array_from_json<T> (json, sub_members, settings, collection_hierarchy);
+        var jsoner = new JsonWorker (json, sub_members, settings);
+        return jsoner.deserialize_array<T> (collection_hierarchy);
     }
 
     /**
@@ -251,7 +254,8 @@ public sealed class Serialize.JsonWorker : Worker {
         Serialize.Settings? settings = null,
         CollectionFactory[] collection_hierarchy = {}
     ) throws Serialize.Error {
-        return JsonDeserializeSync.simple_dict_from_json<T> (json, sub_members, settings, collection_hierarchy);
+        var jsoner = new JsonWorker (json, sub_members, settings);
+        return jsoner.deserialize_dict<T> (collection_hierarchy);
     }
 
     [Version (since = "7.5")]
@@ -261,7 +265,7 @@ public sealed class Serialize.JsonWorker : Worker {
         return JsonDeserializeSync.deserialize_object_by_type (this, obj_type);
     }
 
-    [Version (since = "6.0")]
+    [Version (since = "7.5")]
     public override inline void deserialize_object_into (
         Object obj
     ) throws Serialize.Error {
@@ -269,12 +273,12 @@ public sealed class Serialize.JsonWorker : Worker {
     }
 
     [Version (since = "7.5")]
-    public override inline Value deserialize_value () throws Serialize.Error {
+    public inline Value deserialize_value () throws Serialize.Error {
         return JsonDeserializeSync.deserialize_value (this);
     }
 
     [Version (since = "7.5")]
-    public override inline void deserialize_array_into (
+    public inline void deserialize_array_into (
         Array array,
         CollectionFactory[] collection_hierarchy = {}
     ) throws Serialize.Error {
@@ -282,7 +286,7 @@ public sealed class Serialize.JsonWorker : Worker {
     }
 
     [Version (since = "7.5")]
-    public override inline void deserialize_dict_into (
+    public inline void deserialize_dict_into (
         Dict dict,
         CollectionFactory[] collection_hierarchy = {}
     ) throws Serialize.Error {
@@ -297,11 +301,20 @@ public sealed class Serialize.JsonWorker : Worker {
         Object obj,
         Serialize.Settings? settings = null
     ) {
-        return yield JsonSerializeAsync.serialize (obj, settings);
+        var thread = new Thread<string> (null, () => {
+            var result = serialize (obj, settings);
+
+            Idle.add (serialize_async.callback);
+            return result;
+        });
+
+        yield;
+
+        return thread.join ();
     }
 
     /**
-     * Asynchronous version of method {@link simple_from_json_async}
+     * Asynchronous version of method {@link simple_from_json}
      *
      * @param json              Json string
      * @param sub_members       Sub members to 'steps'
@@ -317,11 +330,37 @@ public sealed class Serialize.JsonWorker : Worker {
         string[]? sub_members = null,
         Serialize.Settings? settings = null
     ) throws Serialize.Error {
-        return yield JsonDeserializeAsync.simple_from_json<T> (json, sub_members, settings);
+        Serialize.Error? error = null;
+
+        var thread = new Thread<T?> (null, () => {
+            T? result = null;
+
+            try {
+                result = simple_from_json<T> (
+                    json,
+                    sub_members,
+                    settings
+                );
+            } catch (Serialize.Error e) {
+                error = e;
+            }
+
+            Idle.add (simple_from_json_async.callback);
+            return result;
+        });
+
+        yield;
+        var result = thread.join ();
+
+        if (error != null) {
+            throw error;
+        }
+
+        return result;
     }
 
     /**
-     * Asynchronous version of method {@link simple_array_from_json_async}
+     * Asynchronous version of method {@link simple_array_from_json}
      *
      * @param json              Json string
      * @param sub_members       Sub members to 'steps'
@@ -337,11 +376,37 @@ public sealed class Serialize.JsonWorker : Worker {
         string[]? sub_members = null,
         Serialize.Settings? settings = null
     ) throws Serialize.Error {
-        return yield JsonDeserializeAsync.simple_array_from_json<T> (json, sub_members, settings);
+        Serialize.Error? error = null;
+
+        var thread = new Thread<Array<T>?> (null, () => {
+            Array<T>? result = null;
+
+            try {
+                result = simple_array_from_json<T> (
+                    json,
+                    sub_members,
+                    settings
+                );
+            } catch (Serialize.Error e) {
+                error = e;
+            }
+
+            Idle.add (simple_array_from_json_async.callback);
+            return result;
+        });
+
+        yield;
+        var result = thread.join ();
+
+        if (error != null) {
+            throw error;
+        }
+
+        return result;
     }
 
     /**
-     * Asynchronous version of method {@link simple_dict_from_json_async}
+     * Asynchronous version of method {@link simple_dict_from_json}
      *
      * @param json              Json string
      * @param sub_members       Sub members to 'steps'
@@ -357,6 +422,32 @@ public sealed class Serialize.JsonWorker : Worker {
         string[]? sub_members = null,
         Serialize.Settings? settings = null
     ) throws Serialize.Error {
-        return yield JsonDeserializeAsync.simple_dict_from_json<T> (json, sub_members, settings);
+        Serialize.Error? error = null;
+
+        var thread = new Thread<Dict<T>?> (null, () => {
+            Dict<T>? result = null;
+
+            try {
+                result = simple_dict_from_json<T> (
+                    json,
+                    sub_members,
+                    settings
+                );
+            } catch (Serialize.Error e) {
+                error = e;
+            }
+
+            Idle.add (simple_dict_from_json_async.callback);
+            return result;
+        });
+
+        yield;
+        var result = thread.join ();
+
+        if (error != null) {
+            throw error;
+        }
+
+        return result;
     }
 }

@@ -28,44 +28,6 @@ namespace Serialize.JsonDeserializeSync {
         }
     }
 
-    Dict<Value?> simple_deserialize (
-        string json,
-        string[]? sub_members,
-        Serialize.Settings? settings = null
-    ) throws Serialize.Error {
-        var jsoner = new JsonWorker (json, sub_members, settings);
-        return jsoner.deserialize ();
-    }
-
-    T simple_from_json<T> (
-        string json,
-        string[]? sub_members,
-        Serialize.Settings? settings = null
-    ) throws Serialize.Error {
-        var jsoner = new JsonWorker (json, sub_members, settings);
-        return jsoner.deserialize_object<T> ();
-    }
-
-    Array<T> simple_array_from_json<T> (
-        string json,
-        string[]? sub_members = null,
-        Serialize.Settings? settings = null,
-        CollectionFactory[] collection_hierarchy = {}
-    ) throws Serialize.Error {
-        var jsoner = new JsonWorker (json, sub_members, settings);
-        return jsoner.deserialize_array<T> (collection_hierarchy);
-    }
-
-    Dict<T> simple_dict_from_json<T> (
-        string json,
-        string[]? sub_members = null,
-        Serialize.Settings? settings = null,
-        CollectionFactory[] collection_hierarchy = {}
-    ) throws Serialize.Error {
-        var jsoner = new JsonWorker (json, sub_members, settings);
-        return jsoner.deserialize_dict<T> (collection_hierarchy);
-    }
-
     Object deserialize_object_by_type (
         JsonWorker self,
         GLib.Type obj_type,
