@@ -34,9 +34,11 @@ serialize_vala_sources = files(
   'collections/dict.vala',
 
   'ini/deserialize.vala',
+  'ini/worker.vala',
   'ini/serialize.vala',
 
   'json/deserialize.vala',
+  'json/worker.vala',
   'json/serialize.vala',
 
   'object-helpers/data-object.vala',
@@ -53,8 +55,6 @@ serialize_vala_sources = files(
   'convert.vala',
   'enums.vala',
   'errors.vala',
-  'ini-worker.vala',
-  'json-worker.vala',
   'jsoner.vala',
   'settings.vala',
   'utils.vala',
