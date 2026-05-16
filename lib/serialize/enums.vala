@@ -77,7 +77,8 @@ public enum Serialize.Case {
     AUTO,
     SNAKE,
     KEBAB,
-    CAMEL;
+    CAMEL,
+    PASCAL;
 }
 
 /**
