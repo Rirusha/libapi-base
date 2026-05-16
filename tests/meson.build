@@ -5,17 +5,11 @@ resources = gnome.compile_resources(
   c_name: 'test_data'
 )
 
-test_env = [
-  'SERIALIZE_UNKNOWN_PROPS=1',
-  'SERIALIZE_UNKNOWN_FIELDS=1',
-]
-
 test('json',
   executable('jsoner-test',
     sources: ['jsoner-test.vala', resources],
     dependencies: [serialize_dependencies, serialize_lib_dep],
   ),
-  env: test_env,
 )
 
 test('ini',
@@ -23,7 +17,10 @@ test('ini',
     sources: ['ini-test.vala', resources],
     dependencies: [serialize_dependencies, serialize_lib_dep],
   ),
-  env: test_env,
+  env: [
+    'SERIALIZE_UNKNOWN_PROPS=1',
+    'SERIALIZE_UNKNOWN_FIELDS=1',
+  ],
 )
 
 if get_option('run_net_tests')
