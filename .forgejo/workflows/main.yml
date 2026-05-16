@@ -65,6 +65,7 @@ jobs:
       image: altlinux.space/actions/runner/hasherc:sisyphus
     needs:
       - test-build
+    if: github.event_name != 'pull_request'
 
     steps:
       - name: Install utils
@@ -85,7 +86,6 @@ jobs:
 
       - uses: alt-gnome/upload-rpm-action@main
         name: Upload RPMs
-        if: github.event_name != 'pull_request'
         with:
           directory: ~/.cache/hasherc/libapi-base/out/RPMS
           token: ${{ secrets.TOKEN }}
