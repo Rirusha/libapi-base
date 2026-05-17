@@ -4,7 +4,7 @@
 %define _unpackaged_files_terminate_build 1
 
 %define api_version 7
-%define minor_version 4
+%define minor_version 5
 %define gir_name ApiBase
 
 %define sname libserialize
@@ -159,6 +159,14 @@ Requires: %sname%api_version-gir = %EVR
 %_girdir/%gir_sname-%api_version.gir
 
 %changelog
+* Mon May 18 2026 Vladimir Romanov <rirusha@altlinux.org> 7.5-alt1
+- Added INI format support in Serialize.
+- Added supported PascalCase.
+- Deprecate `Serialize.Jsoner`, `Serialize.JsonWorker` should be used instead.
+- Deprecate `Serialize.JsonError`, `Serialize.Error` should be used instead.
+- Full release notes:
+  https://altlinux.space/rirusha/libapi-base/releases/tag/v7.5.
+
 * Mon Apr 20 2026 Vladimir Romanov <rirusha@altlinux.org> 7.4-alt1
 - New version: 7.4.
 - New `send` API in `Session` with `Soup.Session` compatibility.
