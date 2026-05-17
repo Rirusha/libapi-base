@@ -50,7 +50,7 @@ namespace Serialize {
      *
      * @param type_ type to check
      */
-    [Version (since = "6.0")]
+    [Version (since = "6.0", deprecated = true, deprecated_since = "7.5")]
     public void check_type (Type type_) {
         Type[] supported_collections_types = {
             typeof (Array),
