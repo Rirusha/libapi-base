@@ -591,6 +591,26 @@ namespace Serialize.Convert {
         }
     }
 
+    /**
+     * Converts between formats
+     */
+    [Version (since = "7.5")]
+    public string data2data (
+        string data,
+        DictSupport from,
+        ConvertableDataType to,
+        Settings? settings = null
+    ) throws Serialize.Error {
+        var dict = from.deserialize ();
+
+        switch (to) {
+            case JSON:
+                return JsonWorker.serialize (dict, settings);
+            default:
+                assert_not_reached ();
+        }
+    }
+
     [Version (since = "6.0")]
     public Datalist<T> dict2datalist<T> (Dict<T> hash_map) {
         var dl = Datalist<T> ();
