@@ -166,7 +166,7 @@ Requires: %sname%api_version-gir = %EVR
 - Improved serialization: case-insensitive enum parsing, UTC timezone
   for DateTime, INT64 -> DateTime conversion.
 - Full release notes:
-  https://altlinux.space/rirusha/libapi-base/releases/tag/v7.4
+  https://altlinux.space/rirusha/libapi-base/releases/tag/v7.4.
 
 * Sun Mar 29 2026 Vladimir Romanov <rirusha@altlinux.org> 7.3-alt1
 - New version: 7.3.
