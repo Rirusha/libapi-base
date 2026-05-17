@@ -151,6 +151,9 @@ public sealed class Serialize.IniWorker : Worker {
         return worker.deserialize_object<T> ();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     [Version (since = "7.5")]
     public override inline Object deserialize_object_by_type (
         GLib.Type obj_type
@@ -158,6 +161,9 @@ public sealed class Serialize.IniWorker : Worker {
         return IniDeserializeSync.deserialize_object_by_type (this, obj_type);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     [Version (since = "7.5")]
     public override inline void deserialize_object_into (
         Object obj

@@ -258,6 +258,9 @@ public sealed class Serialize.JsonWorker : Worker, ArraySupport, DictSupport, Va
         return jsoner.deserialize_dict<T> (collection_hierarchy);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     [Version (since = "7.5")]
     public override inline Object deserialize_object_by_type (
         GLib.Type obj_type
@@ -265,6 +268,9 @@ public sealed class Serialize.JsonWorker : Worker, ArraySupport, DictSupport, Va
         return JsonDeserializeSync.deserialize_object_by_type (this, obj_type);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     [Version (since = "7.5")]
     public override inline void deserialize_object_into (
         Object obj
@@ -272,11 +278,17 @@ public sealed class Serialize.JsonWorker : Worker, ArraySupport, DictSupport, Va
         JsonDeserializeSync.deserialize_object_into (this, obj);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     [Version (since = "7.5")]
     public inline Value deserialize_value () throws Serialize.Error {
         return JsonDeserializeSync.deserialize_value (this);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     [Version (since = "7.5")]
     public inline void deserialize_array_into (
         Array array,
@@ -285,6 +297,9 @@ public sealed class Serialize.JsonWorker : Worker, ArraySupport, DictSupport, Va
         JsonDeserializeSync.deserialize_array_into (this, array, collection_hierarchy);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     [Version (since = "7.5")]
     public inline void deserialize_dict_into (
         Dict dict,
