@@ -77,7 +77,16 @@ public enum Serialize.Case {
     AUTO,
     SNAKE,
     KEBAB,
-    CAMEL;
+    CAMEL,
+    PASCAL;
+}
+
+/**
+ * Data types tha can be converted via {@link data2data}
+ */
+[Version (since = "7.5")]
+public enum Serialize.ConvertableDataType {
+    JSON;
 }
 
 /**

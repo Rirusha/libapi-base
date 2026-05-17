@@ -40,7 +40,7 @@ public abstract class Serialize.DataObject : Object {
      *
      * @throws JsonError    Error with json or sub_members
      */
-    [Version (since = "7.0")]
+    [Version (since = "7.0", deprecated = true, deprecated_since = "7.5")]
     public void fill_from_json (
         string json,
         string[]? sub_members = null,
@@ -59,5 +59,44 @@ public abstract class Serialize.DataObject : Object {
             this,
             settings
         );
+    }
+
+    /**
+     * Fills object with dict values;
+     */
+    [Version (since = "7.5")]
+    public void fill_from_dict (Dict<Value?> dict) {
+        var obj_type = get_type ();
+        var class_ref = (ObjectClass) obj_type.class_ref ();
+
+        foreach (var entry in dict) {
+            var prop = class_ref.find_property (entry.key);
+
+            if (prop != null) {
+                set_property (prop.name, entry.value);
+
+            } else {
+                warning ("Can't find property named '%s' in '%s'", prop.name, obj_type.name ());
+            }
+        }
+    }
+
+    /**
+     * Converts object to dict
+     */
+    [Version (since = "7.5")]
+    public Dict<Value?> to_dict () {
+        var res = new Dict<Value?> ();
+
+        var obj_type = get_type ();
+        var class_ref = (ObjectClass) obj_type.class_ref ();
+
+        foreach (var prop in class_ref.list_properties ()) {
+            var val = Value (prop.value_type);
+            get_property (prop.name, ref val);
+            res[prop.name] = val;
+        }
+
+        return res;
     }
 }

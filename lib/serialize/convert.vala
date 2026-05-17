@@ -32,7 +32,11 @@ namespace Serialize.Convert {
             }
 
             if (c.isupper ()) {
-                return CAMEL;
+                if (i == 0) {
+                    return PASCAL;
+                } else {
+                    return CAMEL;
+                }
             }
         }
 
@@ -90,6 +94,23 @@ namespace Serialize.Convert {
     }
 
     /**
+     * Convert `сamelCase` to `PascalCase` string
+     *
+     * @param camel_string correct `сamelCase` string
+     *
+     * @return `PascalCase` string
+     */
+    [Version (since = "7.5")]
+    public string camel2pascal (string camel_string) {
+        var builder = new StringBuilder ();
+
+        builder.append_c (camel_string[0].toupper ());
+        builder.append (camel_string[1:camel_string.length]);
+
+        return builder.free_and_steal ();
+    }
+
+    /**
      * Convert `kebab-case` to `сamelCase` string
      *
      * @param kebab_string correct `kebab-case` string
@@ -129,6 +150,37 @@ namespace Serialize.Convert {
         while (i < kebab_string.length) {
             if (kebab_string[i] == '-') {
                 builder.append_c ('_');
+            } else {
+                builder.append_c (kebab_string[i]);
+            }
+            i += 1;
+        }
+
+        return builder.free_and_steal ();
+    }
+
+    /**
+     * Convert `kebab-case` to `PascalCase` string
+     *
+     * @param kebab_string correct `kebab-case` string
+     *
+     * @return `PascalCase` string
+     */
+    [Version (since = "7.5")]
+    public string kebab2pascal (string kebab_string) {
+        var builder = new StringBuilder ();
+
+        bool first_passed = false;
+        int i = 0;
+        while (i < kebab_string.length) {
+            if (!first_passed) {
+                if (kebab_string[i] != '-') {
+                    builder.append_c (kebab_string[i].toupper ());
+                    first_passed = true;
+                }
+            } else if (kebab_string[i] == '-') {
+                i += 1;
+                builder.append_c (kebab_string[i].toupper ());
             } else {
                 builder.append_c (kebab_string[i]);
             }
@@ -188,6 +240,106 @@ namespace Serialize.Convert {
     }
 
     /**
+     * Convert `snake_case` to `PascalCase` string
+     *
+     * @param snake_string correct `snake_case` string
+     *
+     * @return `PascalCase` string
+     */
+    [Version (since = "7.5")]
+    public string snake2pascal (string snake_string) {
+        var builder = new StringBuilder ();
+
+        bool first_passed = false;
+        int i = 0;
+        while (i < snake_string.length) {
+            if (!first_passed) {
+                if (snake_string[i] != '_') {
+                    builder.append_c (snake_string[i].toupper ());
+                    first_passed = true;
+                }
+            } else if (snake_string[i] == '_') {
+                i += 1;
+                builder.append_c (snake_string[i].toupper ());
+            } else {
+                builder.append_c (snake_string[i]);
+            }
+            i += 1;
+        }
+
+        return builder.free_and_steal ();
+    }
+
+    /**
+     * Convert `PascalCase` to `kebab-case` string
+     *
+     * @param pascal_string correct `PascalCase` string
+     *
+     * @return `kebab-case` string
+     */
+    [Version (since = "7.5")]
+    public string pascal2kebab (string pascal_string) {
+        var builder = new StringBuilder ();
+
+        builder.append_c (pascal_string[0].tolower ());
+        int i = 1;
+        while (i < pascal_string.length) {
+            if (pascal_string[i].isupper ()) {
+                builder.append_c ('-');
+                builder.append_c (pascal_string[i].tolower ());
+            } else {
+                builder.append_c (pascal_string[i]);
+            }
+            i += 1;
+        }
+
+        return builder.free_and_steal ();
+    }
+
+    /**
+     * Convert `PascalCase` to `snake_case` string
+     *
+     * @param pascal_string correct `PascalCase` string
+     *
+     * @return `snake_case` string
+     */
+    [Version (since = "7.5")]
+    public string pascal2snake (string pascal_string) {
+        var builder = new StringBuilder ();
+
+        builder.append_c (pascal_string[0].tolower ());
+        int i = 1;
+        while (i < pascal_string.length) {
+            if (pascal_string[i].isupper ()) {
+                builder.append_c ('_');
+                builder.append_c (pascal_string[i].tolower ());
+            } else {
+                builder.append_c (pascal_string[i]);
+            }
+            i += 1;
+        }
+
+        return builder.free_and_steal ();
+    }
+
+    /**
+     * Convert `PascalCase` to `сamelCase` string
+     *
+     * @param pascal_string correct `PascalCase` string
+     *
+     * @return `сamelCase` string
+     */
+    [Version (since = "7.5")]
+    public string pascal2camel (string pascal_string) {
+        var builder = new StringBuilder ();
+
+        builder.append_c (pascal_string[0].tolower ());
+        builder.append (pascal_string[1:pascal_string.length]);
+
+        return builder.free_and_steal ();
+    }
+
+    /**
      * Convert any case string to kebab-case
      *
      * @param str   String
@@ -199,6 +351,8 @@ namespace Serialize.Convert {
         switch (case_) {
             case Case.CAMEL:
                 return camel2kebab (str);
+            case Case.PASCAL:
+                return pascal2kebab (str);
             case Case.SNAKE:
                 return snake2kebab (str);
             case Case.KEBAB:
@@ -222,6 +376,8 @@ namespace Serialize.Convert {
         switch (case_) {
             case Case.CAMEL:
                 return camel2snake (str);
+            case Case.PASCAL:
+                return pascal2snake (str);
             case Case.SNAKE:
                 return str;
             case Case.KEBAB:
@@ -245,6 +401,8 @@ namespace Serialize.Convert {
         switch (case_) {
             case Case.CAMEL:
                 return str;
+            case Case.PASCAL:
+                return pascal2camel (str);
             case Case.SNAKE:
                 return snake2camel (str);
             case Case.KEBAB:
@@ -256,6 +414,30 @@ namespace Serialize.Convert {
         }
     }
 
+    /**
+     * Convert any case string to PascalCase
+     *
+     * @param str   String
+     *
+     * @return Pascal string
+     */
+    [Version (since = "7.5")]
+    public string cany2pascal (string str, Case case_) {
+        switch (case_) {
+            case Case.CAMEL:
+                return camel2pascal (str);
+            case Case.PASCAL:
+                return str;
+            case Case.SNAKE:
+                return snake2pascal (str);
+            case Case.KEBAB:
+                return kebab2pascal (str);
+            case Case.AUTO:
+                return any2pascal (str);
+            default:
+                assert_not_reached ();
+        }
+    }
 
     /**
      * Convert any case string to kebab-case
@@ -297,6 +479,19 @@ namespace Serialize.Convert {
     }
 
     /**
+     * Convert any case string to PascalCase
+     *
+     * @param str   String
+     *
+     * @return Pascal string
+     */
+    [Version (since = "7.5")]
+    public string any2pascal (string str) {
+        var str_case = detect_case (str);
+        return cany2pascal (str, str_case);
+    }
+
+    /**
      * Convert kebab-case to specified case
      *
      * @param str   String
@@ -309,6 +504,8 @@ namespace Serialize.Convert {
         switch (case_) {
             case Case.CAMEL:
                 return kebab2camel (str);
+            case Case.PASCAL:
+                return kebab2pascal (str);
             case Case.SNAKE:
                 return kebab2snake (str);
             case Case.AUTO:
@@ -332,6 +529,8 @@ namespace Serialize.Convert {
         switch (case_) {
             case Case.CAMEL:
                 return snake2camel (str);
+            case Case.PASCAL:
+                return snake2pascal (str);
             case Case.SNAKE:
                 return str;
             case Case.AUTO:
@@ -355,11 +554,58 @@ namespace Serialize.Convert {
         switch (case_) {
             case Case.CAMEL:
                 return str;
+            case Case.PASCAL:
+                return camel2pascal (str);
             case Case.SNAKE:
                 return camel2snake (str);
             case Case.AUTO:
             case Case.KEBAB:
                 return camel2kebab (str);
+            default:
+                assert_not_reached ();
+        }
+    }
+
+    /**
+     * Convert PascalCase to specified case
+     *
+     * @param str   String
+     * @param case_ Case, using KEBAB if AUTO
+     *
+     * @return Specified case string
+     */
+    [Version (since = "7.5")]
+    public string pascal2any (string str, Case case_) {
+        switch (case_) {
+            case Case.CAMEL:
+                return pascal2camel (str);
+            case Case.PASCAL:
+                return str;
+            case Case.SNAKE:
+                return pascal2snake (str);
+            case Case.AUTO:
+            case Case.KEBAB:
+                return pascal2kebab (str);
+            default:
+                assert_not_reached ();
+        }
+    }
+
+    /**
+     * Converts between formats
+     */
+    [Version (since = "7.5")]
+    public string data2data (
+        string data,
+        DictSupport from,
+        ConvertableDataType to,
+        Settings? settings = null
+    ) throws Serialize.Error {
+        var dict = from.deserialize ();
+
+        switch (to) {
+            case JSON:
+                return JsonWorker.serialize (dict, settings);
             default:
                 assert_not_reached ();
         }
@@ -402,14 +648,18 @@ namespace Serialize.Convert {
         //  Auto transformation between enums and strings is not what we want
         if (source_value.holds (Type.ENUM)) {
             if (target_value.holds (Type.STRING)) {
-                target_value.set_string (Enum.get_nick_gtype (source_value.type (), source_value.get_enum (), Case.SNAKE));
+                target_value.set_string (
+                    Enum.get_nick_gtype (source_value.type (), source_value.get_enum (), Case.SNAKE)
+                );
                 return true;
             }
         }
 
         if (source_value.holds (Type.STRING)) {
             if (target_value.holds (Type.ENUM)) {
-                target_value.set_enum (Enum.get_by_nick_gtype (target_value.type (), source_value.get_string ().down ()));
+                target_value.set_enum (
+                    Enum.get_by_nick_gtype (target_value.type (), source_value.get_string ().down ())
+                );
                 return true;
 
             } else if (target_value.holds (Type.INT64)) {

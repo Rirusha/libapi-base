@@ -20,15 +20,22 @@
 /**
  * Json helper for de/serialization
  */
-[Version (since = "6.0")]
+[Version (since = "6.0", deprecated = true, deprecated_since = "7.5", replacement = "Serialize.JsonWorker")]
 public class Serialize.Jsoner : Object {
 
     /**
      * Settings
      */
-    public Serialize.Settings settings { get; construct; }
+    public Serialize.Settings settings {
+        get {
+            return real_worker.settings;
+        }
+        construct {}
+    }
 
     public Json.Node root { internal get; construct; }
+
+    JsonWorker real_worker;
 
     /**
      * Performs initialization for deserialization. Accepts a json string. In case of
@@ -47,35 +54,11 @@ public class Serialize.Jsoner : Object {
         string[]? sub_members = null,
         Serialize.Settings? settings = null
     ) throws JsonError {
-        if (json_string.length < 1) {
-            throw new JsonError.EMPTY ("Json string is empty");
-        }
-
-        Json.Node? node;
         try {
-            node = Json.from_string (json_string);
-
-        } catch (GLib.Error e) {
-            throw new JsonError.INVALID ("'%s' is not correct json string".printf (json_string));
+            real_worker = new JsonWorker (json_string, sub_members, settings);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
         }
-
-        if (node == null) {
-            throw new JsonError.EMPTY ("Json string is empty");
-        }
-
-        if (sub_members != null) {
-            node = steps (node, sub_members);
-        }
-
-        debug (
-            "Jsoner initted for deserialize with:\n%s",
-            json_string
-        );
-
-        Object (
-            root: node,
-            settings: settings == null ? get_settings () : settings
-        );
     }
 
     /**
@@ -94,11 +77,11 @@ public class Serialize.Jsoner : Object {
         string[]? sub_members = null,
         Serialize.Settings? settings = null
     ) throws JsonError {
-        if (bytes.length == 0) {
-            throw new JsonError.EMPTY ("Json string is empty");
+        try {
+            real_worker = new JsonWorker.from_bytes (bytes, sub_members, settings);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
         }
-
-        this.from_data (bytes.get_data (), sub_members, settings);
     }
 
     /**
@@ -117,33 +100,11 @@ public class Serialize.Jsoner : Object {
         string[]? sub_members = null,
         Serialize.Settings? settings = null
     ) throws JsonError {
-        //  Fix not NUL-terminated
-        if (data[data.length - 1] != 0) {
-            data.resize (data.length + 1);
-            data[data.length - 1] = 0;
+        try {
+            real_worker = new JsonWorker.from_data (data, sub_members, settings);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
         }
-
-        this ((string) data, sub_members, settings);
-    }
-
-    static Json.Node? steps (
-        Json.Node node,
-        string[] sub_members
-    ) throws JsonError {
-        var members_trace = new GLib.Array<string> ();
-
-        foreach (string member_name in sub_members) {
-            members_trace.append_val (member_name);
-
-            if (node.get_object ().has_member (member_name)) {
-                node = node.get_object ().get_member (member_name);
-
-            } else {
-                throw new JsonError.NO_MEMBER ("Json has no %s".printf (string.joinv ("-", members_trace.data)));
-            }
-        }
-
-        return node;
     }
 
     /**
@@ -159,7 +120,7 @@ public class Serialize.Jsoner : Object {
         Object obj,
         Serialize.Settings? settings = null
     ) {
-        return JsonerSerializeSync.serialize (obj, settings);
+        return JsonWorker.serialize (obj, settings);
     }
 
     /**
@@ -180,7 +141,11 @@ public class Serialize.Jsoner : Object {
         string[]? sub_members = null,
         Serialize.Settings? settings = null
     ) throws JsonError {
-        return JsonerDeserializeSync.simple_deserialize (json, sub_members, settings);
+        try {
+            return JsonWorker.simple_deserialize (json, sub_members, settings);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -203,7 +168,11 @@ public class Serialize.Jsoner : Object {
         string[]? sub_members = null,
         Serialize.Settings? settings = null
     ) throws JsonError {
-        return JsonerDeserializeSync.simple_from_json<T> (json, sub_members, settings);
+        try {
+            return JsonWorker.simple_from_json<T> (json, sub_members, settings);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -229,7 +198,11 @@ public class Serialize.Jsoner : Object {
         Serialize.Settings? settings = null,
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
-        return JsonerDeserializeSync.simple_array_from_json<T> (json, sub_members, settings, collection_hierarchy);
+        try {
+            return JsonWorker.simple_array_from_json<T> (json, sub_members, settings, collection_hierarchy);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -255,7 +228,11 @@ public class Serialize.Jsoner : Object {
         Serialize.Settings? settings = null,
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
-        return JsonerDeserializeSync.simple_dict_from_json<T> (json, sub_members, settings, collection_hierarchy);
+        try {
+            return JsonWorker.simple_dict_from_json<T> (json, sub_members, settings, collection_hierarchy);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -267,7 +244,11 @@ public class Serialize.Jsoner : Object {
      */
     [Version (since = "7.0")]
     public inline Dict<Value?> deserialize () throws JsonError {
-        return JsonerDeserializeSync.deserialize (this);
+        try {
+            return real_worker.deserialize ();
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -279,7 +260,11 @@ public class Serialize.Jsoner : Object {
      */
     [Version (since = "6.0")]
     public inline T deserialize_object<T> () throws JsonError {
-        return JsonerDeserializeSync.deserialize_object<T> (this);
+        try {
+            return real_worker.deserialize_object<T> ();
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -295,7 +280,11 @@ public class Serialize.Jsoner : Object {
     public inline Object deserialize_object_by_type (
         GLib.Type obj_type
     ) throws JsonError {
-        return JsonerDeserializeSync.deserialize_object_by_type (this, obj_type);
+        try {
+            return real_worker.deserialize_object_by_type (obj_type);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -309,7 +298,11 @@ public class Serialize.Jsoner : Object {
     public inline void deserialize_object_into (
         Object obj
     ) throws JsonError {
-        JsonerDeserializeSync.deserialize_object_into (this, obj);
+        try {
+            real_worker.deserialize_object_into (obj);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -321,7 +314,11 @@ public class Serialize.Jsoner : Object {
      */
     [Version (since = "6.0")]
     public inline Value deserialize_value () throws JsonError {
-        return JsonerDeserializeSync.deserialize_value (this);
+        try {
+            return real_worker.deserialize_value ();
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -335,7 +332,11 @@ public class Serialize.Jsoner : Object {
     public inline Array<T> deserialize_array<T> (
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
-        return JsonerDeserializeSync.deserialize_array<T> (this, collection_hierarchy);
+        try {
+            return real_worker.deserialize_array<T> (collection_hierarchy);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -351,7 +352,11 @@ public class Serialize.Jsoner : Object {
         Array array,
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
-        JsonerDeserializeSync.deserialize_array_into (this, array, collection_hierarchy);
+        try {
+            real_worker.deserialize_array_into (array, collection_hierarchy);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -363,7 +368,11 @@ public class Serialize.Jsoner : Object {
     public inline Dict<T> deserialize_dict<T> (
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
-        return JsonerDeserializeSync.deserialize_dict<T> (this, collection_hierarchy);
+        try {
+            return real_worker.deserialize_dict<T> (collection_hierarchy);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -378,7 +387,11 @@ public class Serialize.Jsoner : Object {
         Dict dict,
         CollectionFactory[] collection_hierarchy = {}
     ) throws JsonError {
-        JsonerDeserializeSync.deserialize_dict_into (this, dict, collection_hierarchy);
+        try {
+            real_worker.deserialize_dict_into (dict, collection_hierarchy);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -389,7 +402,7 @@ public class Serialize.Jsoner : Object {
         Object obj,
         Serialize.Settings? settings = null
     ) {
-        return yield JsonerSerializeAsync.serialize (obj, settings);
+        return yield JsonWorker.serialize_async (obj, settings);
     }
 
     /**
@@ -409,7 +422,11 @@ public class Serialize.Jsoner : Object {
         string[]? sub_members = null,
         Serialize.Settings? settings = null
     ) throws JsonError {
-        return yield JsonerDeserializeAsync.simple_from_json<T> (json, sub_members, settings);
+        try {
+            return yield JsonWorker.simple_from_json_async<T> (json, sub_members, settings);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -429,7 +446,11 @@ public class Serialize.Jsoner : Object {
         string[]? sub_members = null,
         Serialize.Settings? settings = null
     ) throws JsonError {
-        return yield JsonerDeserializeAsync.simple_array_from_json<T> (json, sub_members, settings);
+        try {
+            return yield JsonWorker.simple_array_from_json_async<T> (json, sub_members, settings);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -449,7 +470,11 @@ public class Serialize.Jsoner : Object {
         string[]? sub_members = null,
         Serialize.Settings? settings = null
     ) throws JsonError {
-        return yield JsonerDeserializeAsync.simple_dict_from_json<T> (json, sub_members, settings);
+        try {
+            return yield JsonWorker.simple_dict_from_json_async<T> (json, sub_members, settings);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -461,7 +486,11 @@ public class Serialize.Jsoner : Object {
      */
     [Version (since = "6.0")]
     public async inline T deserialize_object_async<T> () throws JsonError {
-        return yield JsonerDeserializeAsync.deserialize_object<T> (this);
+        try {
+            return yield real_worker.deserialize_object_async<T> ();
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -473,7 +502,11 @@ public class Serialize.Jsoner : Object {
     public async inline Object deserialize_object_by_type_async (
         GLib.Type obj_type
     ) throws JsonError {
-        return yield JsonerDeserializeAsync.deserialize_object_by_type (this, obj_type);
+        try {
+            return yield real_worker.deserialize_object_by_type_async (obj_type);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -485,7 +518,11 @@ public class Serialize.Jsoner : Object {
     public async inline void deserialize_object_into_async (
         Object obj
     ) throws JsonError {
-        yield JsonerDeserializeAsync.deserialize_object_into (this, obj);
+        try {
+            yield real_worker.deserialize_object_into_async (obj);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -500,7 +537,11 @@ public class Serialize.Jsoner : Object {
     public async Array<T> deserialize_array_async<T> (
         CollectionFactory[] collection_factories = {}
     ) throws JsonError {
-        return yield JsonerDeserializeAsync.deserialize_array<T> (this, collection_factories);
+        try {
+            return yield real_worker.deserialize_array_async<T> (collection_factories);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -517,7 +558,11 @@ public class Serialize.Jsoner : Object {
         Array array,
         CollectionFactory[] collection_factories = {}
     ) throws JsonError {
-        yield JsonerDeserializeAsync.deserialize_array_into (this, array, collection_factories);
+        try {
+            yield real_worker.deserialize_array_into_async (array, collection_factories);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -532,7 +577,11 @@ public class Serialize.Jsoner : Object {
     public async inline Dict<T> deserialize_dict_async<T> (
         CollectionFactory[] collection_factories = {}
     ) throws JsonError {
-        return yield JsonerDeserializeAsync.deserialize_dict<T> (this, collection_factories);
+        try {
+            return yield real_worker.deserialize_dict_async<T> (collection_factories);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
     }
 
     /**
@@ -549,6 +598,25 @@ public class Serialize.Jsoner : Object {
         Dict dict,
         CollectionFactory[] collection_factories = {}
     ) throws JsonError {
-        yield JsonerDeserializeAsync.deserialize_dict_into (this, dict, collection_factories);
+        try {
+            yield real_worker.deserialize_dict_into_async (dict, collection_factories);
+        } catch (Serialize.Error e) {
+            throw convert_error (e);
+        }
+    }
+
+    static JsonError convert_error (Serialize.Error e) {
+        switch (e.code) {
+            case Serialize.Error.EMPTY:
+                return new JsonError.EMPTY (e.message);
+            case Serialize.Error.INVALID:
+                return new JsonError.INVALID (e.message);
+            case Serialize.Error.NO_MEMBER:
+                return new JsonError.NO_MEMBER (e.message);
+            case Serialize.Error.WRONG_TYPE:
+                return new JsonError.WRONG_TYPE (e.message);
+            default:
+                assert_not_reached ();
+        }
     }
 }

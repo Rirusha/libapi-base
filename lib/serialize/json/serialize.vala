@@ -17,9 +17,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-namespace Serialize.JsonerSerializeSync {
+namespace Serialize.JsonSerializeSync {
 
-    internal static string serialize (
+    string serialize (
         Object obj,
         Serialize.Settings? settings
     ) {
@@ -42,7 +42,7 @@ namespace Serialize.JsonerSerializeSync {
         return res;
     }
 
-    static void serialize_array (
+    void serialize_array (
         Json.Builder builder,
         Array array,
         Serialize.Settings settings
@@ -56,7 +56,7 @@ namespace Serialize.JsonerSerializeSync {
         builder.end_array ();
     }
 
-    static void serialize_array_strv (
+    void serialize_array_strv (
         Json.Builder builder,
         char **str_array
     ) {
@@ -69,7 +69,7 @@ namespace Serialize.JsonerSerializeSync {
         builder.end_array ();
     }
 
-    static void serialize_dict (
+    void serialize_dict (
         Json.Builder builder,
         Dict dict,
         Serialize.Settings settings,
@@ -89,7 +89,7 @@ namespace Serialize.JsonerSerializeSync {
         }
     }
 
-    static void serialize_object (
+    void serialize_object (
         Json.Builder builder,
         Object? obj,
         Serialize.Settings settings
@@ -135,7 +135,7 @@ namespace Serialize.JsonerSerializeSync {
         builder.end_object ();
     }
 
-    static void serialize_value (Json.Builder builder, Value? prop_val, Settings settings) {
+    void serialize_value (Json.Builder builder, Value? prop_val, Settings settings) {
         if (prop_val == null) {
             builder.add_null_value ();
             return;
@@ -168,7 +168,9 @@ namespace Serialize.JsonerSerializeSync {
 
             default:
                 // Get actual type if value is object
-                var val_type = prop_val.type ().is_object () ? prop_val.get_object ()?.get_type () ?? prop_val.type () : prop_val.type ();
+                var val_type = prop_val.type ().is_object () ?
+                    prop_val.get_object ()?.get_type () ?? prop_val.type () :
+                    prop_val.type ();
 
                 if (val_type.is_enum ()) {
                     switch (settings.enum_serialize_method) {
@@ -176,7 +178,9 @@ namespace Serialize.JsonerSerializeSync {
                             builder.add_int_value (prop_val.get_enum ());
                             break;
                         case STRING:
-                            builder.add_string_value (Enum.get_nick_gtype (val_type, prop_val.get_enum (), settings.enum_serialize_case));
+                            builder.add_string_value (
+                                Enum.get_nick_gtype (val_type, prop_val.get_enum (), settings.enum_serialize_case)
+                            );
                             break;
                     }
 

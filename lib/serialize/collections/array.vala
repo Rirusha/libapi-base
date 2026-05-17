@@ -152,8 +152,10 @@ public class Serialize.Array<T> : Gee.ArrayList<T>, CollectionFactory<T> {
         }
     }
 
-    //  TODO: doc
-    //  Also check types and print warning
+    /**
+     * Add value to this. Value should hold {@link element_type}.
+     */
+    [Version (since = "7.0")]
     public void add_value (Value value) {
         if (element_type == typeof (Array)) {
             if (value.type () != typeof (Array)) {
@@ -170,7 +172,9 @@ public class Serialize.Array<T> : Gee.ArrayList<T>, CollectionFactory<T> {
         } else if (element_type.is_object ()) {
             add_object (value.get_object ());
 
-        } else if (element_type in SUPPORTED_BASE_TYPES || element_type == typeof (DateTime) || element_type.is_enum ()) {
+        } else if (element_type in SUPPORTED_BASE_TYPES ||
+                   element_type == typeof (DateTime) ||
+                   element_type.is_enum ()) {
             add_base (value);
         }
     }

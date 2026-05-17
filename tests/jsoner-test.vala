@@ -225,7 +225,7 @@ string get_exp_json2 (Case c) {
 public int main (string[] args) {
     Test.init (ref args);
 
-    Test.add_func ("/jsoner/serialize/values", () => {
+    Test.add_func ("/json/serialize/values", () => {
         Case[] cases = {KEBAB, SNAKE, CAMEL};
         foreach (var c in cases) {
             var test_object = new ValuesData ();
@@ -241,7 +241,7 @@ public int main (string[] args) {
             test_object.custom_nick_val = CUSTOM_NICK_VAL;
 
             string expectation = get_exp_json (c);
-            var result = Jsoner.serialize (test_object, new Serialize.Settings () {
+            var result = JsonWorker.serialize (test_object, new Serialize.Settings () {
                 names_case = c
             });
 
@@ -251,18 +251,18 @@ public int main (string[] args) {
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/big", () => {
+    Test.add_func ("/json/deserialize/big", () => {
         try {
             var res = resources_lookup_data ("/test-data/big.json", ResourceLookupFlags.NONE);
-            var jsoner = new Jsoner.from_bytes (res);
-            var result = jsoner.deserialize ();
-            Jsoner.serialize (result);
-        } catch (Error e) {
+            var worker = new JsonWorker.from_bytes (res);
+            var result = worker.deserialize ();
+            JsonWorker.serialize (result);
+        } catch (GLib.Error e) {
             Test.fail_printf (e.message);
         }
     });
 
-    Test.add_func ("/jsoner/serialize/values2", () => {
+    Test.add_func ("/json/serialize/values2", () => {
         Case[] cases = {KEBAB, SNAKE, CAMEL};
         foreach (var c in cases) {
             var test_object = new ValuesData ();
@@ -278,7 +278,7 @@ public int main (string[] args) {
             test_object.custom_nick_val = CUSTOM_NICK_VAL;
 
             string expectation = get_exp_json2 (c);
-            var result = Jsoner.serialize (test_object, new Serialize.Settings () {
+            var result = JsonWorker.serialize (test_object, new Serialize.Settings () {
                 names_case = c,
                 enum_serialize_method = STRING,
                 enum_serialize_case = CAMEL
@@ -290,7 +290,7 @@ public int main (string[] args) {
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/values", () => {
+    Test.add_func ("/json/deserialize/values", () => {
         Case[] cases = {KEBAB, SNAKE, CAMEL};
         foreach (var c in cases) {
             string json = get_exp_json (c);
@@ -298,8 +298,8 @@ public int main (string[] args) {
             ValuesData result;
 
             try {
-                result = Jsoner.simple_from_json<ValuesData> (json, null, new Serialize.Settings () { names_case = c });
-            } catch (Error e) {
+                result = JsonWorker.simple_from_json<ValuesData> (json, null, new Serialize.Settings () { names_case = c });
+            } catch (GLib.Error e) {
                 Test.fail_printf (e.message);
                 return;
             }
@@ -334,40 +334,40 @@ public int main (string[] args) {
         }
     });
 
-    Test.add_func ("/jsoner/serialize/null", () => {
+    Test.add_func ("/json/serialize/null", () => {
         var test_object = new TestObjectString ();
         test_object.value = null;
 
         string expectation = "{\"value\":null}";
-        string result = Jsoner.serialize (test_object);
+        string result = JsonWorker.serialize (test_object);
 
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
         }
     });
 
-    Test.add_func ("/jsoner/serialize/yam_obj", () => {
+    Test.add_func ("/json/serialize/yam_obj", () => {
         var test_object = new SimpleObject ();
         test_object.string_value = "test";
         test_object.int_value = 42;
         test_object.bool_value = true;
 
         string expectation = "{\"string-value\":\"test\",\"int-value\":42,\"bool-value\":true}";
-        string result = Jsoner.serialize (test_object);
+        string result = JsonWorker.serialize (test_object);
 
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
         }
     });
 
-    Test.add_func ("/jsoner/serialize/yam_obj/uni", () => {
+    Test.add_func ("/json/serialize/yam_obj/uni", () => {
         var test_object = new Dict<Value?> ();
         test_object["string-value"] = "test";
         test_object["int-value"] = 42;
         test_object["bool-value"] = true;
 
         string expectation = "{\"string-value\":\"test\",\"int-value\":42,\"bool-value\":true}";
-        string result = Jsoner.serialize (test_object);
+        string result = JsonWorker.serialize (test_object);
 
         var expectation_arr = expectation[1:expectation.length - 1].split (",");
         var result_arr = result[1:result.length - 1].split (",");
@@ -379,13 +379,13 @@ public int main (string[] args) {
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/bad-json", () => {
+    Test.add_func ("/json/deserialize/bad-json", () => {
         var json = "{\"string-value\":\"test\",\"int_value\":42,\"boolValue\":true}";
 
         SimpleObject obj;
         try {
-            obj = Jsoner.simple_from_json<SimpleObject> (json);
-        } catch (JsonError e) {
+            obj = JsonWorker.simple_from_json<SimpleObject> (json);
+        } catch (Serialize.Error e) {
             Test.skip (e.domain.to_string () + ": " + e.message);
             return;
         }
@@ -399,7 +399,7 @@ public int main (string[] args) {
         }
     });
 
-    Test.add_func ("/jsoner/serialize/array/string", () => {
+    Test.add_func ("/json/serialize/array/string", () => {
         var test_object = new TestObjectArrayString ();
         test_object.value.add ("everything that lives is designed to end");
         test_object.value.add ("we are perpetually trapped in a neverending spyral of life and death");
@@ -409,14 +409,14 @@ public int main (string[] args) {
         test_object.value.add ("and wonder if we'll ever have a chance to kill him");
 
         string expectation = "{\"value\":[\"everything that lives is designed to end\",\"we are perpetually trapped in a neverending spyral of life and death\",\"is this a curse?\",\"or some kind of punishment?\",\"i often thinking about the god who blessed us with this cryptic puzzle\",\"and wonder if we'll ever have a chance to kill him\"]}";
-        string result = Jsoner.serialize (test_object);
+        string result = JsonWorker.serialize (test_object);
 
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
         }
     });
 
-    Test.add_func ("/jsoner/serialize/array/string/strv", () => {
+    Test.add_func ("/json/serialize/array/string/strv", () => {
         var test_object = new TestObjectArrayStringStrv ();
         test_object.value = {
             "everything that lives is designed to end",
@@ -428,37 +428,37 @@ public int main (string[] args) {
         };
 
         string expectation = "{\"value\":[\"everything that lives is designed to end\",\"we are perpetually trapped in a neverending spyral of life and death\",\"is this a curse?\",\"or some kind of punishment?\",\"i often thinking about the god who blessed us with this cryptic puzzle\",\"and wonder if we'll ever have a chance to kill him\"]}";
-        string result = Jsoner.serialize (test_object);
+        string result = JsonWorker.serialize (test_object);
 
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
         }
     });
 
-    Test.add_func ("/jsoner/serialize/array/string/strv/empty", () => {
+    Test.add_func ("/json/serialize/array/string/strv/empty", () => {
         var test_object = new TestObjectArrayStringStrv ();
         test_object.value = {};
 
         string expectation = "{\"value\":[]}";
-        string result = Jsoner.serialize (test_object);
+        string result = JsonWorker.serialize (test_object);
 
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
         }
     });
 
-    Test.add_func ("/jsoner/serialize/array/string/strv/non-present", () => {
+    Test.add_func ("/json/serialize/array/string/strv/non-present", () => {
         var test_object = new TestObjectArrayStringStrv ();
 
         string expectation = "{\"value\":[]}";
-        string result = Jsoner.serialize (test_object);
+        string result = JsonWorker.serialize (test_object);
 
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
         }
     });
 
-    Test.add_func ("/jsoner/serialize/dict/string", () => {
+    Test.add_func ("/json/serialize/dict/string", () => {
         var expected_json = "{\"value\":{\"kekw\":\"yes\",\"kek\":\"no\"}}";
 
         var obj = new TestObjectDictString ();
@@ -472,21 +472,21 @@ public int main (string[] args) {
         }
     });
 
-    Test.add_func ("/jsoner/serialize/dict/string/direct", () => {
+    Test.add_func ("/json/serialize/dict/string/direct", () => {
         var expected_json = "{\"kekw\":\"yes\",\"kek\":\"no\"}";
 
         var obj = new Serialize.Dict<string> ();
         obj.set ("kekw", "yes");
         obj.set ("kek", "no");
 
-        var result = Jsoner.serialize (obj);
+        var result = JsonWorker.serialize (obj);
 
         if (result != expected_json) {
             Test.fail_printf (@"$result != $expected_json");
         }
     });
 
-    Test.add_func ("/jsoner/serialize/array/string2", () => {
+    Test.add_func ("/json/serialize/array/string2", () => {
         var test_object = new TestObjectArrayString ();
         test_object.value.add ("everything that lives is designed to end");
         test_object.value.add ("we are perpetually trapped in a neverending spyral of life and death");
@@ -503,7 +503,7 @@ public int main (string[] args) {
         }
     });
 
-    Test.add_func ("/jsoner/serialize/array/object", () => {
+    Test.add_func ("/json/serialize/array/object", () => {
         var test_object = new TestObjectArrayObject ();
         test_object.value.add (new SimpleObject ());
         test_object.value.add (new SimpleObject () { string_value = "why are we still here", int_value = 42 });
@@ -513,14 +513,14 @@ public int main (string[] args) {
         test_object.value.add (new SimpleObject ());
 
         string expectation = "{\"value\":[{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":\"why are we still here\",\"int-value\":42,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":\"kekw\",\"int-value\":0,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false}]}";
-        string result = Jsoner.serialize (test_object);
+        string result = JsonWorker.serialize (test_object);
 
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
         }
     });
 
-    Test.add_func ("/jsoner/serialize/array/object2", () => {
+    Test.add_func ("/json/serialize/array/object2", () => {
         var test_object = new TestObjectArrayObject ();
         test_object.value.add (new SimpleObject ());
         test_object.value.add (new SimpleObject () { string_value = "why are we still here", int_value = 42 });
@@ -537,7 +537,7 @@ public int main (string[] args) {
         }
     });
 
-    Test.add_func ("/jsoner/serialize/array/array", () => {
+    Test.add_func ("/json/serialize/array/array", () => {
         var test_object = new TestObjectArrayArray ();
         test_object.value.add (new Serialize.Array<SimpleObject> ());
         test_object.value.add (new Serialize.Array<SimpleObject> ());
@@ -550,14 +550,14 @@ public int main (string[] args) {
         test_object.value[2].add (new SimpleObject () { int_value = 56 });
 
         string expectation = "{\"value\":[[{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false}],[{\"string-value\":\"why are we still here\",\"int-value\":42,\"bool-value\":false},{\"string-value\":null,\"int-value\":0,\"bool-value\":false},{\"string-value\":\"kekw\",\"int-value\":0,\"bool-value\":false}],[{\"string-value\":null,\"int-value\":56,\"bool-value\":false}]]}";
-        string result = Jsoner.serialize (test_object);
+        string result = JsonWorker.serialize (test_object);
 
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
         }
     });
 
-    Test.add_func ("/jsoner/serialize/array/array/without-default", () => {
+    Test.add_func ("/json/serialize/array/array/without-default", () => {
         var test_object = new TestObjectArrayArray ();
         test_object.value.add (new Serialize.Array<SimpleObject> ());
         test_object.value.add (new Serialize.Array<SimpleObject> ());
@@ -570,14 +570,14 @@ public int main (string[] args) {
         test_object.value[2].add (new SimpleObject () { int_value = 56 });
 
         string expectation = "{\"value\":[[{},{}],[{\"string-value\":\"why are we still here\",\"int-value\":42},{},{\"string-value\":\"kekw\"}],[{\"int-value\":56}]]}";
-        string result = Jsoner.serialize (test_object, new Serialize.Settings () { ignore_default = true });
+        string result = JsonWorker.serialize (test_object, new Serialize.Settings () { ignore_default = true });
 
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
         }
     });
 
-    Test.add_func ("/jsoner/serialize/object-with-nested-childs", () => {
+    Test.add_func ("/json/serialize/object-with-nested-childs", () => {
         var test_object = new TestObjectWithNestedObjects () {
             child_typed = new TestObjectWithNestedObjects () {
                 child_any = new TestObjectWithNestedObjects ()
@@ -586,253 +586,251 @@ public int main (string[] args) {
             // test_any should be null
         };
         string expectation = "{\"child-typed\":{\"child-typed\":null,\"child-any\":{\"child-typed\":null,\"child-any\":null}},\"child-any\":null}";
-        string result = Jsoner.serialize (test_object, new Serialize.Settings ());
+        string result = JsonWorker.serialize (test_object, new Serialize.Settings ());
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/enum", () => {
+    Test.add_func ("/json/deserialize/enum", () => {
         try {
-            var jsoner = new Jsoner ("{\"value\":\"value_2\"}");
-            var result = jsoner.deserialize_object<TestObjectEnum> ();
+            var worker = new JsonWorker ("{\"value\":\"value_2\"}");
+            var result = worker.deserialize_object<TestObjectEnum> ();
 
             if (result.value != TestEnum.VALUE_2) {
                 Test.fail_printf (result.value.to_string () + " != " + TestEnum.VALUE_2.to_string ());
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/value", () => {
+    Test.add_func ("/json/deserialize/value", () => {
         try {
-            var jsoner = new Jsoner ("{\"value\":\"test\"}", {"value"});
+            var worker = new JsonWorker ("{\"value\":\"test\"}", {"value"});
 
-            string result = jsoner.deserialize_value ().get_string ();
+            string result = worker.deserialize_value ().get_string ();
 
             if (result != "test") {
                 Test.fail_printf (result + " != test");
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/not_valid_path", () => {
+    Test.add_func ("/json/deserialize/not_valid_path", () => {
         try {
-            var jsoner = new Jsoner ("{\"value\":\"test\"}", {"value1"});
-            jsoner.deserialize_value ();
+            var worker = new JsonWorker ("{\"value\":\"test\"}", {"value1"});
+            worker.deserialize_value ();
 
             Test.fail_printf ("Value parsed without error");
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.skip (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/object", () => {
+    Test.add_func ("/json/deserialize/object", () => {
         try {
-            var jsoner = new Jsoner ("{\"value\":\"test\"}");
-            var result = jsoner.deserialize_object<TestObjectString> ();
+            var worker = new JsonWorker ("{\"value\":\"test\"}");
+            var result = worker.deserialize_object<TestObjectString> ();
 
             if (result.value != "test") {
                 Test.fail_printf (result.value + " != test");
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/object/uni", () => {
+    Test.add_func ("/json/deserialize/object/uni", () => {
         try {
-            var jsoner = new Jsoner ("{\"value\":\"test\"}");
-            var result = jsoner.deserialize ();
+            var worker = new JsonWorker ("{\"value\":\"test\"}");
+            var result = worker.deserialize ();
 
             if (result["value"].get_string () != "test") {
                 Test.fail_printf (result["value"].get_string () + " != test");
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/object2", () => {
+    Test.add_func ("/json/deserialize/object2", () => {
         try {
-            var result = new TestObjectString ();
-            result.fill_from_json ("{\"value\":\"test\"}");
+            var result = JsonWorker.simple_from_json<TestObjectString> ("{\"value\":\"test\"}");
 
             if (result.value != "test") {
                 Test.fail_printf (result.value + " != test");
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/object_camel", () => {
+    Test.add_func ("/json/deserialize/object_camel", () => {
         try {
-            var jsoner = new Jsoner ("{\"stringValue\":\"test\"}", null, new Serialize.Settings () { names_case = Case.CAMEL });
-            var result = jsoner.deserialize_object<TestObjectStringCamel> ();
+            var worker = new JsonWorker ("{\"stringValue\":\"test\"}", null, new Serialize.Settings () { names_case = Case.CAMEL });
+            var result = worker.deserialize_object<TestObjectStringCamel> ();
 
             if (result.string_value != "test") {
                 Test.fail_printf (result.string_value + " != test");
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/object_camel_", () => {
+    Test.add_func ("/json/deserialize/object_camel_", () => {
         try {
-            var jsoner = new Jsoner ("{\"stringValue\":\"test\"}", null, new Serialize.Settings () { names_case = Case.CAMEL });
-            var result = jsoner.deserialize_object<TestObjectStringCamelW> ();
+            var worker = new JsonWorker ("{\"stringValue\":\"test\"}", null, new Serialize.Settings () { names_case = Case.CAMEL });
+            var result = worker.deserialize_object<TestObjectStringCamelW> ();
 
             if (result.string_value_ != "test") {
                 Test.fail_printf (result.string_value_ + " != test");
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/int_to_string", () => {
+    Test.add_func ("/json/deserialize/int_to_string", () => {
         try {
-            var jsoner = new Jsoner ("{\"value\":6}");
-            var result = jsoner.deserialize_object<TestObjectString> ();
+            var worker = new JsonWorker ("{\"value\":6}");
+            var result = worker.deserialize_object<TestObjectString> ();
 
             if (result.value != "6") {
                 Test.fail_printf (result.value + " != \"6\"");
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/int_to_double", () => {
+    Test.add_func ("/json/deserialize/int_to_double", () => {
         try {
             var json = "{\"value\":6}";
 
-            var result = Jsoner.simple_from_json<TestObjectDouble> (json);
+            var result = JsonWorker.simple_from_json<TestObjectDouble> (json);
 
             if (result.value != 6.0) {
                 Test.fail_printf (@"$(result.value) != 6.0");
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/array/string", () => {
+    Test.add_func ("/json/deserialize/array/string", () => {
         try {
-            var jsoner = new Jsoner ("{\"value\":[\"kekw\",\"yes\",\"no\"]}");
-            var result = jsoner.deserialize_object<TestObjectArrayString> ();
+            var worker = new JsonWorker ("{\"value\":[\"kekw\",\"yes\",\"no\"]}");
+            var result = worker.deserialize_object<TestObjectArrayString> ();
 
             if (result.value[0] != "kekw" || result.value[1] != "yes" || result.value[2] != "no") {
                 Test.fail_printf (string.joinv (", ", result.value.to_array ()) + " != kekw, yes, no");
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/array/string/strv", () => {
+    Test.add_func ("/json/deserialize/array/string/strv", () => {
         try {
-            var jsoner = new Jsoner ("{\"value\":[\"kekw\",\"yes\",\"no\"]}");
-            var result = jsoner.deserialize_object<TestObjectArrayStringStrv> ();
+            var worker = new JsonWorker ("{\"value\":[\"kekw\",\"yes\",\"no\"]}");
+            var result = worker.deserialize_object<TestObjectArrayStringStrv> ();
 
             if (result.value[0] != "kekw" || result.value[1] != "yes" || result.value[2] != "no") {
                 Test.fail_printf (string.joinv (", ", result.value) + " != kekw, yes, no");
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/array/string/strv/empty", () => {
+    Test.add_func ("/json/deserialize/array/string/strv/empty", () => {
         try {
-            var jsoner = new Jsoner ("{\"value\":[]}");
-            var result = jsoner.deserialize_object<TestObjectArrayStringStrv> ();
+            var worker = new JsonWorker ("{\"value\":[]}");
+            var result = worker.deserialize_object<TestObjectArrayStringStrv> ();
 
             if (result.value.length != 0) {
                 Test.fail_printf (string.joinv (", ", result.value) + " != ");
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/array/string/strv/not-present", () => {
+    Test.add_func ("/json/deserialize/array/string/strv/not-present", () => {
         try {
-            var jsoner = new Jsoner ("{}");
-            var result = jsoner.deserialize_object<TestObjectArrayStringStrv> ();
+            var worker = new JsonWorker ("{}");
+            var result = worker.deserialize_object<TestObjectArrayStringStrv> ();
 
             if (result.value.length != 0) {
                 Test.fail_printf (string.joinv (", ", result.value) + " != ");
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/array/string/uni", () => {
+    Test.add_func ("/json/deserialize/array/string/uni", () => {
         try {
-            var jsoner = new Jsoner ("{\"value\":[\"kekw\",\"yes\",\"no\"]}");
-            var result = jsoner.deserialize ();
+            var worker = new JsonWorker ("{\"value\":[\"kekw\",\"yes\",\"no\"]}");
+            var result = worker.deserialize ();
 
             var arr = (Serialize.Array<Value?>) result["value"].get_object ();
 
             if (arr[0].get_string () != "kekw" || arr[1].get_string () != "yes" || arr[2].get_string () != "no") {
                 Test.fail_printf ("Failed");
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/dict/string", () => {
+    Test.add_func ("/json/deserialize/dict/string", () => {
         try {
             var json = "{\"value\":{\"kekw\":\"yes\",\"kek\":\"no\"}}";
 
-            var result = Jsoner.simple_from_json<TestObjectDictString> (json);
+            var result = JsonWorker.simple_from_json<TestObjectDictString> (json);
 
             if (result.value["kekw"] != "yes" || result.value["kek"] != "no") {
                 Test.fail_printf ("");
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/array/string2", () => {
+    Test.add_func ("/json/deserialize/array/string2", () => {
         try {
-            var result = new TestObjectArrayString ();
-            result.fill_from_json ("{\"value\":[\"kekw\",\"yes\",\"no\"]}");
+            var result = JsonWorker.simple_from_json<TestObjectArrayString> ("{\"value\":[\"kekw\",\"yes\",\"no\"]}");
 
             if (result.value[0] != "kekw" || result.value[1] != "yes" || result.value[2] != "no") {
                 Test.fail_printf (string.joinv (", ", result.value.to_array ()) + " != kekw, yes, no");
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/array/direct", () => {
+    Test.add_func ("/json/deserialize/array/direct", () => {
         try {
-            var jsoner = new Jsoner ("{\"value\":[\"kekw\",\"yes\",\"no\"]}", {"value"});
-            var array = jsoner.deserialize_array<string> ();
+            var worker = new JsonWorker ("{\"value\":[\"kekw\",\"yes\",\"no\"]}", {"value"});
+            var array = worker.deserialize_array<string> ();
 
             if (array[0] != "kekw" || array[1] != "yes" || array[2] != "no") {
                 Test.fail_printf (string.joinv (", ", array.to_array ()) + " != kekw, yes, no");
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/array/object", () => {
+    Test.add_func ("/json/deserialize/array/object", () => {
         try {
-            var jsoner = new Jsoner ("{\"value\":[{\"string-value\":\"Baby one more time\",\"int-value\":42,\"bool-value\":true},{\"string-value\":\"I want it that way\",\"int-value\":17,\"bool-value\":false},{\"string-value\":\"Gonna make you sweat\",\"int-value\":99,\"bool-value\":true}]}");
-            var result = jsoner.deserialize_object<TestObjectArrayObject> ();
+            var worker = new JsonWorker ("{\"value\":[{\"string-value\":\"Baby one more time\",\"int-value\":42,\"bool-value\":true},{\"string-value\":\"I want it that way\",\"int-value\":17,\"bool-value\":false},{\"string-value\":\"Gonna make you sweat\",\"int-value\":99,\"bool-value\":true}]}");
+            var result = worker.deserialize_object<TestObjectArrayObject> ();
 
             if (result.value[0].string_value != "Baby one more time" || result.value[1].int_value != 17 || result.value[2].bool_value != true) {
                 Test.fail_printf (
@@ -841,15 +839,14 @@ public int main (string[] args) {
                     result.value[2].bool_value.to_string () + " != true"
                 );
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/array/object2", () => {
+    Test.add_func ("/json/deserialize/array/object2", () => {
         try {
-            var result = new TestObjectArrayObject ();
-            result.fill_from_json ("{\"value\":[{\"string-value\":\"Baby one more time\",\"int-value\":42,\"bool-value\":true},{\"string-value\":\"I want it that way\",\"int-value\":17,\"bool-value\":false},{\"string-value\":\"Gonna make you sweat\",\"int-value\":99,\"bool-value\":true}]}");
+            var result = JsonWorker.simple_from_json<TestObjectArrayObject> ("{\"value\":[{\"string-value\":\"Baby one more time\",\"int-value\":42,\"bool-value\":true},{\"string-value\":\"I want it that way\",\"int-value\":17,\"bool-value\":false},{\"string-value\":\"Gonna make you sweat\",\"int-value\":99,\"bool-value\":true}]}");
 
             if (result.value[0].string_value != "Baby one more time" || result.value[1].int_value != 17 || result.value[2].bool_value != true) {
                 Test.fail_printf (
@@ -858,15 +855,15 @@ public int main (string[] args) {
                     result.value[2].bool_value.to_string () + " != true"
                 );
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/array/array", () => {
+    Test.add_func ("/json/deserialize/array/array", () => {
         try {
-            var jsoner = new Jsoner ("{\"value\":[[{\"value\":7}],[{\"value\":98}]]}");
-            var result = jsoner.deserialize_object<TestObjectAlbum> ();
+            var worker = new JsonWorker ("{\"value\":[[{\"value\":7}],[{\"value\":98}]]}");
+            var result = worker.deserialize_object<TestObjectAlbum> ();
 
             if (result.value[0][0].value != 7 || result.value[1][0].value != 98) {
                 Test.fail_printf (
@@ -874,15 +871,15 @@ public int main (string[] args) {
                     result.value[1][0].value.to_string () + " != 98\n"
                 );
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/array/array2", () => {
+    Test.add_func ("/json/deserialize/array/array2", () => {
         try {
-            var jsoner = new Jsoner ("{\"value\":[[{\"value\":7}],[{\"value\":98}]]}");
-            var result = jsoner.deserialize_object<TestObjectAlbum2> ();
+            var worker = new JsonWorker ("{\"value\":[[{\"value\":7}],[{\"value\":98}]]}");
+            var result = worker.deserialize_object<TestObjectAlbum2> ();
 
             if (result.value[0][0]["value"] != 7 || result.value[1][0]["value"] != 98) {
                 Test.fail_printf (
@@ -890,38 +887,38 @@ public int main (string[] args) {
                     result.value[1][0]["value"].to_string () + " != 98\n"
                 );
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/object/runtime_type/child", () => {
+    Test.add_func ("/json/deserialize/object/runtime_type/child", () => {
         try {
-            var jsoner = new Jsoner ("{\"type\":\"child\"}");
-            var result = jsoner.deserialize_object<TestObjectFamilyParent> ();
+            var worker = new JsonWorker ("{\"type\":\"child\"}");
+            var result = worker.deserialize_object<TestObjectFamilyParent> ();
 
             if (!(result is TestObjectFamilyChild)) {
                 Test.fail_printf ("%s != %s", result.get_type ().name (), typeof(TestObjectFamilyChild).name());
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/object/runtime_type/parent", () => {
+    Test.add_func ("/json/deserialize/object/runtime_type/parent", () => {
         try {
-            var jsoner = new Jsoner ("{\"type\":\"any-other-thing\"}");
-            var result = jsoner.deserialize_object<TestObjectFamilyParent> ();
+            var worker = new JsonWorker ("{\"type\":\"any-other-thing\"}");
+            var result = worker.deserialize_object<TestObjectFamilyParent> ();
 
             if (!(result is TestObjectFamilyParent)) {
                 Test.fail_printf ("%s != %s", result.get_type ().name (), typeof(TestObjectFamilyParent).name());
             }
-        } catch (JsonError e) {
+        } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
         }
     });
 
-    Test.add_func ("/jsoner/deserialize/object/fallback", () => {
+    Test.add_func ("/json/deserialize/object/fallback", () => {
         Case[] cases = {KEBAB, SNAKE, CAMEL};
         foreach (var c in cases) {
             string json = get_exp_json (c);
@@ -929,12 +926,12 @@ public int main (string[] args) {
             TestObjectDeserializeFallback result;
 
             try {
-                result = Jsoner.simple_from_json<TestObjectDeserializeFallback> (json, null, new Serialize.Settings () { names_case = c });
-            } catch (Error e) {
+                result = JsonWorker.simple_from_json<TestObjectDeserializeFallback> (json, null, new Serialize.Settings () { names_case = c });
+            } catch (GLib.Error e) {
                 Test.fail_printf (e.message);
                 return;
             }
-            var result_ser = Jsoner.serialize (result, new Serialize.Settings () { names_case = c });
+            var result_ser = JsonWorker.serialize (result, new Serialize.Settings () { names_case = c });
 
             var expectation_arr = json[1:json.length - 1].split (",");
             var result_arr = result_ser[1:result_ser.length - 1].split (",");
@@ -947,14 +944,14 @@ public int main (string[] args) {
         }
     });
 
-    Test.add_func ("/jsoner/serialize/object/fallback/empty", () => {
+    Test.add_func ("/json/serialize/object/fallback/empty", () => {
         string json = "{\"stringVal\":\"test\",\"int64Val\":54}";
 
         TestObjectDeserializeFallback result = new TestObjectDeserializeFallback ();
         result.string_val = "test";
         result.int64_val = 54;
         
-        var result_ser = Jsoner.serialize (result, new Serialize.Settings () { names_case = CAMEL });
+        var result_ser = JsonWorker.serialize (result, new Serialize.Settings () { names_case = CAMEL });
 
         var expectation_arr = json[1:json.length - 1].split (",");
         var result_arr = result_ser[1:result_ser.length - 1].split (",");

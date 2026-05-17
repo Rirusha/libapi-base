@@ -17,21 +17,16 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-namespace Serialize.JsonerSerializeAsync {
+[Version (since = "7.5")]
+public interface Serialize.ValueSupport : Worker {
 
-    internal static async string serialize (
-        Object obj,
-        Serialize.Settings? settings
-    ) {
-        var thread = new Thread<string> (null, () => {
-            var result = JsonerSerializeSync.serialize (obj, settings);
-
-            Idle.add (serialize.callback);
-            return result;
-        });
-
-        yield;
-
-        return thread.join ();
-    }
+    /**
+     * Method for deserializing the {@link GLib.Value}
+     *
+     * @return deserialized value
+     *
+     * @throws Serialize.Error    Error with data string
+     */
+    [Version (since = "7.5")]
+    public abstract inline Value deserialize_value () throws Serialize.Error;
 }
