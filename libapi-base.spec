@@ -160,6 +160,7 @@ Requires: %sname%api_version-gir = %EVR
 
 %changelog
 * Mon May 18 2026 Vladimir Romanov <rirusha@altlinux.org> 7.5-alt1
+- New version: 7.5.
 - Added INI format support in Serialize.
 - Added supported PascalCase.
 - Deprecate `Serialize.Jsoner`, `Serialize.JsonWorker` should be used instead.
