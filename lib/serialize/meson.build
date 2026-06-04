@@ -1,9 +1,9 @@
 serialize_name = 'serialize'
 serialize_gir_name = 'Serialize'
 
-serialize_versioned_name = serialize_name + '-' + api_version
-serialize_versioned_lib_name = 'lib' + serialize_name + '-' + api_version
-serialize_versioned_gir_name = serialize_gir_name + '-' + api_version
+serialize_versioned_name = serialize_name + '-' + soversion
+serialize_versioned_lib_name = 'lib' + serialize_name + '-' + soversion
+serialize_versioned_gir_name = serialize_gir_name + '-' + soversion
 
 serialize_deps_name = serialize_versioned_lib_name + '.deps'
 serialize_header_name = serialize_versioned_lib_name + '.h'
@@ -72,7 +72,7 @@ serialize_lib = library(
   vala_header: serialize_header_name,
   vala_vapi: serialize_vapi_name,
   vala_gir: serialize_gir_name,
-  version: soversion,
+  version: libversion,
   soversion: soversion,
   c_args: '-DG_LOG_DOMAIN="@0@"'.format(serialize_name),
   install: true,

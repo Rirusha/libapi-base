@@ -1,9 +1,9 @@
 api_base_name = 'api-base'
 api_base_gir_name = 'ApiBase'
 
-api_base_versioned_name = api_base_name + '-' + api_version
-api_base_versioned_lib_name = 'lib' + api_base_name + '-' + api_version
-api_base_versioned_gir_name = api_base_gir_name + '-' + api_version
+api_base_versioned_name = api_base_name + '-' + soversion
+api_base_versioned_lib_name = 'lib' + api_base_name + '-' + soversion
+api_base_versioned_gir_name = api_base_gir_name + '-' + soversion
 
 api_base_deps_name = api_base_versioned_lib_name + '.deps'
 api_base_header_name = api_base_versioned_lib_name + '.h'
@@ -51,7 +51,7 @@ api_base_lib = library(
   vala_header: api_base_header_name,
   vala_vapi: api_base_vapi_name,
   vala_gir: api_base_gir_name,
-  version: soversion,
+  version: libversion,
   soversion: soversion,
   c_args: '-DG_LOG_DOMAIN="@0@"'.format(api_base_name),
   install: true,

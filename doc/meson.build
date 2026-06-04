@@ -48,7 +48,7 @@ api_base_valadoc = custom_target(
 
 custom_target(
   'fix_doc',
-  command: [fix_doc_prog, api_version],
+  command: [fix_doc_prog, soversion],
   build_by_default: true,
   input: api_base_sources,
   output: 'nothing',
