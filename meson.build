@@ -6,8 +6,8 @@ project(
   license: 'GPL-3.0-or-later',
 )
 
-soversion = meson.project_version().replace('.rc', '')
-api_version = meson.project_version().split('.')[0]
+libversion = meson.project_version().replace('.rc', '')
+soversion = meson.project_version().split('.')[0]
 glib_min_version = '2.76'
 
 pkgconfig = import('pkgconfig')
