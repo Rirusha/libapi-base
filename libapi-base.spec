@@ -162,6 +162,8 @@ Requires: %sname%api_version-gir = %EVR
 * Thu Jun 04 2026 Vladimir Romanov <rirusha@altlinux.org> 7.6-alt1
 - New version: 7.6.
 - Fixed build soversion.
+- Full release notes:
+  https://altlinux.space/rirusha/libapi-base/releases/tag/v7.6.
 
 * Mon May 18 2026 Vladimir Romanov <rirusha@altlinux.org> 7.5-alt1
 - New version: 7.5.
