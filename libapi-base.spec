@@ -163,7 +163,7 @@ Requires: %sname%api_version-gir = %EVR
 - New version: 7.6.
 - Fixed build soversion.
 - Full release notes:
-  https://altlinux.space/rirusha/libapi-base/releases/tag/v7.6.
+  https://altlinux.space/rirusha/libapi-base/releases/tag/v7.6
 
 * Mon May 18 2026 Vladimir Romanov <rirusha@altlinux.org> 7.5-alt1
 - New version: 7.5.
@@ -172,7 +172,7 @@ Requires: %sname%api_version-gir = %EVR
 - Deprecate `Serialize.Jsoner`, `Serialize.JsonWorker` should be used instead.
 - Deprecate `Serialize.JsonError`, `Serialize.Error` should be used instead.
 - Full release notes:
-  https://altlinux.space/rirusha/libapi-base/releases/tag/v7.5.
+  https://altlinux.space/rirusha/libapi-base/releases/tag/v7.5
 
 * Mon Apr 20 2026 Vladimir Romanov <rirusha@altlinux.org> 7.4-alt1
 - New version: 7.4.
@@ -181,7 +181,7 @@ Requires: %sname%api_version-gir = %EVR
 - Improved serialization: case-insensitive enum parsing, UTC timezone
   for DateTime, INT64 -> DateTime conversion.
 - Full release notes:
-  https://altlinux.space/rirusha/libapi-base/releases/tag/v7.4.
+  https://altlinux.space/rirusha/libapi-base/releases/tag/v7.4
 
 * Sun Mar 29 2026 Vladimir Romanov <rirusha@altlinux.org> 7.3-alt1
 - New version: 7.3.
