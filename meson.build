@@ -1,7 +1,7 @@
 project(
   'libapi-base',
   ['c', 'vala'],
-  version: '7.6',
+  version: '7.7',
   meson_version: '>= 1.9.0',
   license: 'GPL-3.0-or-later',
 )
@@ -30,6 +30,7 @@ add_project_arguments(
   '--hide-internal',
   '--target-glib', glib_min_version,
   '--vapidir', meson.current_source_dir(),
+  '--vapi-comments',
   language: ['vala'],
 )
 
