@@ -4,7 +4,7 @@
 %define _unpackaged_files_terminate_build 1
 
 %define api_version 7
-%define minor_version 6
+%define minor_version 7
 %define gir_name ApiBase
 
 %define sname libserialize
@@ -159,6 +159,11 @@ Requires: %sname%api_version-gir = %EVR
 %_girdir/%gir_sname-%api_version.gir
 
 %changelog
+* Tue Jun 09 2026 Vladimir Romanov <rirusha@altlinux.org> 7.7-alt1
+- Added comments to generated vapi file.
+- Full release notes:
+  https://altlinux.space/rirusha/libapi-base/releases/tag/v7.7
+
 * Thu Jun 04 2026 Vladimir Romanov <rirusha@altlinux.org> 7.6-alt1
 - New version: 7.6.
 - Fixed build soversion.
