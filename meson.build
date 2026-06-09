@@ -30,6 +30,7 @@ add_project_arguments(
   '--hide-internal',
   '--target-glib', glib_min_version,
   '--vapidir', meson.current_source_dir(),
+  '--vapi-comments',
   language: ['vala'],
 )
 
