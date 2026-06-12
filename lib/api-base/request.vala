@@ -215,6 +215,7 @@ public class ApiBase.Request : Object {
         string scheme;
         string? host;
         string path;
+        int new_port = port;
 
         try {
             if (Uri.peek_scheme (uri) == null && base_url != null) {
@@ -222,12 +223,18 @@ public class ApiBase.Request : Object {
                 scheme = base_url_obj.get_scheme ();
                 host = base_url_obj.get_host ();
                 path = Path.build_filename (base_url_obj.get_path (), uri);
+                if (new_port == -1) {
+                    new_port = base_url_obj.get_port ();
+                }
 
             } else {
                 var cur_uri_obj = Uri.parse (uri, NONE);
                 scheme = cur_uri_obj.get_scheme ();
                 host = cur_uri_obj.get_host ();
                 path = cur_uri_obj.get_path ();
+                if (new_port == -1) {
+                    new_port = cur_uri_obj.get_port ();
+                }
             }
         } catch (UriError e) {
             warning ("Can't create Soup.Message: %s", e.message);
@@ -239,7 +246,7 @@ public class ApiBase.Request : Object {
             scheme,
             null,
             host,
-            port,
+            new_port,
             path,
             get_query (),
             null
