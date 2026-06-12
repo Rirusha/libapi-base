@@ -37,6 +37,14 @@ test('yaml',
   ),
 )
 
+test('convert',
+  executable('convert-test',
+    sources: ['convert-test.vala', resources],
+    dependencies: [serialize_dependencies, serialize_lib_dep],
+    vala_args: test_vala_args,
+  ),
+)
+
 test('session',
   executable('session-test',
     sources: ['session-test.vala'],
