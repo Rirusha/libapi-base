@@ -406,7 +406,7 @@ public sealed class Serialize.YamlWorker : Worker, ArraySupport, DictSupport, Va
     }
 
     /**
-     * {@link deserialize} without
+     * {@link DictSupport.deserialize} without
      * manual {@link YamlWorker} instance creation
      *
      * @param yaml              Yaml string
@@ -429,7 +429,7 @@ public sealed class Serialize.YamlWorker : Worker, ArraySupport, DictSupport, Va
 
     /**
      * Object creation method from yaml
-     * via {@link YamlWorker.deserialize_object}
+     * via {@link Worker.deserialize_object}
      * Simple version for fast deserialization without
      * manual {@link YamlWorker} instance creation
      *
@@ -453,7 +453,7 @@ public sealed class Serialize.YamlWorker : Worker, ArraySupport, DictSupport, Va
 
     /**
      * Array creation method from yaml
-     * via {@link YamlWorker.deserialize_array}
+     * via {@link ArraySupport.deserialize_array}
      * Simple version for fast deserialization without
      * manual {@link YamlWorker} instance creation
      *
@@ -480,7 +480,7 @@ public sealed class Serialize.YamlWorker : Worker, ArraySupport, DictSupport, Va
 
     /**
      * Dict creation method from yaml
-     * via {@link YamlWorker.deserialize_dict}
+     * via {@link DictSupport.deserialize_dict}
      * Simple version for fast deserialization without
      * manual {@link YamlWorker} instance creation
      *

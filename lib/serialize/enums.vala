@@ -82,7 +82,7 @@ public enum Serialize.Case {
 }
 
 /**
- * Data types tha can be converted via {@link data2data}
+ * Data types that can be converted via {@link Convert.data2data}
  */
 [Version (since = "7.5")]
 public enum Serialize.ConvertableDataType {

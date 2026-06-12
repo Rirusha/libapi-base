@@ -122,7 +122,8 @@ public class ApiBase.Request : Object {
     /**
      * Add header with header object
      *
-     * @param header    Header object
+     * @param name      Header name
+     * @param value     Header value
      * @param replace   Replace existing header with equal name or not
      */
     [Version (since = "4.0")]

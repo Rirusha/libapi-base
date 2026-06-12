@@ -153,7 +153,7 @@ public class Serialize.Array<T> : Gee.ArrayList<T>, CollectionFactory<T> {
     }
 
     /**
-     * Add value to this. Value should hold {@link element_type}.
+     * Add value to this. Value should hold element_type.
      */
     [Version (since = "7.0")]
     public void add_value (Value value) {

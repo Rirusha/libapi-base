@@ -130,8 +130,8 @@ public sealed class Serialize.IniWorker : Worker {
     }
 
     /**
-     * Object creation method from ini 
-     * via {@link IniWorker.deserialize_object}
+     * Object creation method from ini
+     * via {@link Worker.deserialize_object}
      * Simple version for fast deserialization without
      * manual {@link IniWorker} instance creation
      *
@@ -140,7 +140,7 @@ public sealed class Serialize.IniWorker : Worker {
      *
      * @return                  Deserialized object
      *
-     * @throws Serialize.Error        Error with ini or sub_members
+     * @throws Serialize.Error        Error with ini
      */
     [Version (since = "7.5")]
     public static inline T simple_from_ini<T> (
@@ -195,12 +195,11 @@ public sealed class Serialize.IniWorker : Worker {
      * Asynchronous version of method {@link simple_from_ini}
      *
      * @param ini               Ini string
-     * @param sub_members       Sub members to 'steps'
      * @param settings          Settings
      *
      * @return                  Deserialized object
      *
-     * @throws Serialize.Error        Error with ini or sub_members
+     * @throws Serialize.Error        Error with ini
      */
     [Version (since = "7.5")]
     public async static inline T simple_from_ini_async<T> (

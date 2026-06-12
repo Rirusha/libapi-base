@@ -69,12 +69,12 @@ public sealed class Serialize.Settings : Object {
     public EnumSerializeMethod enum_serialize_method { get; set; default = INT; }
 
     /**
-     * Works only when {@link date_time_serialize_method} equal to {@link Case.STRING}.
+     * Works only when {@link enum_serialize_method} equal to {@link EnumSerializeMethod.STRING}.
      */
     public Case enum_serialize_case { get; set; default = AUTO; }
 
     /**
-     * Will {@link DateTime} be serialized in unix time or ISO-8601 format.
+     * Will {@link GLib.DateTime} be serialized in unix time or ISO-8601 format.
      */
     public DateTimeSerializeMethod date_time_serialize_method { get; set; default = ISO8601; }
 

@@ -22,7 +22,7 @@
  * A helper class with convenient methods for fast de/serialization
  *
  * To change json property name, change property nick via Description attribure
- * Example: `custom_nick` will be `renamed` in json data. It works for any {@link Object},
+ * Example: `custom_nick` will be `renamed` in json data. It works for any {@link GLib.Object},
  * not only {@link DataObject}
  * {{{
  *   public class ValuesData : DataObject {
