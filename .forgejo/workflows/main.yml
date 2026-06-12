@@ -46,7 +46,7 @@ jobs:
           .forgejo/check-abi $(git tag --merged HEAD --sort=-creatordate | head -n 1) $(git rev-parse HEAD)
 
       - name: Setup
-        run: meson setup _build -Ddocumentation=true -Drun_net_tests=false
+        run: meson setup _build -Ddocumentation=true
 
       - name: Build
         run: meson compile -C _build

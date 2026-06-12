@@ -37,14 +37,12 @@ test('yaml',
   ),
 )
 
-if get_option('run_net_tests')
-  test('Test SoupWrapper',
-    executable('session-test',
-      sources: ['session-test.vala'],
-      dependencies: [api_base_dependencies, api_base_lib_dep],
-      vala_args: test_vala_args,
-    ),
-    is_parallel: true,
-    timeout: 9000
-  )
-endif
+test('session',
+  executable('session-test',
+    sources: ['session-test.vala'],
+    dependencies: [api_base_dependencies, api_base_lib_dep],
+    vala_args: test_vala_args,
+  ),
+  is_parallel: true,
+  timeout: 9000
+)

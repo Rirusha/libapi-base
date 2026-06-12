@@ -114,7 +114,7 @@ Requires: %sname%api_version-gir = %EVR
 %setup
 
 %build
-%meson -Drun_net_tests=false
+%meson
 %meson_build
 
 %install
