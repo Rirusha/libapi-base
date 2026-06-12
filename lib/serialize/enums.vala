@@ -86,7 +86,8 @@ public enum Serialize.Case {
  */
 [Version (since = "7.5")]
 public enum Serialize.ConvertableDataType {
-    JSON;
+    JSON,
+    YAML;
 }
 
 /**

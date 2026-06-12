@@ -62,6 +62,17 @@ public abstract class Serialize.DataObject : Object {
     }
 
     /**
+     * Serialize object to yaml
+     */
+    [Version (since = "7.8")]
+    public string to_yaml (Serialize.Settings? settings = null) {
+        return YamlWorker.serialize (
+            this,
+            settings
+        );
+    }
+
+    /**
      * Fills object with dict values;
      */
     [Version (since = "7.5")]

@@ -52,6 +52,9 @@ api_base_lib = library(
   vala_vapi: api_base_vapi_name,
   vala_gir: api_base_gir_name,
   version: libversion,
+  vala_args: [
+    '--vapidir', local_vapi_dir,
+  ],
   soversion: soversion,
   c_args: '-DG_LOG_DOMAIN="@0@"'.format(api_base_name),
   install: true,

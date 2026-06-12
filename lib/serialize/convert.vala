@@ -606,6 +606,8 @@ namespace Serialize.Convert {
         switch (to) {
             case JSON:
                 return JsonWorker.serialize (dict, settings);
+            case YAML:
+                return YamlWorker.serialize (dict, settings);
             default:
                 assert_not_reached ();
         }
