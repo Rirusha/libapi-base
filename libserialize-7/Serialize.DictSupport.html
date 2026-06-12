@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8"/>
+    <title>Serialize.DictSupport &ndash; libserialize-7 &ndash; Vala Binding Reference</title>
+    <link href="../style.css" rel="stylesheet" type="text/css"/><script src="../scripts.js" type="text/javascript">
+    </script>
+  </head>
+  <body>
+    <div class="site_header">Serialize.DictSupport &ndash; libserialize-7 Reference Manual</div>
+    <div class="site_body">
+      <div class="site_navigation">
+        <ul class="navi_main">
+          <li class="package_index"><a href="../index.html">Packages</a></li>
+        </ul>
+        <hr class="navi_hr"/>
+        <ul class="navi_main">
+          <li class="package"><a href="index.htm">libserialize-7</a></li>
+        </ul>
+        <hr class="navi_hr"/>
+        <ul class="navi_main">
+          <li class="namespace"><a href="Serialize.html">Serialize</a></li>
+        </ul>
+        <hr class="navi_hr"/>
+        <ul class="navi_main">
+          <li class="interface">DictSupport</li>
+        </ul>
+        <hr class="navi_hr"/>
+        <ul class="navi_main">
+          <li class="virtual_method"><a href="Serialize.DictSupport.deserialize.html">deserialize</a></li>
+          <li class="virtual_method"><a href="Serialize.DictSupport.deserialize_dict.html">deserialize_dict</a></li>
+          <li class="virtual_method"><a href="Serialize.DictSupport.deserialize_dict_async.html">deserialize_dict_async</a></li>
+          <li class="abstract_method"><a href="Serialize.DictSupport.deserialize_dict_into.html">deserialize_dict_into</a></li>
+          <li class="virtual_method"><a href="Serialize.DictSupport.deserialize_dict_into_async.html">deserialize_dict_into_async</a></li>
+        </ul>
+      </div>
+      <div class="site_content">
+        <h1 class="main_title">DictSupport</h1>
+        <hr class="main_hr"/>
+        <h2 class="main_title">Object Hierarchy:</h2>
+        <img class="main_diagram" usemap="#Serialize.DictSupport" alt="Object hierarchy for DictSupport" src="img/Serialize.DictSupport.png"/>
+        <h2 class="main_title">Description:</h2>
+        <div class="main_code_definition">[ <span class="main_type">Version</span> ( since = <span class="main_literal">"7.5"</span> ) ]<br/><span class="main_keyword">public</span> <span class="main_keyword">interface</span> <b><span class="interface">DictSupport</span></b> : <span class="main_type"><a href="Serialize.Worker.html" class="abstract_class">Worker</a></span>
+        </div>
+        <div class="box">
+          <div class="headline" onclick="toggle_box (this, 'box-content-46')">All known implementing classes:</div>
+          <div class="content" id="box-content-46">
+            <div class="column">
+              <ul class="navi_inline">
+                <li class="class"><a href="Serialize.JsonWorker.html">JsonWorker</a></li>
+              </ul>
+            </div>
+            <div class="column">
+              <ul class="navi_inline">
+                <li class="class"><a href="Serialize.YamlWorker.html">YamlWorker</a></li>
+              </ul>
+            </div>
+            <div class="column">
+              <ul class="navi_inline">
+              </ul>
+            </div>
+          </div>
+        </div><br/>
+        <div class="namespace_note"><b>Namespace:</b> <a href="Serialize.html">Serialize</a>
+        </div>
+        <div class="package_note"><b>Package:</b> <a href="index.htm">libserialize-7</a>
+        </div>
+        <h2 class="main_title">Content:</h2>
+        <h3 class="main_title">Methods:</h3>
+        <ul class="navi_inline">
+          <li class="virtual_method"><span class="leaf_code_definition"><span class="main_keyword">public</span> <span class="main_keyword">virtual</span> <span class="main_keyword">inline</span> <span class="main_type"><a href="Serialize.Dict.html" class="class">Dict</a></span>&lt;<span class="main_type"><span class="struct">Value</span></span>?&gt; <b><a href="Serialize.DictSupport.deserialize.html" class="virtual_method">deserialize</a></b> () <span class="main_keyword">throws</span> <span class="main_type"><a href="Serialize.Error.html" class="errordomain">Error</a></span>
+            </span>
+            <div class="leaf_brief_description"><span class="brief_description">Method for deserializing to 
+                <a href="Serialize.Dict.html" class="class">Dict</a></span>
+            </div></li>
+          <li class="virtual_method"><span class="leaf_code_definition"><span class="main_keyword">public</span> <span class="main_keyword">virtual</span> <span class="main_keyword">inline</span> <span class="main_type"><a href="Serialize.Dict.html" class="class">Dict</a></span>&lt;<span class="main_type"><span>T</span></span>&gt; <b><a href="Serialize.DictSupport.deserialize_dict.html" class="virtual_method">deserialize_dict</a></b>&lt;<b><span>T</span></b>&gt; (<span class="main_type"><a href="Serialize.CollectionFactory.html" class="interface">CollectionFactory</a></span>[] collection_hierarchy = <span class="main_keyword">new</span> <b><a href="Serialize.CollectionFactory.html" class="interface">CollectionFactory</a></b>[<span class="main_literal">0</span>] {}) <span class="main_keyword">throws</span> <span class="main_type"><a href="Serialize.Error.html" class="errordomain">Error</a></span>
+            </span>
+            <div class="leaf_brief_description"><span class="brief_description">Method for deserializing the 
+                <a href="Serialize.Dict.html" class="class">Dict</a></span>
+            </div></li>
+          <li class="virtual_method"><span class="leaf_code_definition"><span class="main_keyword">public</span> <span class="main_keyword">virtual</span> <span class="main_keyword">inline</span> <span class="main_keyword">async</span> <span class="main_type"><a href="Serialize.Dict.html" class="class">Dict</a></span>&lt;<span class="main_type"><span>T</span></span>&gt; <b><a href="Serialize.DictSupport.deserialize_dict_async.html" class="virtual_method">deserialize_dict_async</a></b>&lt;<b><span>T</span></b>&gt; (<span class="main_type"><a href="Serialize.CollectionFactory.html" class="interface">CollectionFactory</a></span>[] collection_factories = <span class="main_keyword">new</span> <b><a href="Serialize.CollectionFactory.html" class="interface">CollectionFactory</a></b>[<span class="main_literal">0</span>] {}) <span class="main_keyword">throws</span> <span class="main_type"><a href="Serialize.Error.html" class="errordomain">Error</a></span>
+            </span>
+            <div class="leaf_brief_description"><span class="brief_description">Asynchronous version of method 
+                <a href="Serialize.DictSupport.deserialize_dict.html" class="virtual_method">deserialize_dict</a></span>
+            </div></li>
+          <li class="abstract_method"><span class="leaf_code_definition"><span class="main_keyword">public</span> <span class="main_keyword">abstract</span> <span class="main_keyword">inline</span> <span class="main_keyword">void</span> <b><a href="Serialize.DictSupport.deserialize_dict_into.html" class="abstract_method">deserialize_dict_into</a></b> (<span class="main_type"><a href="Serialize.Dict.html" class="class">Dict</a></span> dict, <span class="main_type"><a href="Serialize.CollectionFactory.html" class="interface">CollectionFactory</a></span>[] collection_hierarchy = <span class="main_keyword">new</span> <b><a href="Serialize.CollectionFactory.html" class="interface">CollectionFactory</a></b>[<span class="main_literal">0</span>] {}) <span class="main_keyword">throws</span> <span class="main_type"><a href="Serialize.Error.html" class="errordomain">Error</a></span>
+            </span>
+            <div class="leaf_brief_description"><span class="brief_description">Method for deserializing the 
+                <a href="Serialize.Dict.html" class="class">Dict</a></span>
+            </div></li>
+          <li class="virtual_method"><span class="leaf_code_definition"><span class="main_keyword">public</span> <span class="main_keyword">virtual</span> <span class="main_keyword">async</span> <span class="main_keyword">void</span> <b><a href="Serialize.DictSupport.deserialize_dict_into_async.html" class="virtual_method">deserialize_dict_into_async</a></b> (<span class="main_type"><a href="Serialize.Dict.html" class="class">Dict</a></span> dict, <span class="main_type"><a href="Serialize.CollectionFactory.html" class="interface">CollectionFactory</a></span>[] collection_factories = <span class="main_keyword">new</span> <b><a href="Serialize.CollectionFactory.html" class="interface">CollectionFactory</a></b>[<span class="main_literal">0</span>] {}) <span class="main_keyword">throws</span> <span class="main_type"><a href="Serialize.Error.html" class="errordomain">Error</a></span>
+            </span>
+            <div class="leaf_brief_description"><span class="brief_description">Asynchronous version of method 
+                <a href="Serialize.DictSupport.deserialize_dict_into.html" class="abstract_method">deserialize_dict_into</a></span>
+            </div></li>
+        </ul>
+        <h3 class="main_title">Inherited Members:</h3>
+        <div class="box">
+          <div class="headline" onclick="toggle_box (this, 'box-content-47')">All known members inherited from class Serialize.Worker</div>
+          <div class="content" id="box-content-47">
+            <div class="column">
+              <ul class="navi_inline">
+                <li class="method"><a href="Serialize.Worker.deserialize_object.html">deserialize_object</a></li>
+                <li class="method"><a href="Serialize.Worker.deserialize_object_async.html">deserialize_object_async</a></li>
+                <li class="abstract_method"><a href="Serialize.Worker.deserialize_object_by_type.html">deserialize_object_by_type</a></li>
+              </ul>
+            </div>
+            <div class="column">
+              <ul class="navi_inline">
+                <li class="method"><a href="Serialize.Worker.deserialize_object_by_type_async.html">deserialize_object_by_type_async</a></li>
+                <li class="abstract_method"><a href="Serialize.Worker.deserialize_object_into.html">deserialize_object_into</a></li>
+              </ul>
+            </div>
+            <div class="column">
+              <ul class="navi_inline">
+                <li class="method"><a href="Serialize.Worker.deserialize_object_into_async.html">deserialize_object_into_async</a></li>
+                <li class="property"><a href="Serialize.Worker.settings.html">settings</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="box">
+          <div class="headline" onclick="toggle_box (this, 'box-content-48')">All known members inherited from class GLib.Object</div>
+          <div class="content" id="box-content-48">
+            <div class="column">
+              <ul class="navi_inline">
+                <li class="method">@get</li>
+                <li class="static_method">@new</li>
+                <li class="method">@ref</li>
+                <li class="method">@set</li>
+                <li class="method">add_toggle_ref</li>
+                <li class="method">add_weak_pointer</li>
+                <li class="method">bind_property</li>
+                <li class="method">connect</li>
+                <li class="virtual_method">constructed</li>
+                <li class="method">disconnect</li>
+                <li class="virtual_method">dispose</li>
+                <li class="method">dup_data</li>
+                <li class="method">dup_qdata</li>
+                <li class="method">force_floating</li>
+                <li class="method">freeze_notify</li>
+                <li class="method">get_class</li>
+                <li class="method">get_data</li>
+              </ul>
+            </div>
+            <div class="column">
+              <ul class="navi_inline">
+                <li class="method">get_property</li>
+                <li class="method">get_qdata</li>
+                <li class="method">get_type</li>
+                <li class="method">getv</li>
+                <li class="static_method">interface_find_property</li>
+                <li class="static_method">interface_install_property</li>
+                <li class="static_method">interface_list_properties</li>
+                <li class="method">is_floating</li>
+                <li class="static_method">new_valist</li>
+                <li class="static_method">new_with_properties</li>
+                <li class="static_method">newv</li>
+                <li class="signal">notify</li>
+                <li class="method">notify_property</li>
+                <li class="field">ref_count</li>
+                <li class="method">ref_sink</li>
+                <li class="method">remove_toggle_ref</li>
+                <li class="method">remove_weak_pointer</li>
+              </ul>
+            </div>
+            <div class="column">
+              <ul class="navi_inline">
+                <li class="method">replace_data</li>
+                <li class="method">replace_qdata</li>
+                <li class="method">set_data</li>
+                <li class="method">set_data_full</li>
+                <li class="method">set_property</li>
+                <li class="method">set_qdata</li>
+                <li class="method">set_qdata_full</li>
+                <li class="method">set_valist</li>
+                <li class="method">setv</li>
+                <li class="method">steal_data</li>
+                <li class="method">steal_qdata</li>
+                <li class="method">thaw_notify</li>
+                <li class="method">unref</li>
+                <li class="method">watch_closure</li>
+                <li class="method">weak_ref</li>
+                <li class="method">weak_unref</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><br/>
+    <div class="site_footer">Generated by <a href="https://docs.vala.dev"><kbd>valadoc</kbd></a>
+    </div>
+  </body>
+</html>
