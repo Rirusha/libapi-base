@@ -808,7 +808,7 @@ public int main (string[] args) {
 
     Test.add_func ("/yaml/deserialize/empty", () => {
         try {
-            var worker = new YamlWorker ("");
+            new YamlWorker ("");
             Test.fail_printf ("Should have thrown EMPTY error");
         } catch (Serialize.Error e) {
             if (e is Serialize.Error.EMPTY) {
