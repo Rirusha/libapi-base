@@ -88,6 +88,7 @@ if get_option('introspection')
       '--output', '@OUTPUT@',
       '--includedir', gee_girdir,
       '--includedir', serialize_build_dir,
+      '--includedir', local_vapi_dir,
       meson.current_build_dir() / api_base_gir_name,
     ],
     input: api_base_lib,

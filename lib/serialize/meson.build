@@ -27,8 +27,6 @@ serialize_dependencies = [
   libyaml_dep,
 ]
 
-serialize_vapi_sources = local_vapi_sources
-
 serialize_vala_sources = files(
   'collections/array.vala',
   'collections/dict.vala',
@@ -68,7 +66,6 @@ serialize_vala_sources = files(
 )
 
 serialize_sources = [
-  serialize_vapi_sources,
   serialize_vala_sources,
 ]
 
@@ -115,6 +112,7 @@ if get_option('introspection')
       '--shared-library', '@PLAINNAME@',
       '--output', '@OUTPUT@',
       '--includedir', gee_girdir,
+      '--includedir', local_vapi_dir,
       meson.current_build_dir() / serialize_gir_name,
     ],
     input: serialize_lib,

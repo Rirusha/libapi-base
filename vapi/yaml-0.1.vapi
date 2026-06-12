@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-[CCode (cheader_filename = "yaml.h")]
+[CCode (cheader_filename = "yaml.h", gir_namespace = "Yaml", gir_version = "0.1")]
 namespace Yaml {
 	/**
 	 * Get the library version as a string.
