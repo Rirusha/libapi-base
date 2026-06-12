@@ -21,13 +21,16 @@
 /**
  * Helper interface for chosing class to deserialize
  */
-[Version (since = "6.0", deprecated = true, deprecated_since = "7.8", replacement = "Serialize.JsonTypeFamily")]
-public interface Serialize.TypeFamily : Object {
+[Version (since = "7.8")]
+public interface Serialize.YamlTypeFamily : Object {
 
     /**
-     * Return object type to deserialize
+     * Return object type to deserialize from a YAML node.
      *
-     * @param node  Object node
+     * @param node  YAML value node
+     *
+     * @return  Type to deserialize
      */
-    public abstract Type match_type (Json.Node node);
+    [Version (since = "7.8")]
+    public abstract Type match_type_yaml (Serialize.YamlValue node);
 }

@@ -33,7 +33,7 @@ jobs:
       - name: Install libs on container
         run: |
           apt-get update
-          apt-get install -y git meson vala "pkgconfig(json-glib-1.0)" "gir(Json)=1.0" "pkgconfig(gee-0.8)" "gir(Gee)=0.8" "pkgconfig(gio-2.0)" "pkgconfig(libsoup-3.0)" "gir(Soup)=3.0" "pkgconfig(json-glib-1.0)" "gobject-introspection-devel" valadoc /usr/bin/gtkdoc-scan /usr/bin/abidiff
+          apt-get install -y git meson vala "pkgconfig(json-glib-1.0)" "gir(Json)=1.0" "pkgconfig(gee-0.8)" "gir(Gee)=0.8" "pkgconfig(gio-2.0)" "pkgconfig(libsoup-3.0)" "gir(Soup)=3.0" "pkgconfig(json-glib-1.0)" "gobject-introspection-devel" "pkgconfig(yaml-0.1)" valadoc /usr/bin/gtkdoc-scan /usr/bin/abidiff
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -46,7 +46,7 @@ jobs:
           .forgejo/check-abi $(git tag --merged HEAD --sort=-creatordate | head -n 1) $(git rev-parse HEAD)
 
       - name: Setup
-        run: meson setup _build -Ddocumentation=true -Drun_net_tests=false
+        run: meson setup _build -Ddocumentation=true
 
       - name: Build
         run: meson compile -C _build

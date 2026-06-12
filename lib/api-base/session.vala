@@ -155,7 +155,7 @@ public sealed class ApiBase.Session : Soup.Session {
     }
 
     /**
-     * Add preset to session. Headers presets can be used with {@link Request.add_preset_name}
+     * Add preset to session. Headers presets can be used with {@link Request.presets}
      */
     public void add_headers_preset (string preset_name, Header[] headers) {
         if (!presets_table.contains (preset_name)) {

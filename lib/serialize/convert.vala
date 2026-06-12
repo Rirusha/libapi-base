@@ -594,7 +594,7 @@ namespace Serialize.Convert {
     /**
      * Converts between formats
      */
-    [Version (since = "7.5")]
+    [Version (since = "7.5", deprecated = true, deprecated_since = "7.8", replacement = "convert_data")]
     public string data2data (
         string data,
         DictSupport from,
@@ -606,6 +606,41 @@ namespace Serialize.Convert {
         switch (to) {
             case JSON:
                 return JsonWorker.serialize (dict, settings);
+            case YAML:
+                return YamlWorker.serialize (dict, settings);
+            default:
+                assert_not_reached ();
+        }
+    }
+
+    /**
+     * Converts between formats
+     */
+    [Version (since = "7.8")]
+    public string convert_data (
+        string data,
+        ConvertableDataType from,
+        ConvertableDataType to,
+        Settings? settings = null
+    ) throws Serialize.Error {
+        Dict<Value?> dict;
+
+        switch (from) {
+            case JSON:
+                dict = JsonWorker.simple_deserialize (data, null, settings);
+                break;
+            case YAML:
+                dict = YamlWorker.simple_deserialize (data, null, settings);
+                break;
+            default:
+                assert_not_reached ();
+        }
+
+        switch (to) {
+            case JSON:
+                return JsonWorker.serialize (dict, settings);
+            case YAML:
+                return YamlWorker.serialize (dict, settings);
             default:
                 assert_not_reached ();
         }

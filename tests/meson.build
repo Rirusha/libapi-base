@@ -5,10 +5,15 @@ resources = gnome.compile_resources(
   c_name: 'test_data'
 )
 
+test_vala_args = [
+  '--vapidir', local_vapi_dir,
+]
+
 test('json',
   executable('jsoner-test',
     sources: ['jsoner-test.vala', resources],
     dependencies: [serialize_dependencies, serialize_lib_dep],
+    vala_args: test_vala_args,
   ),
 )
 
@@ -16,6 +21,7 @@ test('ini',
   executable('ini-test',
     sources: ['ini-test.vala', resources],
     dependencies: [serialize_dependencies, serialize_lib_dep],
+    vala_args: test_vala_args,
   ),
   env: [
     'SERIALIZE_UNKNOWN_PROPS=1',
@@ -23,13 +29,28 @@ test('ini',
   ],
 )
 
-if get_option('run_net_tests')
-  test('Test SoupWrapper',
-    executable('session-test',
-      sources: ['session-test.vala'],
-      dependencies: [api_base_dependencies, api_base_lib_dep],
-    ),
-    is_parallel: true,
-    timeout: 9000
-  )
-endif
+test('yaml',
+  executable('yaml-test',
+    sources: ['yaml-test.vala', resources],
+    dependencies: [serialize_dependencies, serialize_lib_dep],
+    vala_args: test_vala_args,
+  ),
+)
+
+test('convert',
+  executable('convert-test',
+    sources: ['convert-test.vala', resources],
+    dependencies: [serialize_dependencies, serialize_lib_dep],
+    vala_args: test_vala_args,
+  ),
+)
+
+test('session',
+  executable('session-test',
+    sources: ['session-test.vala'],
+    dependencies: [api_base_dependencies, api_base_lib_dep],
+    vala_args: test_vala_args,
+  ),
+  is_parallel: true,
+  timeout: 9000
+)

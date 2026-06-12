@@ -102,7 +102,7 @@ namespace Serialize.IniDeserializeSync {
             if (!props_data.has_key (kebabbed_member_name)) {
                 if (Environment.get_variable ("SERIALIZE_UNKNOWN_FIELDS") != null) {
                     warning (
-                        "The object '%s' does not have a property '%s' corresponding to the ini field '%s'",  // vala-lint=line-length
+                        "The object '%s' does not have a property '%s' corresponding to the ini field '%s'",
                         obj_type.name (),
                         kebabbed_member_name,
                         member_name

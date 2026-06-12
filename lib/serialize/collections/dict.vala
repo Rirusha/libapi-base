@@ -148,7 +148,7 @@ public class Serialize.Dict<T> : Gee.HashMap<string, T>, CollectionFactory<T> {
     }
 
     /**
-     * Set value to this. Value should hold {@link element_type}.
+     * Set value to this. Value should hold element_type.
      */
     [Version (since = "7.0")]
     public void set_value (string key, Value value) {

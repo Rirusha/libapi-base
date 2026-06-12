@@ -22,7 +22,7 @@
  * A helper class with convenient methods for fast de/serialization
  *
  * To change json property name, change property nick via Description attribure
- * Example: `custom_nick` will be `renamed` in json data. It works for any {@link Object},
+ * Example: `custom_nick` will be `renamed` in json data. It works for any {@link GLib.Object},
  * not only {@link DataObject}
  * {{{
  *   public class ValuesData : DataObject {
@@ -56,6 +56,17 @@ public abstract class Serialize.DataObject : Object {
     [Version (since = "7.0")]
     public string to_json (Serialize.Settings? settings = null) {
         return Jsoner.serialize (
+            this,
+            settings
+        );
+    }
+
+    /**
+     * Serialize object to yaml
+     */
+    [Version (since = "7.8")]
+    public string to_yaml (Serialize.Settings? settings = null) {
+        return YamlWorker.serialize (
             this,
             settings
         );

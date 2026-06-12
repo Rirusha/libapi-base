@@ -159,8 +159,8 @@ public sealed class Serialize.JsonWorker : Worker, ArraySupport, DictSupport, Va
     }
 
     /**
-     * {@link deserialize} without
-     * manual {@link Json} instance creation
+     * {@link DictSupport.deserialize} without
+     * manual {@link JsonWorker} instance creation
      *
      * @param json              Json string
      * @param sub_members       Sub members to 'steps'
@@ -181,10 +181,10 @@ public sealed class Serialize.JsonWorker : Worker, ArraySupport, DictSupport, Va
     }
 
     /**
-     * Object creation method from json 
-     * via {@link Json.deserialize_object}
+     * Object creation method from json
+     * via {@link Worker.deserialize_object}
      * Simple version for fast deserialization without
-     * manual {@link Json} instance creation
+     * manual {@link JsonWorker} instance creation
      *
      * @param json              Json string
      * @param sub_members       Sub members to 'steps'
@@ -205,10 +205,10 @@ public sealed class Serialize.JsonWorker : Worker, ArraySupport, DictSupport, Va
     }
 
     /**
-     * Array creation method from json 
-     * via {@link Json.deserialize_array}
+     * Array creation method from json
+     * via {@link ArraySupport.deserialize_array}
      * Simple version for fast deserialization without
-     * manual {@link Json} instance creation
+     * manual {@link JsonWorker} instance creation
      *
      * @param json                  Json string
      * @param sub_members           Sub members to 'steps'
@@ -232,10 +232,10 @@ public sealed class Serialize.JsonWorker : Worker, ArraySupport, DictSupport, Va
     }
 
     /**
-     * Dict creation method from json 
-     * via {@link Json.deserialize_dict}
+     * Dict creation method from json
+     * via {@link DictSupport.deserialize_dict}
      * Simple version for fast deserialization without
-     * manual {@link Json} instance creation
+     * manual {@link JsonWorker} instance creation
      *
      * @param json                  Json string
      * @param sub_members           Sub members to 'steps'

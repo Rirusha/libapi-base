@@ -17,29 +17,34 @@ serialize_deps_pkgs = [
   'json-glib-1.0',
   'gee-0.8',
   'gio-2.0',
+  'yaml-0.1',
 ]
 
 serialize_dependencies = [
   gee_dep,
   gio_dep,
   json_glib_dep,
+  libyaml_dep,
 ]
-
-serialize_vapi_sources = files(
-  
-)
 
 serialize_vala_sources = files(
   'collections/array.vala',
   'collections/dict.vala',
 
   'ini/deserialize.vala',
-  'ini/worker.vala',
   'ini/serialize.vala',
+  'ini/worker.vala',
 
   'json/deserialize.vala',
-  'json/worker.vala',
   'json/serialize.vala',
+  'json/type-family.vala',
+  'json/worker.vala',
+
+  'yaml/deserialize.vala',
+  'yaml/serialize.vala',
+  'yaml/type-family.vala',
+  'yaml/worker.vala',
+  'yaml/yaml.vala',
 
   'object-helpers/data-object.vala',
   'object-helpers/has-complex-collections.vala',
@@ -61,7 +66,6 @@ serialize_vala_sources = files(
 )
 
 serialize_sources = [
-  serialize_vapi_sources,
   serialize_vala_sources,
 ]
 
@@ -73,6 +77,9 @@ serialize_lib = library(
   vala_vapi: serialize_vapi_name,
   vala_gir: serialize_gir_name,
   version: libversion,
+  vala_args: [
+    '--vapidir', local_vapi_dir,
+  ],
   soversion: soversion,
   c_args: '-DG_LOG_DOMAIN="@0@"'.format(serialize_name),
   install: true,
@@ -105,6 +112,7 @@ if get_option('introspection')
       '--shared-library', '@PLAINNAME@',
       '--output', '@OUTPUT@',
       '--includedir', gee_girdir,
+      '--includedir', local_vapi_dir,
       meson.current_build_dir() / serialize_gir_name,
     ],
     input: serialize_lib,
