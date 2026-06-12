@@ -7,6 +7,10 @@
 %define minor_version 0
 %define gir_name ApiBase
 
+%define yaml_api_version 0.1
+%define yaml_name yaml
+%define yaml_gir_name Yaml
+
 %define sname libserialize
 %define gir_sname Serialize
 
@@ -133,6 +137,8 @@ Requires: %sname%api_version-gir = %EVR
 %_pkgconfigdir/%name-%api_version.pc
 %_vapidir/%name-%api_version.vapi
 %_vapidir/%name-%api_version.deps
+%_vapidir/%yaml_name-%yaml_api_version.vapi
+%_vapidir/%yaml_name-%yaml_api_version.deps
 %doc README.md
 
 %files -n %name%api_version-gir
@@ -140,6 +146,7 @@ Requires: %sname%api_version-gir = %EVR
 
 %files gir-devel
 %_girdir/%gir_name-%api_version.gir
+%_girdir/%yaml_gir_name-%yaml_api_version.gir
 
 %files -n %sname%api_version
 %_libdir/%sname-%api_version.so.*
