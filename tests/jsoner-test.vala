@@ -156,8 +156,8 @@ public class TestObjectAlbum2 : DataObject, HasComplexCollections {
     }
 }
 
-public class TestObjectFamilyParent: Object, TypeFamily {
-    public GLib.Type match_type (Json.Node node) {
+public class TestObjectFamilyParent: Object, JsonTypeFamily {
+    public GLib.Type match_type_json (Json.Node node) {
         switch (node.get_object ().get_string_member ("type")) {
             case "child":
                 return typeof (TestObjectFamilyChild);
