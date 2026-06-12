@@ -35,6 +35,7 @@ BuildRequires: pkgconfig(gio-2.0)
 BuildRequires: pkgconfig(libsoup-3.0)
 BuildRequires: gir(Soup) = 3.0
 BuildRequires: pkgconfig(json-glib-1.0)
+BuildRequires: pkgconfig(yaml-0.1)
 BuildRequires: gobject-introspection-devel
 
 %description
