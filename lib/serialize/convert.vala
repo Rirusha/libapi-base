@@ -635,7 +635,7 @@ namespace Serialize.Convert {
             default:
                 assert_not_reached ();
         }
-        
+
         switch (to) {
             case JSON:
                 return JsonWorker.serialize (dict, settings);
@@ -645,7 +645,6 @@ namespace Serialize.Convert {
                 assert_not_reached ();
         }
     }
-    
 
     [Version (since = "6.0")]
     public Datalist<T> dict2datalist<T> (Dict<T> hash_map) {
