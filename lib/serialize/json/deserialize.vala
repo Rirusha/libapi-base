@@ -34,7 +34,7 @@ namespace Serialize.JsonDeserializeSync {
         Json.Node? node = null
     ) throws Serialize.Error {
         var obj = Object.new (obj_type);
-  
+
         if (obj_type.is_a (typeof (JsonTypeFamily))) {
             var actual_type = ((JsonTypeFamily)obj).match_type_json (node ?? self.root);
             debug (
@@ -50,7 +50,7 @@ namespace Serialize.JsonDeserializeSync {
                 obj_type.name (), actual_type.name ()
             );
             obj = Object.new (actual_type);
-        }      
+        }
 
         deserialize_object_into (self, obj, node);
 
@@ -116,14 +116,15 @@ namespace Serialize.JsonDeserializeSync {
 
             if (!props_data.has_key (kebabbed_member_name)) {
                 if (Environment.get_variable ("SERIALIZE_UNKNOWN_FIELDS") != null) {
-                    warning (
-                        "The object '%s' does not have a property '%s' corresponding to the json field '%s' with type '%s':\n%s",  // vala-lint=line-length
-                        obj_type.name (),
-                        kebabbed_member_name,
-                        member_name,
-                        sub_node.get_node_type ().to_string (),
-                        Json.to_string (sub_node, true)
-                    );
+                        warning (
+                            "The object '%s' does not have a property '%s' " +
+                            "corresponding to the json field '%s' with type '%s':\n%s",
+                            obj_type.name (),
+                            kebabbed_member_name,
+                            member_name,
+                            sub_node.get_node_type ().to_string (),
+                            Json.to_string (sub_node, true)
+                        );
                 }
 
                 unknown_fields.add (member_name);

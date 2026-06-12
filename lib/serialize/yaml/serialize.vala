@@ -205,7 +205,9 @@ namespace Serialize.YamlSerializeSync {
                             emit_scalar (emitter, prop_val.get_enum ().to_string ());
                             break;
                         case STRING:
-                            var enum_str = Enum.get_nick_gtype (val_type, prop_val.get_enum (), settings.enum_serialize_case);
+                            var enum_str = Enum.get_nick_gtype (
+                                val_type, prop_val.get_enum (), settings.enum_serialize_case
+                            );
                             emit_scalar (emitter, enum_str);
                             break;
                     }

@@ -350,7 +350,9 @@ public sealed class Serialize.YamlWorker : Worker, ArraySupport, DictSupport, Va
                     var value = parse_node (ref parser, anchor_map);
                     if (value == null) {
                         //  Key without value — add with null value
-                        map.mapping_pairs.add (new Serialize.YamlPair (key, new Serialize.YamlValue (Yaml.NodeType.NO)));
+                        map.mapping_pairs.add (
+                            new Serialize.YamlPair (key, new Serialize.YamlValue (Yaml.NodeType.NO))
+                        );
                         break;
                     }
 

@@ -25,8 +25,12 @@
 public class Serialize.YamlValue : GLib.Object {
     public Yaml.NodeType node_type { get; construct; }
     public string? scalar { get; set; }
-    public Gee.ArrayList<Serialize.YamlValue> sequence_items { get; set; default = new Gee.ArrayList<Serialize.YamlValue> (); }
-    public Gee.ArrayList<Serialize.YamlPair> mapping_pairs { get; set; default = new Gee.ArrayList<Serialize.YamlPair> (); }
+    public Gee.ArrayList<Serialize.YamlValue> sequence_items {
+        get; set; default = new Gee.ArrayList<Serialize.YamlValue> ();
+    }
+    public Gee.ArrayList<Serialize.YamlPair> mapping_pairs {
+        get; set; default = new Gee.ArrayList<Serialize.YamlPair> ();
+    }
 
     public YamlValue (Yaml.NodeType node_type) {
         Object (node_type: node_type);
