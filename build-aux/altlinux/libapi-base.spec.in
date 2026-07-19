@@ -137,8 +137,6 @@ Requires: %sname%api_version-gir = %EVR
 %_pkgconfigdir/%name-%api_version.pc
 %_vapidir/%name-%api_version.vapi
 %_vapidir/%name-%api_version.deps
-%_vapidir/%yaml_name-%yaml_api_version.vapi
-%_vapidir/%yaml_name-%yaml_api_version.deps
 %doc README.md
 
 %files -n %name%api_version-gir
@@ -146,7 +144,6 @@ Requires: %sname%api_version-gir = %EVR
 
 %files gir-devel
 %_girdir/%gir_name-%api_version.gir
-%_girdir/%yaml_gir_name-%yaml_api_version.gir
 
 %files -n %sname%api_version
 %_libdir/%sname-%api_version.so.*
@@ -157,9 +154,13 @@ Requires: %sname%api_version-gir = %EVR
 %_pkgconfigdir/%sname-%api_version.pc
 %_vapidir/%sname-%api_version.vapi
 %_vapidir/%sname-%api_version.deps
+%_vapidir/%yaml_name-%yaml_api_version.vapi
+%_vapidir/%yaml_name-%yaml_api_version.deps
 
 %files -n %sname%api_version-gir
 %_typelibdir/%gir_sname-%api_version.typelib
+%_typelibdir/%yaml_gir_name-%yaml_api_version.typelib
 
 %files -n %sname-gir-devel
 %_girdir/%gir_sname-%api_version.gir
+%_girdir/%yaml_gir_name-%yaml_api_version.gir
