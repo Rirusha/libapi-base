@@ -168,12 +168,14 @@ Requires: %sname%api_version-gir = %EVR
 
 %changelog
 * Sat Jun 13 2026 Vladimir Romanov <rirusha@altlinux.org> 7.8-alt1
+- New version: 7.8.
 - Added yaml support.
 - Class TypeFamily now JsonTypeFamily for json and YamlTypeFamily for yaml.
 - Full release notes:
   https://altlinux.space/rirusha/libapi-base/releases/tag/v7.8
 
 * Tue Jun 09 2026 Vladimir Romanov <rirusha@altlinux.org> 7.7-alt1
+- New version: 7.7.
 - Added comments to generated vapi file.
 - Full release notes:
   https://altlinux.space/rirusha/libapi-base/releases/tag/v7.7
