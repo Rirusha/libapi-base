@@ -61,4 +61,11 @@ public struct ApiBase.Content {
             }
     }
 
+    /**
+     * Set raw content
+     */
+    [Version (since = "7.10")]
+    public void set_raw (string content) {
+        this.content = content;
+    }
 }
