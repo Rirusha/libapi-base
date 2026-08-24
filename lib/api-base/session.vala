@@ -449,4 +449,66 @@ public sealed class ApiBase.Session : Soup.Session {
 
         return yield base.websocket_connect_async (message, origin, protocols, priority, cancellable);
     }
+
+    /**
+     * Combination of {@link send_and_read} and {@link Serialize.Worker.deserialize_object}.
+     */
+    [Version (since = "7.10")]
+    public T simple_send_and_read_object<T> (
+        Request request,
+        string[]? sub_members = null,
+        Serialize.Settings? settings = null,
+        Cancellable? cancellable = null
+    ) throws BadStatusCodeError, IOError, Serialize.Error, Error {
+        var bytes = send_and_read (request, cancellable);
+        var worker = new Serialize.JsonWorker.from_bytes (bytes, sub_members, settings);
+        return worker.deserialize_object<T> ();
+    }
+
+    /**
+     * Asynchronious version of {@link simple_send_and_read_object}.
+     */
+    [Version (since = "7.10")]
+    public async T simple_send_and_read_object_async<T> (
+        Request request,
+        string[]? sub_members = null,
+        Serialize.Settings? settings = null,
+        int io_priority = Priority.DEFAULT,
+        Cancellable? cancellable = null
+    ) throws BadStatusCodeError, IOError, Serialize.Error, Error {
+        var bytes = yield send_and_read_async (request, io_priority, cancellable);
+        var worker = new Serialize.JsonWorker.from_bytes (bytes, sub_members, settings);
+        return yield worker.deserialize_object_async<T> ();
+    }
+
+    /**
+     * Combination of {@link send_and_read} and {@link Serialize.ArraySupport.deserialize_array}.
+     */
+    [Version (since = "7.10")]
+    public T simple_send_and_read_array<T> (
+        Request request,
+        string[]? sub_members = null,
+        Serialize.Settings? settings = null,
+        Cancellable? cancellable = null
+    ) throws BadStatusCodeError, IOError, Serialize.Error, Error {
+        var bytes = send_and_read (request, cancellable);
+        var worker = new Serialize.JsonWorker.from_bytes (bytes, sub_members, settings);
+        return worker.deserialize_array<T> ();
+    }
+
+    /**
+     * Asynchronious version of {@link simple_send_and_read_array}.
+     */
+    [Version (since = "7.10")]
+    public async T simple_send_and_read_array_async<T> (
+        Request request,
+        string[]? sub_members = null,
+        Serialize.Settings? settings = null,
+        int io_priority = Priority.DEFAULT,
+        Cancellable? cancellable = null
+    ) throws BadStatusCodeError, IOError, Serialize.Error, Error {
+        var bytes = yield send_and_read_async (request, io_priority, cancellable);
+        var worker = new Serialize.JsonWorker.from_bytes (bytes, sub_members, settings);
+        return yield worker.deserialize_array_async<T> ();
+    }
 }
