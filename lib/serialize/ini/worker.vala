@@ -20,7 +20,7 @@
 /**
  * Ini helper for de/serialization
  */
-[Version (since = "7.5")]
+[Version (since = "7.5", deprecated = true, deprecated_since = "7.11")]
 public sealed class Serialize.IniWorker : Worker {
 
     internal KeyFile keyfile { get; private set; }
