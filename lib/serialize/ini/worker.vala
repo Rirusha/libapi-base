@@ -34,7 +34,7 @@ public sealed class Serialize.IniWorker : Worker {
      *
      * @throws Serialize.Error    Error with ini or sub_members
      */
-    [Version (since = "7.5")]
+    [Version (since = "7.5", deprecated = true, deprecated_since = "7.11")]
     public IniWorker (
         string ini_string,
         Serialize.Settings? settings = null
@@ -78,7 +78,7 @@ public sealed class Serialize.IniWorker : Worker {
      *
      * @throws Serialize.Error    Error with ini or sub_members
      */
-    [Version (since = "7.5")]
+    [Version (since = "7.5", deprecated = true, deprecated_since = "7.11")]
     public IniWorker.from_bytes (
         Bytes bytes,
         Serialize.Settings? settings = null
@@ -99,7 +99,7 @@ public sealed class Serialize.IniWorker : Worker {
      *
      * @throws Serialize.Error    Error with ini or sub_members
      */
-    [Version (since = "7.5")]
+    [Version (since = "7.5", deprecated = true, deprecated_since = "7.11")]
     public IniWorker.from_data (
         owned uint8[] data,
         Serialize.Settings? settings = null
@@ -121,7 +121,7 @@ public sealed class Serialize.IniWorker : Worker {
      *
      * @return                  Ini string
      */
-    [Version (since = "7.5")]
+    [Version (since = "7.5", deprecated = true, deprecated_since = "7.11")]
     public static inline string serialize (
         Object obj,
         Serialize.Settings? settings = null
@@ -142,7 +142,7 @@ public sealed class Serialize.IniWorker : Worker {
      *
      * @throws Serialize.Error        Error with ini
      */
-    [Version (since = "7.5")]
+    [Version (since = "7.5", deprecated = true, deprecated_since = "7.11")]
     public static inline T simple_from_ini<T> (
         string ini,
         Serialize.Settings? settings = null
@@ -154,7 +154,7 @@ public sealed class Serialize.IniWorker : Worker {
     /**
      * {@inheritDoc}
      */
-    [Version (since = "7.5")]
+    [Version (since = "7.5", deprecated = true, deprecated_since = "7.11")]
     public override inline Object deserialize_object_by_type (
         GLib.Type obj_type
     ) throws Serialize.Error {
@@ -164,7 +164,7 @@ public sealed class Serialize.IniWorker : Worker {
     /**
      * {@inheritDoc}
      */
-    [Version (since = "7.5")]
+    [Version (since = "7.5", deprecated = true, deprecated_since = "7.11")]
     public override inline void deserialize_object_into (
         Object obj
     ) throws Serialize.Error {
@@ -174,7 +174,7 @@ public sealed class Serialize.IniWorker : Worker {
     /**
      * Asynchronous version of method {@link serialize}
      */
-    [Version (since = "7.5")]
+    [Version (since = "7.5", deprecated = true, deprecated_since = "7.11")]
     public static inline async string serialize_async (
         Object obj,
         Serialize.Settings? settings = null
@@ -201,7 +201,7 @@ public sealed class Serialize.IniWorker : Worker {
      *
      * @throws Serialize.Error        Error with ini
      */
-    [Version (since = "7.5")]
+    [Version (since = "7.5", deprecated = true, deprecated_since = "7.11")]
     public async static inline T simple_from_ini_async<T> (
         string ini,
         Serialize.Settings? settings = null
