@@ -40,12 +40,6 @@ serialize_vala_sources = files(
   'json/type-family.vala',
   'json/worker.vala',
 
-  'yaml/deserialize.vala',
-  'yaml/serialize.vala',
-  'yaml/type-family.vala',
-  'yaml/worker.vala',
-  'yaml/yaml.vala',
-
   'object-helpers/data-object.vala',
   'object-helpers/has-complex-collections.vala',
   'object-helpers/has-fallback.vala',
@@ -55,6 +49,12 @@ serialize_vala_sources = files(
   'worker/dict-support.vala',
   'worker/value-support.vala',
   'worker/worker.vala',
+
+  'yaml/deserialize.vala',
+  'yaml/serialize.vala',
+  'yaml/type-family.vala',
+  'yaml/worker.vala',
+  'yaml/yaml.vala',
 
   'collection-factory.vala',
   'convert.vala',
