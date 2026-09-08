@@ -1,20 +1,20 @@
 /*
  * Copyright (C) 2026 Vladimir Romanov <rirusha@altlinux.org>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see
  * <https://www.gnu.org/licenses/gpl-3.0-standalone.html>.
- * 
+ *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
@@ -48,6 +48,12 @@ public class SimpleObject : DataObject {
     public string string_value { get; set; }
     public int int_value { get; set; }
     public bool bool_value { get; set; }
+}
+
+public class CustomData : DataObject {
+    // Property with custom nick
+    [Description (nick="renamedVal")]
+    public string custom_nick_val { get; set; }
 }
 
 public class TestObjectArrayString : DataObject {
@@ -729,6 +735,33 @@ public int main (string[] args) {
         string result = YamlWorker.serialize (test_object, new Serialize.Settings ());
         if (result != expectation) {
             Test.fail_printf (result + " != " + expectation);
+        }
+    });
+
+    Test.add_func ("/yaml/deserialize/custom", () => {
+        var test_object = new CustomData () { custom_nick_val = "b" };
+        string expectation = string.joinv ("\n", {
+            "renamedVal: b",
+            "",
+        });
+        string result = YamlWorker.serialize (test_object, new Serialize.Settings ());
+        if (result != expectation) {
+            Test.fail_printf (result + " != " + expectation);
+        }
+    });
+
+    Test.add_func ("/yaml/serialize/custom", () => {
+        string yaml = string.joinv ("\n", {
+            "renamedVal: b",
+            "",
+        });
+        try {
+            var obj = YamlWorker.simple_from_yaml<CustomData> (yaml);
+            if (obj.custom_nick_val != "b") {
+                Test.fail_printf (obj.custom_nick_val + " != " + "b");
+            }
+        } catch (Serialize.Error e) {
+            Test.failed ();
         }
     });
 

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2026 Vladimir Romanov <rirusha@altlinux.org>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -81,12 +81,12 @@ namespace Serialize.YamlDeserializeSync {
                 continue;
             }
 
-            var prop_name = property.get_nick ();
+            var prop_id = property.get_nick ();
 
-            if (props_data.has_key (prop_name)) {
-                warning ("Detected property collision: %s in '%s' object", prop_name, obj_type.name ());
+            if (props_data.has_key (prop_id)) {
+                warning ("Detected property collision: %s in '%s' object", prop_id, obj_type.name ());
             }
-            props_data[prop_name] = property;
+            props_data[prop_id] = property;
         }
 
         var unknown_fields = new Array<string> ();
@@ -105,14 +105,34 @@ namespace Serialize.YamlDeserializeSync {
             }
         }
 
-        if (Environment.get_variable ("SERIALIZE_UNKNOWN_PROPS") != null) {
-            var kebabbed_members = new Gee.HashSet<string> ();
-            foreach (var member_name in member_names) {
-                kebabbed_members.add (Convert.cany2kebab (member_name, self.settings.names_case));
+        var transformed_members = new Dict<string> ();
+        foreach (var member_name in member_names) {
+            if (props_data.has_key (member_name)) {
+                transformed_members[member_name] = member_name;
+                continue;
             }
 
+            var kebabbed_name = Convert.cany2kebab (member_name, self.settings.names_case);
+            if (props_data.has_key (kebabbed_name)) {
+                transformed_members[member_name] = kebabbed_name;
+                continue;
+            }
+
+            if (Environment.get_variable ("SERIALIZE_UNKNOWN_FIELDS") != null) {
+                warning (
+                    "The object '%s' does not have a property '%s' corresponding to the yaml field '%s'",
+                    obj_type.name (),
+                    kebabbed_name,
+                    member_name
+                );
+            }
+
+            unknown_fields.add (member_name);
+        }
+
+        if (Environment.get_variable ("SERIALIZE_UNKNOWN_PROPS") != null) {
             foreach (var prop_name in props_data.keys) {
-                if (!(prop_name in kebabbed_members) && prop_name != HasFallback.FALLBACK_PROPERTY_NAME) {
+                if (!(prop_name in transformed_members.values) && prop_name != HasFallback.FALLBACK_PROPERTY_NAME) {
                     warning (
                         "The yaml object does not have field '%s' that present in '%s' as property",
                         prop_name,
@@ -123,23 +143,11 @@ namespace Serialize.YamlDeserializeSync {
         }
 
         foreach (var member_name in member_names) {
-            var kebabbed_member_name = Convert.cany2kebab (member_name, self.settings.names_case);
-
-            if (!props_data.has_key (kebabbed_member_name)) {
-                if (Environment.get_variable ("SERIALIZE_UNKNOWN_FIELDS") != null) {
-                    warning (
-                        "The object '%s' does not have a property '%s' corresponding to the yaml field '%s'",
-                        obj_type.name (),
-                        kebabbed_member_name,
-                        member_name
-                    );
-                }
-
-                unknown_fields.add (member_name);
+            if (!props_data.has_key (transformed_members[member_name])) {
                 continue;
             }
 
-            var property = props_data[kebabbed_member_name];
+            var property = props_data[transformed_members[member_name]];
             var value_node = member_values[member_name];
 
             if (value_node == null) {
