@@ -41,6 +41,10 @@ public class Serialize.Dict<T> : Gee.HashMap<string, T>, CollectionFactory<T> {
         ((Dict<Object>) this).set (key, obj);
     }
 
+    internal inline void set_null (string key) {
+        @set (key, null);
+    }
+
     //  value_type must be an {@link Array} type
     internal inline void set_array (string key, Array array) {
         ((Dict<Array>) this).set (key, array);

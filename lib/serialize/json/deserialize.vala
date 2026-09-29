@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2025-2026 Vladimir Romanov <rirusha@altlinux.org>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -80,58 +80,65 @@ namespace Serialize.JsonDeserializeSync {
                 continue;
             }
 
-            var prop_name = property.get_nick ();
+            var prop_id = property.get_nick ();
 
-            if (props_data.has_key (prop_name)) {
-                warning ("Detected property collision: %s in '%s' object", prop_name, obj_type.name ());
+            if (props_data.has_key (prop_id)) {
+                warning ("Detected property collision: %s in '%s' object", prop_id, obj_type.name ());
             }
-            props_data[prop_name] = property;
+            props_data[prop_id] = property;
         }
 
         var unknown_fields = new Array<string> ();
 
-        if (Environment.get_variable ("SERIALIZE_UNKNOWN_PROPS") != null) {
-            var members = node.get_object ().get_members ();
-
-            var kebabbed_members = new Gee.HashSet<string> ();
-            foreach (var member_name in members) {
-                kebabbed_members.add (Convert.cany2kebab (member_name, self.settings.names_case));
+        var members = node.get_object ().get_members ();
+        var transformed_members = new Dict<string> ();
+        foreach (var member_name in members) {
+            if (props_data.has_key (member_name)) {
+                transformed_members[member_name] = member_name;
+                continue;
             }
 
-            foreach (var prop_name in props_data.keys) {
-                if (!(prop_name in kebabbed_members) && prop_name != HasFallback.FALLBACK_PROPERTY_NAME) {
+            var kebabbed_name = Convert.cany2kebab (member_name, self.settings.names_case);
+            if (props_data.has_key (kebabbed_name)) {
+                transformed_members[member_name] = kebabbed_name;
+                continue;
+            }
+
+            if (Environment.get_variable ("SERIALIZE_UNKNOWN_FIELDS") != null) {
+                warning (
+                    "The object '%s' does not have a property '%s' " +
+                    "corresponding to the json field '%s' with type '%s':\n%s",
+                    obj_type.name (),
+                    kebabbed_name,
+                    member_name,
+                    node.get_object ().get_member (member_name),
+                    Json.to_string (node.get_object ().get_member (member_name), true)
+                );
+            }
+
+            unknown_fields.add (member_name);
+        }
+
+        if (Environment.get_variable ("SERIALIZE_UNKNOWN_PROPS") != null) {
+            foreach (var prop_id in props_data.keys) {
+                if (!(prop_id in transformed_members.values) && prop_id != HasFallback.FALLBACK_PROPERTY_NAME) {
                     warning (
                         "The json object does not have field '%s' that present in '%s' as property",
-                        prop_name,
+                        prop_id,
                         obj_type.name ()
                     );
                 }
             }
         }
 
-        foreach (var member_name in node.get_object ().get_members ()) {
-            var kebabbed_member_name = Convert.cany2kebab (member_name, self.settings.names_case);
-
+        foreach (var member_name in members) {
             var sub_node = node.get_object ().get_member (member_name);
 
-            if (!props_data.has_key (kebabbed_member_name)) {
-                if (Environment.get_variable ("SERIALIZE_UNKNOWN_FIELDS") != null) {
-                        warning (
-                            "The object '%s' does not have a property '%s' " +
-                            "corresponding to the json field '%s' with type '%s':\n%s",
-                            obj_type.name (),
-                            kebabbed_member_name,
-                            member_name,
-                            sub_node.get_node_type ().to_string (),
-                            Json.to_string (sub_node, true)
-                        );
-                }
-
-                unknown_fields.add (member_name);
+            if (!props_data.has_key (transformed_members[member_name])) {
                 continue;
             }
 
-            var property = props_data[kebabbed_member_name];
+            var property = props_data[transformed_members[member_name]];
 
             Type prop_type = property.value_type;
 
@@ -173,6 +180,19 @@ namespace Serialize.JsonDeserializeSync {
                         obj.set_property (
                             property.name,
                             array
+                        );
+
+                    } else if (prop_type.is_a (typeof (Dict))) {
+                        var dict_val = Value (prop_type);
+                        obj.get_property (property.name, ref dict_val);
+                        Dict dict = (Dict) dict_val.get_object ();
+
+                        assert (dict != null);
+
+                        deserialize_dict_into (self, dict, {}, sub_node);
+                        obj.set_property (
+                            property.name,
+                            dict
                         );
 
                     } else {
@@ -369,9 +389,38 @@ namespace Serialize.JsonDeserializeSync {
             node = self.root;
         }
 
+        dict.clear ();
+
+        if (node.get_node_type () == Json.NodeType.ARRAY && dict.value_type.is_object ()) {
+            foreach (var sub_node in node.get_array ().get_elements ()) {
+                if (sub_node.get_node_type () == Json.NodeType.VALUE) {
+                    var key = deserialize_value (self, sub_node);
+                    if (key.holds (typeof (string))) {
+                        dict.set_null (key.get_string ());
+                    }
+                    continue;
+                }
+
+                if (sub_node.get_node_type () != Json.NodeType.OBJECT) {
+                    continue;
+                }
+
+                var jobject = sub_node.get_object ();
+                foreach (var member_name in jobject.get_members ()) {
+                    try {
+                        dict.set_object (member_name, deserialize_object_by_type (
+                            self,
+                            dict.value_type,
+                            jobject.get_member (member_name)
+                        ));
+                    } catch (Serialize.Error e) {}
+                }
+            }
+            return;
+        }
+
         check_node_type (node, Json.NodeType.OBJECT);
 
-        dict.clear ();
         var jobject = node.get_object ();
 
         if (dict.value_type == typeof (Array)) {

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2026 Vladimir Romanov <rirusha@altlinux.org>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -127,7 +127,7 @@ namespace Serialize.YamlSerializeSync {
             }
 
             var prop_val = Value (property.value_type);
-            var prop_name = property.get_nick ();
+            var prop_id = property.get_nick ();
             obj.get_property (property.name, ref prop_val);
 
             if (settings.ignore_default && property.value_defaults (prop_val)) {
@@ -135,7 +135,11 @@ namespace Serialize.YamlSerializeSync {
             }
 
             //  Emit key scalar
-            emit_scalar (emitter, Convert.kebab2any (prop_name, settings.names_case));
+            if (prop_id == property.name) {
+                emit_scalar (emitter, Convert.kebab2any (prop_id, settings.names_case));
+            } else {
+                emit_scalar (emitter, prop_id);
+            }
 
             //  Emit value
             emit_value (emitter, prop_val, settings);

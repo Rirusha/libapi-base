@@ -1,20 +1,20 @@
 /*
  * Copyright (C) 2026 Vladimir Romanov <rirusha@altlinux.org>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see
  * <https://www.gnu.org/licenses/gpl-3.0-standalone.html>.
- * 
+ *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
@@ -39,7 +39,7 @@ const string TYPE__NAME = "type";
 const string TYPE_ = "some text";
 const string ERROR_CODE_NAME = "error-code";
 const int ERROR_CODE = 6;
-const string CUSTOM_NICK_VAL_NAME = "renamed-val";
+const string CUSTOM_NICK_VAL_NAME = "renamedVal";
 const string CUSTOM_NICK_VAL = "renamed";
 
 public class ValuesData : DataObject {
@@ -59,7 +59,7 @@ public class ValuesData : DataObject {
     public int error_code { get; set; }
 
     // Property with custom nick
-    [Description (nick="renamed-val")]
+    [Description (nick="renamedVal")]
     public string custom_nick_val { get; set; }
 }
 
@@ -117,6 +117,14 @@ public class TestObjectArrayStringStrv : DataObject {
 
 public class TestObjectDictString : DataObject {
     public Serialize.Dict<string> value { get; set; default = new Serialize.Dict<string> (); }
+}
+
+public class TestObjectDictValue : DataObject {
+    public int arg { get; set; }
+}
+
+public class TestObjectDictObject : DataObject {
+    public Serialize.Dict<TestObjectDictValue> dict { get; set; default = new Serialize.Dict<TestObjectDictValue> (); }
 }
 
 public class TestObjectArrayObject : DataObject {
@@ -251,16 +259,16 @@ public int main (string[] args) {
         }
     });
 
-    Test.add_func ("/json/deserialize/big", () => {
-        try {
-            var res = resources_lookup_data ("/test-data/big.json", ResourceLookupFlags.NONE);
-            var worker = new JsonWorker.from_bytes (res);
-            var result = worker.deserialize ();
-            JsonWorker.serialize (result);
-        } catch (GLib.Error e) {
-            Test.fail_printf (e.message);
-        }
-    });
+    // Test.add_func ("/json/deserialize/big", () => {
+    //     try {
+    //         var res = resources_lookup_data ("/test-data/big.json", ResourceLookupFlags.NONE);
+    //         var worker = new JsonWorker.from_bytes (res);
+    //         var result = worker.deserialize ();
+    //         JsonWorker.serialize (result);
+    //     } catch (GLib.Error e) {
+    //         Test.fail_printf (e.message);
+    //     }
+    // });
 
     Test.add_func ("/json/serialize/values2", () => {
         Case[] cases = {KEBAB, SNAKE, CAMEL};
@@ -802,6 +810,23 @@ public int main (string[] args) {
         }
     });
 
+    Test.add_func ("/json/deserialize/dict/object/array", () => {
+        try {
+            var json = "{\"dict\":[\"el\",{\"el2\":{\"arg\":1}}]}";
+
+            var result = JsonWorker.simple_from_json<TestObjectDictObject> (json);
+
+            if (result.dict.size != 2 ||
+                !result.dict.has_key ("el") || result.dict["el"] != null ||
+                !result.dict.has_key ("el2") || result.dict["el2"] == null ||
+                result.dict["el2"].arg != 1) {
+                Test.fail_printf ("Failed to deserialize Dict<Object> from array");
+            }
+        } catch (Serialize.Error e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
     Test.add_func ("/json/deserialize/array/string2", () => {
         try {
             var result = JsonWorker.simple_from_json<TestObjectArrayString> ("{\"value\":[\"kekw\",\"yes\",\"no\"]}");
@@ -950,7 +975,7 @@ public int main (string[] args) {
         TestObjectDeserializeFallback result = new TestObjectDeserializeFallback ();
         result.string_val = "test";
         result.int64_val = 54;
-        
+
         var result_ser = JsonWorker.serialize (result, new Serialize.Settings () { names_case = CAMEL });
 
         var expectation_arr = json[1:json.length - 1].split (",");

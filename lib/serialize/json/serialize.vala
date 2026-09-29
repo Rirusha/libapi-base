@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2025-2026 Vladimir Romanov <rirusha@altlinux.org>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -111,15 +111,19 @@ namespace Serialize.JsonSerializeSync {
             }
 
             var prop_val = Value (property.value_type);
-            var prop_name = property.get_nick ();
+            var prop_id = property.get_nick ();
             obj.get_property (property.name, ref prop_val);
 
             if (settings.ignore_default && property.value_defaults (prop_val)) {
                 continue;
-
             }
 
-            builder.set_member_name (Convert.kebab2any (prop_name, settings.names_case));
+            if (prop_id == property.name) {
+                builder.set_member_name (Convert.kebab2any (prop_id, settings.names_case));
+            } else {
+                builder.set_member_name (prop_id);
+            }
+
             serialize_value (builder, prop_val, settings);
         }
 
