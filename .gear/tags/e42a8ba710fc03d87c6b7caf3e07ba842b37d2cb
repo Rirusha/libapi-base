@@ -1,0 +1,10 @@
+object b98bffff8d9f349797805ae009681d62d8ccd5ee
+type commit
+tag v7.11
+tagger Gitea <gitea@fake.local> 1790697039 +0300
+
+Release 7.11
+
+- Property nick now taken as is without any conversion.
+- Add support for map without objects.
+- Finished `ini` deprecation`
