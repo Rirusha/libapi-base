@@ -200,6 +200,19 @@ namespace Serialize.YamlDeserializeSync {
                             array
                         );
 
+                    } else if (prop_type.is_a (typeof (Dict))) {
+                        var dict_val = Value (prop_type);
+                        obj.get_property (property.name, ref dict_val);
+                        Dict dict = (Dict) dict_val.get_object ();
+
+                        assert (dict != null);
+
+                        deserialize_dict_into (self, dict, {}, value_node);
+                        obj.set_property (
+                            property.name,
+                            dict
+                        );
+
                     } else {
                         warning (
                             "Can't deserialize sequence '%s' of '%s::%s'",
@@ -500,9 +513,39 @@ namespace Serialize.YamlDeserializeSync {
 
         self._deserialize_visited.add (use_node);
 
-        check_node_type (use_node, Yaml.NodeType.MAPPING);
-
         dict.clear ();
+
+        if (use_node.node_type == Yaml.NodeType.SEQUENCE && dict.value_type.is_object ()) {
+            foreach (var item in use_node.sequence_items) {
+                if (item.node_type == Yaml.NodeType.SCALAR) {
+                    dict.set_null (item.scalar);
+                    continue;
+                }
+
+                if (item.node_type != Yaml.NodeType.MAPPING) {
+                    continue;
+                }
+
+                foreach (var pair in item.mapping_pairs) {
+                    if (pair.key.node_type != Yaml.NodeType.SCALAR || pair.value == null) {
+                        continue;
+                    }
+
+                    try {
+                        dict.set_object (pair.key.scalar, deserialize_object_by_type (
+                            self,
+                            dict.value_type,
+                            pair.value
+                        ));
+                    } catch (Serialize.Error e) {}
+                }
+            }
+
+            self._deserialize_visited.remove (use_node);
+            return;
+        }
+
+        check_node_type (use_node, Yaml.NodeType.MAPPING);
 
         if (dict.value_type == typeof (Array)) {
             var collection_factory = collection_hierarchy[0];

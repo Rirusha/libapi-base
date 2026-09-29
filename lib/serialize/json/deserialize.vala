@@ -182,6 +182,19 @@ namespace Serialize.JsonDeserializeSync {
                             array
                         );
 
+                    } else if (prop_type.is_a (typeof (Dict))) {
+                        var dict_val = Value (prop_type);
+                        obj.get_property (property.name, ref dict_val);
+                        Dict dict = (Dict) dict_val.get_object ();
+
+                        assert (dict != null);
+
+                        deserialize_dict_into (self, dict, {}, sub_node);
+                        obj.set_property (
+                            property.name,
+                            dict
+                        );
+
                     } else {
                         warning (
                             "Can't deserialize array '%s' of '%s::%s'",
@@ -376,9 +389,38 @@ namespace Serialize.JsonDeserializeSync {
             node = self.root;
         }
 
+        dict.clear ();
+
+        if (node.get_node_type () == Json.NodeType.ARRAY && dict.value_type.is_object ()) {
+            foreach (var sub_node in node.get_array ().get_elements ()) {
+                if (sub_node.get_node_type () == Json.NodeType.VALUE) {
+                    var key = deserialize_value (self, sub_node);
+                    if (key.holds (typeof (string))) {
+                        dict.set_null (key.get_string ());
+                    }
+                    continue;
+                }
+
+                if (sub_node.get_node_type () != Json.NodeType.OBJECT) {
+                    continue;
+                }
+
+                var jobject = sub_node.get_object ();
+                foreach (var member_name in jobject.get_members ()) {
+                    try {
+                        dict.set_object (member_name, deserialize_object_by_type (
+                            self,
+                            dict.value_type,
+                            jobject.get_member (member_name)
+                        ));
+                    } catch (Serialize.Error e) {}
+                }
+            }
+            return;
+        }
+
         check_node_type (node, Json.NodeType.OBJECT);
 
-        dict.clear ();
         var jobject = node.get_object ();
 
         if (dict.value_type == typeof (Array)) {

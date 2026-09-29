@@ -119,6 +119,14 @@ public class TestObjectDictString : DataObject {
     public Serialize.Dict<string> value { get; set; default = new Serialize.Dict<string> (); }
 }
 
+public class TestObjectDictValue : DataObject {
+    public int arg { get; set; }
+}
+
+public class TestObjectDictObject : DataObject {
+    public Serialize.Dict<TestObjectDictValue> dict { get; set; default = new Serialize.Dict<TestObjectDictValue> (); }
+}
+
 public class TestObjectArrayObject : DataObject {
     public Serialize.Array<SimpleObject> value { get; set; default = new Serialize.Array<SimpleObject> (); }
 }
@@ -796,6 +804,23 @@ public int main (string[] args) {
 
             if (result.value["kekw"] != "yes" || result.value["kek"] != "no") {
                 Test.fail_printf ("");
+            }
+        } catch (Serialize.Error e) {
+            Test.fail_printf (e.domain.to_string () + ": " + e.message);
+        }
+    });
+
+    Test.add_func ("/json/deserialize/dict/object/array", () => {
+        try {
+            var json = "{\"dict\":[\"el\",{\"el2\":{\"arg\":1}}]}";
+
+            var result = JsonWorker.simple_from_json<TestObjectDictObject> (json);
+
+            if (result.dict.size != 2 ||
+                !result.dict.has_key ("el") || result.dict["el"] != null ||
+                !result.dict.has_key ("el2") || result.dict["el2"] == null ||
+                result.dict["el2"].arg != 1) {
+                Test.fail_printf ("Failed to deserialize Dict<Object> from array");
             }
         } catch (Serialize.Error e) {
             Test.fail_printf (e.domain.to_string () + ": " + e.message);
